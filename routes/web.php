@@ -20,3 +20,14 @@ Route::get('/', [DashboardController::class, 'index'])
 */
 
 Route::resource('categorias', CategoriaController::class);
+
+/*
+|--------------------------------------------------------------------------
+| Productos
+|--------------------------------------------------------------------------
+*/
+
+
+use App\Http\Controllers\ProductoController;
+
+Route::resource('productos', ProductoController::class);
