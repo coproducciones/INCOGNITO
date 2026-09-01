@@ -6,9 +6,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class Categoria extends Model
 {
-    protected $fillable = ['nombre', 'descripcion'];
+    protected $table = 'categorias';
 
-    // Relación: una categoría tiene muchos productos
+    protected $fillable = [
+        'nombre',
+        'descripcion',
+    ];
+
+    /**
+     * Una categoría tiene muchos productos.
+     */
     public function productos()
     {
         return $this->hasMany(Producto::class);

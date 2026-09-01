@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', 'Categorías')
+
 @section('content')
 
 <div class="p-6">
@@ -9,14 +11,14 @@
 
         <div>
             <h1 class="text-white font-black text-xl uppercase tracking-widest">
-                Categorías
+                CATEGORÍAS
             </h1>
 
             <p
                 class="text-xs uppercase tracking-widest mt-1"
                 style="color:rgba(255,255,255,0.4);"
             >
-                Gestión de categorías
+                GESTIÓN DE CATEGORÍAS
             </p>
         </div>
 
@@ -30,7 +32,7 @@
                 font-size:11px;
             "
         >
-            + Nueva categoría
+            + NUEVA CATEGORÍA
         </a>
 
     </div>
@@ -54,7 +56,7 @@
     @endif
 
 
-    {{-- MENSAJES DE ERROR --}}
+    {{-- MENSAJE DE ERROR --}}
     @if(session('error'))
 
         <div
@@ -82,179 +84,205 @@
         "
     >
 
-        <table class="w-full">
+        <div class="overflow-x-auto">
 
-            {{-- CABECERA --}}
-            <thead>
+            <table class="w-full">
 
-                <tr
-                    style="
-                        border-bottom:1px solid rgba(255,255,255,0.08);
-                    "
-                >
-
-                    <th
-                        class="px-6 py-4 text-left font-black uppercase tracking-widest"
-                        style="
-                            color:rgba(255,255,255,0.4);
-                            font-size:10px;
-                        "
-                    >
-                        ID
-                    </th>
-
-                    <th
-                        class="px-6 py-4 text-left font-black uppercase tracking-widest"
-                        style="
-                            color:rgba(255,255,255,0.4);
-                            font-size:10px;
-                        "
-                    >
-                        Nombre
-                    </th>
-
-                    <th
-                        class="px-6 py-4 text-center font-black uppercase tracking-widest"
-                        style="
-                            color:rgba(255,255,255,0.4);
-                            font-size:10px;
-                        "
-                    >
-                        Acciones
-                    </th>
-
-                </tr>
-
-            </thead>
-
-
-            {{-- CUERPO --}}
-            <tbody>
-
-                @forelse($categorias as $categoria)
+                {{-- CABECERA --}}
+                <thead>
 
                     <tr
                         style="
-                            border-bottom:1px solid rgba(255,255,255,0.05);
+                            border-bottom:1px solid rgba(255,255,255,0.08);
                         "
-                        onmouseenter="this.style.background='rgba(255,255,255,0.03)'"
-                        onmouseleave="this.style.background='transparent'"
                     >
 
-                        {{-- ID --}}
-                        <td
-                            class="px-6 py-4 font-bold"
+                        <th
+                            class="px-6 py-4 text-left font-black uppercase tracking-widest"
                             style="
-                                color:rgba(255,255,255,0.35);
-                                font-size:12px;
+                                color:rgba(255,255,255,0.4);
+                                font-size:10px;
                             "
                         >
-                            #{{ $categoria->id }}
-                        </td>
+                            ID
+                        </th>
 
-
-                        {{-- NOMBRE --}}
-                        <td
-                            class="px-6 py-4 font-bold text-white"
-                            style="font-size:13px;"
+                        <th
+                            class="px-6 py-4 text-left font-black uppercase tracking-widest"
+                            style="
+                                color:rgba(255,255,255,0.4);
+                                font-size:10px;
+                            "
                         >
-                            {{ $categoria->nombre }}
-                        </td>
+                            Nombre
+                        </th>
+
+                        <th
+                            class="px-6 py-4 text-left font-black uppercase tracking-widest"
+                            style="
+                                color:rgba(255,255,255,0.4);
+                                font-size:10px;
+                            "
+                        >
+                            Descripción
+                        </th>
+
+                        <th
+                            class="px-6 py-4 text-center font-black uppercase tracking-widest"
+                            style="
+                                color:rgba(255,255,255,0.4);
+                                font-size:10px;
+                            "
+                        >
+                            Acciones
+                        </th>
+
+                    </tr>
+
+                </thead>
 
 
-                        {{-- ACCIONES --}}
-                        <td class="px-6 py-4">
+                {{-- CUERPO --}}
+                <tbody>
 
-                            <div class="flex items-center justify-center gap-2">
+                    @forelse($categorias as $categoria)
 
-                                {{-- VER --}}
-                                <a
-                                    href="{{ route('categorias.show', $categoria) }}"
-                                    class="inline-flex items-center justify-center px-3 py-2 font-black uppercase tracking-widest transition-all hover:bg-white/10"
-                                    style="
-                                        min-width:60px;
-                                        font-size:9px;
-                                        color:rgba(255,255,255,0.6);
-                                        border:1px solid rgba(255,255,255,0.12);
-                                        border-radius:4px;
-                                    "
-                                >
-                                    VER
-                                </a>
+                        <tr
+                            style="
+                                border-bottom:1px solid rgba(255,255,255,0.05);
+                            "
+                            onmouseenter="this.style.background='rgba(255,255,255,0.03)'"
+                            onmouseleave="this.style.background='transparent'"
+                        >
 
-
-                                {{-- EDITAR --}}
-                                <a
-                                    href="{{ route('categorias.edit', $categoria) }}"
-                                    class="inline-flex items-center justify-center px-3 py-2 font-black uppercase tracking-widest transition-all hover:bg-emerald-500/10"
-                                    style="
-                                        min-width:60px;
-                                        font-size:9px;
-                                        color:#00c896;
-                                        border:1px solid rgba(0,200,150,0.25);
-                                        border-radius:4px;
-                                    "
-                                >
-                                    EDITAR
-                                </a>
+                            {{-- ID --}}
+                            <td
+                                class="px-6 py-4 font-bold"
+                                style="
+                                    color:rgba(255,255,255,0.35);
+                                    font-size:12px;
+                                "
+                            >
+                                #{{ $categoria->id }}
+                            </td>
 
 
-                                {{-- ELIMINAR --}}
-                                <form
-                                    action="{{ route('categorias.destroy', $categoria) }}"
-                                    method="POST"
-                                    onsubmit="return confirm('¿Eliminar esta categoría?')"
-                                >
+                            {{-- NOMBRE --}}
+                            <td
+                                class="px-6 py-4 font-bold text-white"
+                                style="font-size:13px;"
+                            >
+                                {{ $categoria->nombre }}
+                            </td>
 
-                                    @csrf
-                                    @method('DELETE')
 
-                                    <button
-                                        type="submit"
-                                        class="inline-flex items-center justify-center px-3 py-2 font-black uppercase tracking-widest transition-all hover:bg-red-500/10"
+                            {{-- DESCRIPCIÓN --}}
+                            <td
+                                class="px-6 py-4"
+                                style="
+                                    color:rgba(255,255,255,0.55);
+                                    font-size:12px;
+                                "
+                            >
+                                {{ $categoria->descripcion ?: 'Sin descripción' }}
+                            </td>
+
+
+                            {{-- ACCIONES --}}
+                            <td class="px-6 py-4">
+
+                                <div class="flex items-center justify-center gap-2">
+
+                                    {{-- VER --}}
+                                    <a
+                                        href="{{ route('categorias.show', $categoria) }}"
+                                        class="inline-flex items-center justify-center px-3 py-2 font-black uppercase tracking-widest transition-all hover:bg-white/10"
                                         style="
-                                            min-width:75px;
+                                            min-width:60px;
                                             font-size:9px;
-                                            color:#f87171;
-                                            border:1px solid rgba(248,113,113,0.25);
+                                            color:rgba(255,255,255,0.6);
+                                            border:1px solid rgba(255,255,255,0.12);
                                             border-radius:4px;
-                                            background:transparent;
-                                            cursor:pointer;
                                         "
                                     >
-                                        ELIMINAR
-                                    </button>
+                                        VER
+                                    </a>
 
-                                </form>
 
-                            </div>
+                                    {{-- EDITAR --}}
+                                    <a
+                                        href="{{ route('categorias.edit', $categoria) }}"
+                                        class="inline-flex items-center justify-center px-3 py-2 font-black uppercase tracking-widest transition-all hover:bg-emerald-500/10"
+                                        style="
+                                            min-width:60px;
+                                            font-size:9px;
+                                            color:#00c896;
+                                            border:1px solid rgba(0,200,150,0.25);
+                                            border-radius:4px;
+                                        "
+                                    >
+                                        EDITAR
+                                    </a>
 
-                        </td>
 
-                    </tr>
+                                    {{-- ELIMINAR --}}
+                                    <form
+                                        action="{{ route('categorias.destroy', $categoria) }}"
+                                        method="POST"
+                                        onsubmit="return confirm('¿Eliminar esta categoría?')"
+                                    >
 
-                @empty
+                                        @csrf
+                                        @method('DELETE')
 
-                    <tr>
+                                        <button
+                                            type="submit"
+                                            class="inline-flex items-center justify-center px-3 py-2 font-black uppercase tracking-widest transition-all hover:bg-red-500/10"
+                                            style="
+                                                min-width:75px;
+                                                font-size:9px;
+                                                color:#f87171;
+                                                border:1px solid rgba(248,113,113,0.25);
+                                                border-radius:4px;
+                                                background:transparent;
+                                                cursor:pointer;
+                                            "
+                                        >
+                                            ELIMINAR
+                                        </button>
 
-                        <td
-                            colspan="3"
-                            class="px-6 py-10 text-center font-bold uppercase tracking-widest"
-                            style="
-                                color:rgba(255,255,255,0.25);
-                                font-size:11px;
-                            "
-                        >
-                            No hay categorías registradas.
-                        </td>
+                                    </form>
 
-                    </tr>
+                                </div>
 
-                @endforelse
+                            </td>
 
-            </tbody>
+                        </tr>
 
-        </table>
+                    @empty
+
+                        <tr>
+
+                            <td
+                                colspan="4"
+                                class="px-6 py-10 text-center font-bold uppercase tracking-widest"
+                                style="
+                                    color:rgba(255,255,255,0.25);
+                                    font-size:11px;
+                                "
+                            >
+                                NO HAY CATEGORÍAS REGISTRADAS.
+                            </td>
+
+                        </tr>
+
+                    @endforelse
+
+                </tbody>
+
+            </table>
+
+        </div>
 
     </div>
 

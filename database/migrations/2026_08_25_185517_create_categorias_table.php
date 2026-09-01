@@ -7,20 +7,25 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Ejecutar la migración.
      */
     public function up(): void
     {
         Schema::create('categorias', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre', 40);
-            $table->string('descripcion',100)->nullable(); // ← nullable
+
+            $table->string('nombre', 40)
+                ->unique();
+
+            $table->string('descripcion', 100)
+                ->nullable();
+
             $table->timestamps();
         });
     }
 
     /**
-     * Reverse the migrations.
+     * Revertir la migración.
      */
     public function down(): void
     {
