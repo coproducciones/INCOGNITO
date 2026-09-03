@@ -75,7 +75,7 @@
 
             <div class="hidden sm:flex flex-col leading-tight">
                 <span class="text-white font-black text-xs tracking-widest uppercase">
-                    Incognito
+                    Incognito Company
                 </span>
 
                 <span
@@ -102,23 +102,13 @@
 
 
             {{-- NUESTRO TRABAJO --}}
-            <a
-                href="/trabajo"
-                class="text-white font-black text-xs tracking-widest uppercase px-4 py-2 transition-opacity hover:opacity-60"
-                style="font-size:11px;"
-            >
-                Nuestro trabajo
-            </a>
-
-
+            
+            <a href="{{ route('nuestro.trabajo') }}"class="text-white font-white text-xs tracking-widest uppercase px-4 py-2 transition-opacity hover:opacity-60"
+                style="font-size:11px;">NUESTRO TRABAJO</a>
+            
             {{-- NUESTRA HISTORIA --}}
-            <a
-                href="/historia"
-                class="text-white font-black text-xs tracking-widest uppercase px-4 py-2 transition-opacity hover:opacity-60"
-                style="font-size:11px;"
-            >
-                Nuestra historia
-            </a>
+            <a href="{{ route('nuestra.historia') }}"class="text-white font-black text-xs tracking-widest uppercase px-4 py-2 transition-opacity hover:opacity-60"
+                style="font-size:11px;">Nuestra historia</a>
 
 
             {{-- CATEGORÍAS --}}

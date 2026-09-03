@@ -12,7 +12,7 @@
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
 
         <div>
-            <h1 class="text-3xl font-bold text-white drop-shadow"> // arreglar este color
+            <h1 class="text-3xl font-bold text-white drop-shadow"> 
                 Usuarios
             </h1>
 

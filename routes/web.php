@@ -13,6 +13,15 @@ use App\Http\Controllers\CategoriaController;
 Route::get('/', [DashboardController::class, 'index'])
     ->name('dashboard.index');
 
+Route::get('/nuestro-trabajo', function () {
+    return view('nuestro-trabajo');
+})->name('nuestro.trabajo');
+
+Route::get('/nuestra-historia', function () {
+    return view('nuestra-historia');
+})->name('nuestra.historia');
+
+
 /*
 |--------------------------------------------------------------------------
 | Categorías

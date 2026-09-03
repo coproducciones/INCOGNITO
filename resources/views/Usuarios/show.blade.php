@@ -13,7 +13,7 @@
         {{-- Encabezado --}}
         <div class="mb-6">
 
-            <h1 class="text-3xl font-bold text-black drop-shadow">
+            <h1 class="text-3xl font-bold text-white drop-shadow">
                 Información del usuario
             </h1>
 
@@ -31,7 +31,7 @@
 
                 {{-- ID --}}
                 <div>
-                    <p class="text-sm text-gray-500">
+                    <p class="text-sm text-gray-600">
                         ID
                     </p>
 
