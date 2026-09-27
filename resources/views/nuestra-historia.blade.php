@@ -7,8 +7,8 @@
 
     {{-- Hero --}}
     <div class="text-center mb-16">
-        <h1 class="text-4xl font-bold text-white text-white mb-4">Nuestra Historia</h1>
-        <p class="text-lg text-gray-500 text-white max-w-2xl mx-auto">
+        <h1 class="text-4xl font-bold 'text-white' 'text-white' mb-4">Nuestra Historia</h1>
+        <p class="text-lg 'text-gray-500' text-white max-w-2xl mx-auto">
             Conoce cómo nació Incognito Group Design and Much, quiénes somos y hacia dónde vamos.
         </p>
     </div>
@@ -16,14 +16,14 @@
     {{-- Origen --}}
     <div class="flex flex-col md:flex-row items-center gap-10 mb-16">
         <div class="md:w-1/2">
-            <h2 class="text-2xl font-bold text-white text-white mb-4">¿Cómo empezamos?</h2>
-            <p class="text-gray-600 text-white leading-relaxed mb-4">
+            <h2 class="text-2xl font-bold text-green-500">¿Cómo empezamos?</h2>
+            <p class="'text-gray-600' 'text-white' leading-relaxed mb-4">
                 Incognito Group nació en Málaga, Santander, como una idea entre personas apasionadas
                 por el arte, la comunicación y la tecnología. Lo que comenzó como proyectos pequeños
                 para amigos y conocidos, fue creciendo hasta convertirse en una agencia creativa
                 con presencia regional.
             </p>
-            <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
+            <p class="'text-gray-600' 'text-white' leading-relaxed">
                 Desde el inicio, nuestra filosofía fue clara: calidad sin pretextos, creatividad sin límites
                 y compromiso con cada cliente, sin importar el tamaño del proyecto.
             </p>
@@ -65,8 +65,8 @@
         <div class="relative border-l-2 border-gray-200 dark:border-gray-700 pl-8 space-y-10">
 
             <div class="relative">
-                <span class="absolute -left-[41px] w-5 h-5 bg-green-500 rounded-full border-2 border-white dark:border-gray-900"></span>
-                <p class="text-sm text-green-500 font-semibold mb-1">Año 1</p>
+                <span class="absolute '-left-[41px]' w-5 h-5 bg-green-500 rounded-full border-2 border-white dark:border-gray-900"></span>
+                <p class="text-sm text-green-500 font-semibold mb-1">2020</p>
                 <h4 class="text-lg font-semibold text-white-800 dark:text-white mb-1">Los primeros proyectos</h4>
                 <p class="text-gray-500 dark:text-gray-400 text-sm">
-                    Comenzamos con coberturas
+                    Fundados Por Cesar Ortiz Design

@@ -47,3 +47,11 @@ use App\Http\Controllers\UsuarioController;
 
 Route::resource('usuarios', UsuarioController::class)
     ->parameters(['usuarios' => 'usuario']);
+/*
+|--------------------------------------------------------------------------
+| Contenido
+|--------------------------------------------------------------------------
+*/
+use App\Http\Controllers\ContenidoController;
+
+Route::resource('contenidos', ContenidoController::class);
