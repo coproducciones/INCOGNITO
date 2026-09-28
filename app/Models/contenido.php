@@ -25,7 +25,7 @@ class Contenido extends Model
 
     public function media(): HasMany
     {
-        return $this->hasMany(Media::class, 'id_contenido');
+        return $this->hasMany(Multimedia::class, 'id_contenido');
     }
 
     public function categorias(): BelongsToMany

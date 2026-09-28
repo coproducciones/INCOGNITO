@@ -1,8 +1,14 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CategoriaController;
+use App\Http\Controllers\ProductoController;
+use App\Http\Controllers\UsuarioController;
+use App\Http\Controllers\ContenidoController;
+use App\Http\Controllers\MultimediaController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -30,28 +36,42 @@ Route::get('/nuestra-historia', function () {
 
 Route::resource('categorias', CategoriaController::class);
 
+
 /*
 |--------------------------------------------------------------------------
 | Productos
 |--------------------------------------------------------------------------
 */
-use App\Http\Controllers\ProductoController;
 
 Route::resource('productos', ProductoController::class);
+
+
 /*
 |--------------------------------------------------------------------------
 | Usuarios
 |--------------------------------------------------------------------------
 */
-use App\Http\Controllers\UsuarioController;
 
 Route::resource('usuarios', UsuarioController::class)
-    ->parameters(['usuarios' => 'usuario']);
+    ->parameters([
+        'usuarios' => 'usuario',
+    ]);
+
+
 /*
 |--------------------------------------------------------------------------
 | Contenido
 |--------------------------------------------------------------------------
 */
-use App\Http\Controllers\ContenidoController;
 
 Route::resource('contenidos', ContenidoController::class);
+
+
+/*
+|--------------------------------------------------------------------------
+| Multimedia
+|--------------------------------------------------------------------------
+*/
+
+Route::resource('multimedias', MultimediaController::class)
+    ->parameters([ 'multimedias' => 'media', ]);

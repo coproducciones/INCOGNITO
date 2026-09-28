@@ -2,70 +2,71 @@
 
 namespace App\Repositories;
 
-use App\Models\Contenido;
+use App\Models\Multimedia;
 use Illuminate\Database\Eloquent\Collection;
 
-class ContenidoRepository
+class MultimediaRepository
 {
     /*
     |--------------------------------------------------------------------------
-    | Obtener todos los contenidos
+    | Obtener todas las multimedia
     |--------------------------------------------------------------------------
     */
 
     public function getAll(): Collection
     {
-        return Contenido::query()
-            ->orderBy('seccion')
-            ->orderBy('titulo')
+        return Multimedia::with([
+            'producto',
+            'contenido',
+        ])
+            ->orderByDesc('destacado')
+            ->orderBy('id_multimedia')
             ->get();
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Crear contenido
+    | Crear multimedia
     |--------------------------------------------------------------------------
     */
 
-    public function create(array $data): Contenido
+    public function create(array $data): Multimedia
     {
-        return Contenido::create($data);
+        return Multimedia::create($data)
+            ->load([
+                'producto',
+                'contenido',
+            ]);
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Buscar contenido
-    |--------------------------------------------------------------------------
-    */
-
-    public function findOrFail(int $id): Contenido
-    {
-        return Contenido::findOrFail($id);
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Actualizar contenido
+    | Actualizar multimedia
     |--------------------------------------------------------------------------
     */
 
     public function update(
-        Contenido $contenido,
+        Multimedia $multimedia,
         array $data
-    ): Contenido {
-        $contenido->update($data);
+    ): Multimedia {
+        $multimedia->update($data);
 
-        return $contenido->refresh();
+        return $multimedia
+            ->refresh()
+            ->load([
+                'producto',
+                'contenido',
+            ]);
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Eliminar contenido
+    | Eliminar multimedia
     |--------------------------------------------------------------------------
     */
 
-    public function delete(Contenido $contenido): bool
+    public function delete(Multimedia $multimedia): bool
     {
-        return (bool) $contenido->delete();
+        return (bool) $multimedia->delete();
     }
 }
