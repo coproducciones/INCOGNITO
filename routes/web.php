@@ -1,14 +1,14 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\ContenidoController;
 use App\Http\Controllers\MultimediaController;
-
+use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\ReseñaController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -66,7 +66,6 @@ Route::resource('usuarios', UsuarioController::class)
 
 Route::resource('contenidos', ContenidoController::class);
 
-
 /*
 |--------------------------------------------------------------------------
 | Multimedia
@@ -75,3 +74,21 @@ Route::resource('contenidos', ContenidoController::class);
 
 Route::resource('multimedias', MultimediaController::class)
     ->parameters([ 'multimedias' => 'media', ]);
+/*
+|--------------------------------------------------------------------------
+| Clientes
+|--------------------------------------------------------------------------
+*/
+
+Route::resource('clientes', ClienteController::class);
+
+/*
+|--------------------------------------------------------------------------
+| Reseñas
+|--------------------------------------------------------------------------
+*/
+Route::resource('reseñas',ReseñaController::class);
+
+
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->name('dashboard');

@@ -12,6 +12,11 @@ class Usuario extends Model
 
     protected $table = 'usuarios';
 
+    /**
+     * La clave primaria por defecto de Laravel es "id",
+     * que coincide con la migración.
+     */
+
     protected $fillable = [
         'nombre',
         'email',

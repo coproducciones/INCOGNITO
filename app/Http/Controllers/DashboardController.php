@@ -2,69 +2,81 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Models\Categoria;
+use App\Models\Producto;
 
 class DashboardController extends Controller
 {
     /**
-     * Muestra el dashboard principal.
+     * Mostrar el Dashboard principal de Incógnito Group.
      *
-     * Reemplaza los valores de ejemplo por consultas reales a tus modelos,
-     * por ejemplo: User::count(), Product::count(), Order::sum('total'), etc.
+     * Esta vista funciona como la página principal
+     * del sistema y recibe:
+     *
+     * - Las categorías registradas.
+     * - La cantidad de productos de cada categoría.
+     * - Los productos activos.
      */
-    public function index(Request $request)
+    public function index()
     {
-        $totalUsers    = 8241;
-        $totalProducts = 1523;
-        $totalSales    = 962;
-        $totalRevenue  = 48920.50;
+        /*
+        |--------------------------------------------------------------------------
+        | CATEGORÍAS
+        |--------------------------------------------------------------------------
+        |
+        | Obtenemos todas las categorías registradas.
+        |
+        | withCount('productos') agrega automáticamente
+        | el atributo:
+        |
+        | $categoria->productos_count
+        |
+        | Esto permite mostrar cuántos productos tiene
+        | cada categoría.
+        |
+        */
 
-        $recentActivity = [
-            [
-                'avatar'      => 'https://ui-avatars.com/api/?name=Laura+Gomez',
-                'name'        => 'Laura Gómez',
-                'description' => 'Registró un nuevo producto en la categoría Electrónica',
-                'status'      => 'Activo',
-                'date'        => now()->subHours(2)->format('d/m/Y H:i'),
-            ],
-            [
-                'avatar'      => 'https://ui-avatars.com/api/?name=Carlos+Ruiz',
-                'name'        => 'Carlos Ruiz',
-                'description' => 'Solicitud de reembolso pendiente de revisión',
-                'status'      => 'Pendiente',
-                'date'        => now()->subHours(5)->format('d/m/Y H:i'),
-            ],
-            [
-                'avatar'      => 'https://ui-avatars.com/api/?name=Maria+Torres',
-                'name'        => 'María Torres',
-                'description' => 'Cuenta suspendida por incumplimiento de políticas',
-                'status'      => 'Inactivo',
-                'date'        => now()->subDay()->format('d/m/Y H:i'),
-            ],
-            [
-                'avatar'      => 'https://ui-avatars.com/api/?name=Jorge+Diaz',
-                'name'        => 'Jorge Díaz',
-                'description' => 'Actualizó la información de su perfil',
-                'status'      => 'Activo',
-                'date'        => now()->subDays(2)->format('d/m/Y H:i'),
-            ],
-        ];
+        $categorias = Categoria::withCount('productos')
+            ->orderBy('nombre')
+            ->get();
 
-        $chartData = [
-            'months'         => ['Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago'],
-            'sales'          => [320, 410, 380, 512, 460, 590],
-            'users'          => [120, 190, 150, 260, 210, 300],
-            'categoryLabels' => ['Electrónica', 'Ropa', 'Hogar', 'Deportes', 'Otros'],
-            'categoryValues' => [38, 24, 18, 12, 8],
-        ];
+
+        /*
+        |--------------------------------------------------------------------------
+        | PRODUCTOS
+        |--------------------------------------------------------------------------
+        |
+        | Obtenemos únicamente los productos activos.
+        |
+        | with('categoria') carga la categoría relacionada
+        | para poder utilizar:
+        |
+        | $producto->categoria->nombre
+        |
+        | desde Blade.
+        |
+        */
+
+        $productos = Producto::with('categoria')
+            ->where('activo', true)
+            ->latest()
+            ->take(6)
+            ->get();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | VISTA
+        |--------------------------------------------------------------------------
+        |
+        | Enviamos ambas variables al Dashboard.
+        |
+        */
 
         return view('dashboard.index', compact(
-            'totalUsers',
-            'totalProducts',
-            'totalSales',
-            'totalRevenue',
-            'recentActivity',
-            'chartData'
+            'chartData',
+            'categorias',
+            'productos'
         ));
     }
 }
