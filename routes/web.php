@@ -8,6 +8,9 @@ use App\Http\Controllers\ContenidoController;
 use App\Http\Controllers\MultimediaController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\ReseñaController;
+use App\Http\Controllers\PedidoController;
+use App\Http\Controllers\DetallePedidoController;
+use App\Http\Controllers\PedidoEventoController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -90,5 +93,55 @@ Route::resource('clientes', ClienteController::class);
 Route::resource('reseñas',ReseñaController::class);
 
 
+/*
+|--------------------------------------------------------------------------
+| Reseñas
+|--------------------------------------------------------------------------
+*/
+
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->name('dashboard');
+
+// CRUD principal de pedidos
+Route::resource('pedidos', PedidoController::class)
+    ->only([
+        'index',
+        'create',
+        'store',
+        'show',
+        'edit',
+        'update',
+        'destroy',
+    ]);
+
+// Cambiar el estado de un pedido
+Route::patch(
+    'pedidos/{pedido}/estado',
+    [PedidoController::class, 'updateEstado']
+)->name('pedidos.estado.update');
+
+// Agregar detalles
+Route::post(
+    'pedidos/{pedido}/detalles',
+    [DetallePedidoController::class, 'store']
+)->name('pedidos.detalles.store');
+
+// Modificar detalles
+Route::patch(
+    'pedidos/{pedido}/detalles/{detalle}',
+    [DetallePedidoController::class, 'update']
+)->name('pedidos.detalles.update');
+
+// Eliminar detalles
+Route::delete(
+    'pedidos/{pedido}/detalles/{detalle}',
+    [DetallePedidoController::class, 'destroy']
+)->name('pedidos.detalles.destroy');
+
+// Registrar eventos
+Route::post(
+    'pedidos/{pedido}/eventos',
+    [PedidoEventoController::class, 'store']
+)->name('pedidos.eventos.store');
+
+

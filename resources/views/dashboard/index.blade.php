@@ -544,11 +544,6 @@
 
                 <div>
 
-                    <span class="text-xs font-bold uppercase tracking-[0.3em] text-black/40">
-                        04 — Nuestra historia
-                    </span>
-
-
                     <h2 class="mt-8 text-6xl font-black uppercase leading-[0.8] tracking-[-0.05em] sm:text-8xl">
 
                         Somos una<br>
