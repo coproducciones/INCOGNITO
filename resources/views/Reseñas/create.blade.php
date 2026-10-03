@@ -1,4 +1,3 @@
-```blade
 @extends('layouts.app')
 
 @section('title', 'Nueva Reseña')
@@ -454,4 +453,4 @@
 </div>
 
 @endsection
-```
+

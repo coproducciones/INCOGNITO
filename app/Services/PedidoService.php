@@ -11,98 +11,211 @@ use Illuminate\Validation\ValidationException;
 
 class PedidoService
 {
+    /*
+     * =========================================================
+     * DEPENDENCIAS
+     * =========================================================
+     */
+
     public function __construct(
         private PedidoRepository $pedidos,
         private PedidoEventoRepository $eventos,
         private DetallePedidoService $detalles,
     ) {}
 
-    /**
-     * Crea un nuevo pedido.
+
+    /*
+     * =========================================================
+     * CREAR PEDIDO
+     * =========================================================
+     *
+     * Crea:
+     *
+     * 1. Pedido.
+     * 2. Estado Pendiente.
+     * 3. Evento de creación.
+     * 4. Productos.
+     * 5. Total.
+     *
+     * Todo dentro de una transacción.
      */
+
     public function crear(array $data): Pedido
     {
         return DB::transaction(function () use ($data) {
 
             /*
-             * 1. Buscar el estado inicial.
+             * Obtenemos el estado inicial.
              */
-            $estado = $this->estadoPedido('Pendiente');
+
+            $estado = $this->estadoPedido(
+                'Pendiente'
+            );
+
 
             /*
-             * 2. Crear el pedido.
+             * Creamos el pedido.
              */
+
             $pedido = $this->pedidos->create([
                 'id_usuario' => (int) $data['id_usuario'],
+
                 'total' => 0,
+
                 'id_estado' => $estado->id_estado,
+
                 'fecha_pedido' => now(),
             ]);
 
+
             /*
-             * 3. Registrar el primer evento.
+             * Registramos el evento inicial.
              */
+
             $this->eventos->create([
                 'id_pedido' => $pedido->id_pedido,
+
                 'id_estado' => $estado->id_estado,
+
                 'tipo_evento' => 'CREADO',
+
                 'comentario' => 'Pedido creado.',
+
                 'fecha' => now(),
             ]);
 
+
             /*
-             * 4. Devolver solamente el pedido recién creado.
-             *
-             * No hacemos fresh() ni cargamos todas las relaciones
-             * durante la transacción.
+             * Obtenemos los productos enviados
+             * desde create.blade.php.
              */
-            return $pedido;
+
+            $productos = $data['productos'] ?? [];
+
+
+            /*
+             * Creamos cada detalle.
+             */
+
+            foreach ($productos as $producto) {
+
+                $this->detalles->agregar(
+                    $pedido,
+                    [
+                        'id_producto' =>
+                            (int) $producto['id_producto'],
+
+                        'cantidad' =>
+                            (int) $producto['cantidad'],
+                    ]
+                );
+            }
+
+
+            /*
+             * Recalculamos el total.
+             */
+
+            $pedido = $this->pedidos
+                ->recalculateTotal($pedido);
+
+
+            /*
+             * Devolvemos el pedido completo.
+             */
+
+            return $pedido->load([
+                'usuario',
+                'estado',
+                'detalles.producto.categoria',
+                'eventos.estado',
+            ]);
         });
     }
 
-    /**
-     * Agrega un detalle al pedido.
+
+    /*
+     * =========================================================
+     * AGREGAR PRODUCTO
+     * =========================================================
      */
+
     public function agregarDetalle(
         Pedido $pedido,
         array $data
     ): Pedido {
+
         return DB::transaction(function () use (
             $pedido,
             $data
         ) {
 
-            $this->validarEditable($pedido);
+            /*
+             * Primero verificamos el estado REAL
+             * del pedido en la base de datos.
+             */
+
+            $this->validarEditable(
+                $pedido
+            );
+
+
+            /*
+             * Agregamos el producto.
+             */
 
             $this->detalles->agregar(
                 $pedido,
                 $data
             );
 
+
+            /*
+             * Recalculamos el total.
+             */
+
             return $this->pedidos
                 ->recalculateTotal($pedido)
                 ->load([
-                    'detalles.producto',
-                    'estado'
+                    'usuario',
+                    'estado',
+                    'detalles.producto.categoria',
+                    'eventos.estado',
                 ]);
         });
     }
 
-    /**
-     * Modifica un detalle.
+
+    /*
+     * =========================================================
+     * MODIFICAR PRODUCTO
+     * =========================================================
      */
+
     public function modificarDetalle(
         Pedido $pedido,
         int $detalleId,
         array $data
     ): Pedido {
+
         return DB::transaction(function () use (
             $pedido,
             $detalleId,
             $data
         ) {
 
-            $this->validarEditable($pedido);
+            /*
+             * Verificamos el estado REAL.
+             */
+
+            $this->validarEditable(
+                $pedido
+            );
+
+
+            /*
+             * Modificamos el detalle.
+             */
 
             $this->detalles->modificar(
                 $pedido,
@@ -110,159 +223,357 @@ class PedidoService
                 $data
             );
 
+
+            /*
+             * Recalculamos el total.
+             */
+
             return $this->pedidos
                 ->recalculateTotal($pedido)
                 ->load([
-                    'detalles.producto',
-                    'estado'
+                    'usuario',
+                    'estado',
+                    'detalles.producto.categoria',
+                    'eventos.estado',
                 ]);
         });
     }
 
-    /**
-     * Elimina un detalle.
+
+    /*
+     * =========================================================
+     * ELIMINAR PRODUCTO
+     * =========================================================
      */
+
     public function eliminarDetalle(
         Pedido $pedido,
         int $detalleId
     ): Pedido {
+
         return DB::transaction(function () use (
             $pedido,
             $detalleId
         ) {
 
-            $this->validarEditable($pedido);
+            /*
+             * Verificamos el estado REAL.
+             */
+
+            $this->validarEditable(
+                $pedido
+            );
+
+
+            /*
+             * Eliminamos el detalle.
+             */
 
             $this->detalles->eliminar(
                 $pedido,
                 $detalleId
             );
 
+
+            /*
+             * Recalculamos el total.
+             */
+
             return $this->pedidos
                 ->recalculateTotal($pedido)
                 ->load([
-                    'detalles.producto',
-                    'estado'
+                    'usuario',
+                    'estado',
+                    'detalles.producto.categoria',
+                    'eventos.estado',
                 ]);
         });
     }
 
-    /**
-     * Cambia el estado del pedido.
+
+    /*
+     * =========================================================
+     * CAMBIAR ESTADO
+     * =========================================================
      */
+
     public function cambiarEstado(
         Pedido $pedido,
         int $estadoId,
         ?string $comentario = null
     ): Pedido {
+
         return DB::transaction(function () use (
             $pedido,
             $estadoId,
             $comentario
         ) {
 
+            /*
+             * Buscamos el nuevo estado.
+             */
+
             $estado = EstadoGeneral::findOrFail(
                 $estadoId
             );
+
+
+            /*
+             * El pedido no puede cambiar al mismo estado.
+             */
 
             if (
                 (int) $pedido->id_estado ===
                 (int) $estado->id_estado
             ) {
+
                 throw ValidationException::withMessages([
                     'id_estado' =>
-                        'El pedido ya tiene este estado.'
+                        'El pedido ya tiene este estado.',
                 ]);
             }
+
+
+            /*
+             * Actualizamos el pedido.
+             */
 
             $this->pedidos->update(
                 $pedido,
                 [
-                    'id_estado' => $estado->id_estado
+                    'id_estado' =>
+                        $estado->id_estado,
                 ]
             );
 
+
+            /*
+             * Registramos el cambio.
+             */
+
             $this->eventos->create([
-                'id_pedido' => $pedido->id_pedido,
-                'id_estado' => $estado->id_estado,
-                'tipo_evento' => 'CAMBIO_ESTADO',
-                'comentario' => $comentario,
-                'fecha' => now(),
+                'id_pedido' =>
+                    $pedido->id_pedido,
+
+                'id_estado' =>
+                    $estado->id_estado,
+
+                'tipo_evento' =>
+                    'CAMBIO_ESTADO',
+
+                'comentario' =>
+                    $comentario,
+
+                'fecha' =>
+                    now(),
             ]);
+
+
+            /*
+             * Devolvemos el pedido actualizado.
+             */
 
             return $pedido->fresh([
                 'usuario',
                 'estado',
-                'detalles.producto',
-                'eventos.estado'
+                'detalles.producto.categoria',
+                'eventos.estado',
             ]);
         });
     }
 
-    /**
-     * Registra un evento manual.
+
+    /*
+     * =========================================================
+     * REGISTRAR EVENTO
+     * =========================================================
      */
+
     public function registrarEvento(
         Pedido $pedido,
         array $data
     ): void {
+
         $this->eventos->create([
-            'id_pedido' => $pedido->id_pedido,
-            'id_estado' => $data['id_estado'] ?? null,
-            'tipo_evento' => $data['tipo_evento'],
-            'comentario' => $data['comentario'] ?? null,
-            'fecha' => now(),
+            'id_pedido' =>
+                $pedido->id_pedido,
+
+            'id_estado' =>
+                $data['id_estado'] ?? null,
+
+            'tipo_evento' =>
+                $data['tipo_evento'],
+
+            'comentario' =>
+                $data['comentario'] ?? null,
+
+            'fecha' =>
+                now(),
         ]);
     }
 
-    /**
-     * Verifica si el pedido permite modificaciones.
+
+    /*
+     * =========================================================
+     * VALIDAR PEDIDO EDITABLE
+     * =========================================================
+     *
+     * IMPORTANTE:
+     *
+     * Aquí está la corrección principal.
+     *
+     * No confiamos únicamente en:
+     *
+     * $pedido->estado
+     *
+     * Consultamos directamente:
+     *
+     * estado_general.id_estado
+     *
+     * utilizando:
+     *
+     * pedido.id_estado
      */
+
     private function validarEditable(
         Pedido $pedido
     ): void {
 
+        /*
+         * =====================================================
+         * OBTENER ESTADO DIRECTAMENTE DE LA BD
+         * =====================================================
+         */
+
+        $estado = EstadoGeneral::query()
+            ->where(
+                'id_estado',
+                $pedido->id_estado
+            )
+            ->where(
+                'tipo',
+                'PEDIDO'
+            )
+            ->first();
+
+
+        /*
+         * =====================================================
+         * ESTADO NO ENCONTRADO
+         * =====================================================
+         *
+         * Si el pedido tiene un id_estado que no existe,
+         * no debemos asumir que está pendiente.
+         */
+
+        if (!$estado) {
+
+            throw ValidationException::withMessages([
+                'pedido' =>
+                    "El pedido #{$pedido->id_pedido} " .
+                    "tiene un estado inválido.",
+            ]);
+        }
+
+
+        /*
+         * =====================================================
+         * NORMALIZAR NOMBRE
+         * =====================================================
+         *
+         * Convierte:
+         *
+         * Cancelado
+         * CANCELADO
+         * cancelado
+         *
+         * en:
+         *
+         * cancelado
+         */
+
+        $nombreEstado = strtolower(
+            trim(
+                $estado->nombre
+            )
+        );
+
+
+        /*
+         * =====================================================
+         * ESTADOS BLOQUEADOS
+         * =====================================================
+         */
+
         $bloqueados = [
-            'Cancelado',
-            'Completado',
+            'cancelado',
+            'completado',
         ];
+
+
+        /*
+         * =====================================================
+         * COMPROBAR SI ESTÁ BLOQUEADO
+         * =====================================================
+         */
 
         if (
             in_array(
-                $pedido->estado?->nombre,
+                $nombreEstado,
                 $bloqueados,
                 true
             )
         ) {
+
             throw ValidationException::withMessages([
                 'pedido' =>
-                    'El pedido no permite modificaciones en su estado actual.'
+                    "El pedido #{$pedido->id_pedido} " .
+                    "no permite modificaciones porque " .
+                    "su estado actual es '{$estado->nombre}'.",
             ]);
         }
     }
 
-    /**
-     * Obtiene un estado de tipo PEDIDO.
+
+    /*
+     * =========================================================
+     * OBTENER ESTADO INICIAL
+     * =========================================================
      */
+
     private function estadoPedido(
         string $nombre
     ): EstadoGeneral {
 
-        $estado = EstadoGeneral::where(
-            'tipo',
-            'PEDIDO'
-        )
+        /*
+         * Buscamos el estado exclusivamente
+         * dentro del tipo PEDIDO.
+         */
+
+        $estado = EstadoGeneral::query()
+            ->where(
+                'tipo',
+                'PEDIDO'
+            )
             ->where(
                 'nombre',
                 $nombre
             )
             ->first();
 
+
+        /*
+         * Si no existe, detenemos la creación.
+         */
+
         if (!$estado) {
+
             throw new \RuntimeException(
-                "No existe el estado '{$nombre}' de tipo 'PEDIDO' en la tabla estado_general."
+                "No existe el estado '{$nombre}' " .
+                "de tipo 'PEDIDO' en la tabla estado_general."
             );
         }
+
 
         return $estado;
     }

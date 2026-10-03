@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Pedidos\StoreDetallePedidoRequest;
-use App\Http\Requests\Pedidos\UpdateDetallePedidoRequest;
+use App\Http\Requests\DetallePedidoStoreRequest;
+use App\Http\Requests\DetallePedidoUpdateRequest;
 use App\Models\Pedido;
 use App\Services\PedidoService;
 use Illuminate\Http\RedirectResponse;
+
 
 class DetallePedidoController extends Controller
 {
@@ -15,7 +16,7 @@ class DetallePedidoController extends Controller
     ) {}
 
     public function store(
-        StoreDetallePedidoRequest $request,
+        DetallePedidoStoreRequest $request,
         Pedido $pedido
     ): RedirectResponse {
 
@@ -31,7 +32,7 @@ class DetallePedidoController extends Controller
     }
 
     public function update(
-        UpdateDetallePedidoRequest $request,
+        DetallePedidoUpdateRequest $request,
         Pedido $pedido,
         int $detalle
     ): RedirectResponse {

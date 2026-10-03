@@ -7,32 +7,52 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class EstadoGeneral extends Model
 {
-    /**
-     * Tabla asociada.
+    /*
+     * =========================================================
+     * CONFIGURACIÓN DE LA TABLA
+     * =========================================================
      */
+
     protected $table = 'estado_general';
 
-    /**
-     * Clave primaria.
+
+    /*
+     * La PK se llama id_estado.
      */
+
     protected $primaryKey = 'id_estado';
 
-    /**
-     * La tabla utiliza created_at y updated_at.
+
+    /*
+     * Esta tabla sí utiliza:
+     *
+     * created_at
+     * updated_at
      */
+
     public $timestamps = true;
 
-    /**
-     * Campos permitidos para asignación masiva.
+
+    /*
+     * =========================================================
+     * CAMPOS ASIGNABLES
+     * =========================================================
      */
+
     protected $fillable = [
         'tipo',
         'nombre',
     ];
 
-    /**
-     * Un estado puede tener muchos pedidos.
+
+    /*
+     * =========================================================
+     * ESTADO → PEDIDOS
+     * =========================================================
+     *
+     * Un estado puede pertenecer a muchos pedidos.
      */
+
     public function pedidos(): HasMany
     {
         return $this->hasMany(
@@ -42,10 +62,16 @@ class EstadoGeneral extends Model
         );
     }
 
-    /**
-     * Un estado puede aparecer
-     * en muchos eventos de pedido.
+
+    /*
+     * =========================================================
+     * ESTADO → EVENTOS
+     * =========================================================
+     *
+     * Un estado puede aparecer en muchos
+     * eventos del historial de pedidos.
      */
+
     public function pedidoEventos(): HasMany
     {
         return $this->hasMany(

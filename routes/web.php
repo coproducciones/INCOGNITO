@@ -11,6 +11,8 @@ use App\Http\Controllers\ReseñaController;
 use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\DetallePedidoController;
 use App\Http\Controllers\PedidoEventoController;
+use App\Http\Controllers\DisponibilidadController;
+use App\Http\Controllers\ProveedorController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -144,4 +146,78 @@ Route::post(
     [PedidoEventoController::class, 'store']
 )->name('pedidos.eventos.store');
 
+/*
+|--------------------------------------------------------------------------
+| Proveedores
+|--------------------------------------------------------------------------
+*/
 
+Route::resource('proveedores', ProveedorController::class)
+    ->parameters([
+        'proveedores' => 'proveedor',
+    ]);
+
+
+/*
+|--------------------------------------------------------------------------
+| Disponibilidades de proveedores
+|--------------------------------------------------------------------------
+*/
+
+Route::prefix('proveedores/{proveedor}')
+    ->name('proveedores.')
+    ->group(function () {
+
+        /*
+         * Listar disponibilidades
+         */
+        Route::get(
+            'disponibilidades',
+            [DisponibilidadController::class, 'index']
+        )->name('disponibilidades.index');
+
+
+        /*
+         * Crear disponibilidad
+         */
+        Route::get(
+            'disponibilidades/create',
+            [DisponibilidadController::class, 'create']
+        )->name('disponibilidades.create');
+
+
+        /*
+         * Guardar disponibilidad
+         */
+        Route::post(
+            'disponibilidades',
+            [DisponibilidadController::class, 'store']
+        )->name('disponibilidades.store');
+
+
+        /*
+         * Editar disponibilidad
+         */
+        Route::get(
+            'disponibilidades/{disponibilidad}/edit',
+            [DisponibilidadController::class, 'edit']
+        )->name('disponibilidades.edit');
+
+
+        /*
+         * Actualizar disponibilidad
+         */
+        Route::put(
+            'disponibilidades/{disponibilidad}',
+            [DisponibilidadController::class, 'update']
+        )->name('disponibilidades.update');
+
+
+        /*
+         * Eliminar disponibilidad
+         */
+        Route::delete(
+            'disponibilidades/{disponibilidad}',
+            [DisponibilidadController::class, 'destroy']
+        )->name('disponibilidades.destroy');
+    });

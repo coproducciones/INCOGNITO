@@ -11,24 +11,34 @@ class Pedido extends Model
 {
     use SoftDeletes;
 
-    /**
-     * Nombre de la tabla.
+    /*
+     * =========================================================
+     * CONFIGURACIÓN DE LA TABLA
+     * =========================================================
      */
+
     protected $table = 'pedido';
 
-    /**
-     * Clave primaria.
+    /*
+     * La clave primaria de pedido no se llama "id".
      */
     protected $primaryKey = 'id_pedido';
 
-    /**
-     * La tabla pedido no utiliza created_at ni updated_at.
+    /*
+     * La tabla pedido no utiliza:
+     *
+     * created_at
+     * updated_at
      */
     public $timestamps = false;
 
-    /**
-     * Campos que pueden asignarse masivamente.
+
+    /*
+     * =========================================================
+     * CAMPOS ASIGNABLES
+     * =========================================================
      */
+
     protected $fillable = [
         'id_usuario',
         'total',
@@ -36,20 +46,26 @@ class Pedido extends Model
         'fecha_pedido',
     ];
 
-    /**
-     * Conversión de tipos.
+
+    /*
+     * =========================================================
+     * CASTS
+     * =========================================================
      */
+
     protected $casts = [
         'total' => 'decimal:2',
         'fecha_pedido' => 'datetime',
         'deleted_at' => 'datetime',
     ];
 
-    /**
-     * Indica a Laravel qué columna utilizar
-     * para Route Model Binding.
+
+    /*
+     * =========================================================
+     * ROUTE MODEL BINDING
+     * =========================================================
      *
-     * Esto permite que:
+     * Permite que:
      *
      * /pedidos/1
      *
@@ -57,14 +73,19 @@ class Pedido extends Model
      *
      * id_pedido = 1
      */
+
     public function getRouteKeyName(): string
     {
         return 'id_pedido';
     }
 
-    /**
-     * Relación con el usuario.
+
+    /*
+     * =========================================================
+     * PEDIDO → USUARIO
+     * =========================================================
      */
+
     public function usuario(): BelongsTo
     {
         return $this->belongsTo(
@@ -74,9 +95,17 @@ class Pedido extends Model
         );
     }
 
-    /**
-     * Relación con el estado.
+
+    /*
+     * =========================================================
+     * PEDIDO → ESTADO GENERAL
+     * =========================================================
+     *
+     * pedido.id_estado
+     *        ↓
+     * estado_general.id_estado
      */
+
     public function estado(): BelongsTo
     {
         return $this->belongsTo(
@@ -86,9 +115,21 @@ class Pedido extends Model
         );
     }
 
-    /**
-     * Relación con los detalles.
+
+    /*
+     * =========================================================
+     * PEDIDO → DETALLES
+     * =========================================================
+     *
+     * Un pedido puede tener muchos productos.
+     *
+     * pedido
+     *   ↓
+     * detalle_pedido
+     *   ↓
+     * producto
      */
+
     public function detalles(): HasMany
     {
         return $this->hasMany(
@@ -98,15 +139,22 @@ class Pedido extends Model
         );
     }
 
-    /**
-     * Relación con los eventos.
+
+    /*
+     * =========================================================
+     * PEDIDO → EVENTOS
+     * =========================================================
+     *
+     * Guarda el historial del pedido.
      */
+
     public function eventos(): HasMany
     {
         return $this->hasMany(
             PedidoEvento::class,
             'id_pedido',
             'id_pedido'
-        )->orderByDesc('fecha');
+        )
+        ->orderByDesc('fecha');
     }
 }

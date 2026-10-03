@@ -27,6 +27,9 @@ class DetallePedido extends Model
         'subtotal' => 'decimal:2',
     ];
 
+    /*
+     * Detalle → Pedido
+     */
     public function pedido(): BelongsTo
     {
         return $this->belongsTo(
@@ -36,6 +39,9 @@ class DetallePedido extends Model
         );
     }
 
+    /*
+     * Detalle → Producto
+     */
     public function producto(): BelongsTo
     {
         return $this->belongsTo(
