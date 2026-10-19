@@ -6,28 +6,28 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Crea la tabla de clientes.
-     */
     public function up(): void
     {
         Schema::create('clientes', function (Blueprint $table) {
-
-            // Identificador único del cliente
             $table->id('id_cliente');
 
-            // Información del cliente
-            $table->string('nombre', 150);
-            $table->string('empresa', 150)->nullable();
+            /*
+             * Una cuenta de usuario puede tener una ficha de cliente.
+             * Se permite NULL para no romper registros de clientes
+             * existentes durante el desarrollo del proyecto.
+             */
+            $table->foreignId('id_usuario')
+                ->nullable()
+                ->unique()
+                ->constrained('usuarios', 'id')
+                ->nullOnDelete();
 
-            // URL del logo, si el cliente tiene uno
-            $table->string('logo_url', 255)->nullable();
+            $table->string('nombre', 100);
+            $table->string('empresa', 150)->nullable();
+            $table->string('logo_url')->nullable();
         });
     }
 
-    /**
-     * Elimina la tabla de clientes.
-     */
     public function down(): void
     {
         Schema::dropIfExists('clientes');

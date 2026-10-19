@@ -4,40 +4,184 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ResenaStoreRequest;
 use App\Http\Requests\ResenaUpdateRequest;
-use App\Models\Cliente;
+use App\Http\Requests\MiResenaStoreRequest;
+use App\Http\Requests\MiResenaUpdateRequest;
 use App\Models\Producto;
 use App\Models\Reseña;
 use App\Models\Usuario;
 use App\Services\ReseñaService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Auth;
 
+/**
+ * Gestiona las reseñas del catálogo y las reseñas personales.
+ *
+ * Administración:
+ * - Consultar reseñas.
+ * - Crear, editar y eliminar reseñas mediante el panel autorizado.
+ *
+ * Mi cuenta:
+ * - Consultar las reseñas del usuario autenticado.
+ * - Reseñar productos elegibles de sus pedidos.
+ * - Editar o eliminar únicamente sus propias reseñas.
+ */
 class ReseñaController extends Controller
 {
     /**
-     * Servicio encargado de la lógica de negocio
-     * de las reseñas.
+     * Servicio que concentra las reglas de negocio
+     * y las operaciones de persistencia de las reseñas.
      */
     public function __construct(
         private ReseñaService $service
     ) {
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | RESEÑAS DE MI CUENTA
+    |--------------------------------------------------------------------------
+    */
+
     /**
-     * Muestra todas las reseñas.
+     * Muestra las reseñas del usuario autenticado.
+     */
+    public function misResenas(): View
+    {
+        $usuarioId = (int) Auth::id();
+
+        $resenas = $this->service->misResenas($usuarioId);
+
+        return view('Reseñas.index', [
+            'resenas' => $resenas,
+            'modoMiCuenta' => true,
+        ]);
+    }
+
+    /**
+     * Muestra los productos que el usuario puede reseñar.
+     *
+     * La consulta debe devolver únicamente productos
+     * asociados a pedidos completados del usuario y que
+     * todavía no hayan sido reseñados por él.
+     */
+    public function createMiResena(): View
+    {
+        $usuarioId = (int) Auth::id();
+
+        $productos = $this->service
+            ->productosParaResenar($usuarioId);
+
+        return view('Reseñas.create', [
+            'productos' => $productos,
+            'modoMiCuenta' => true,
+        ]);
+    }
+
+    /**
+     * Registra una reseña para el usuario autenticado.
+     *
+     * El identificador del usuario se obtiene de la sesión.
+     * Nunca debe aceptarse desde un campo del formulario.
+     */
+    public function storeMiResena(
+        MiResenaStoreRequest $request
+    ): RedirectResponse {
+        $this->service->crearMiResena(
+            (int) Auth::id(),
+            $request->validated()
+        );
+
+        return redirect()
+            ->route('mi-cuenta.resenas')
+            ->with(
+                'success',
+                'Tu reseña fue registrada correctamente.'
+            );
+    }
+
+    /**
+     * Muestra el formulario para editar una reseña propia.
+     *
+     * El servicio debe comprobar que la reseña pertenece
+     * al usuario autenticado.
+     */
+    public function editMiResena(Reseña $reseña): View
+    {
+        $reseña = $this->service->miResena(
+            $reseña->getKey(),
+            (int) Auth::id()
+        );
+
+        return view('Reseñas.edit', [
+            'reseña' => $reseña,
+            'modoMiCuenta' => true,
+        ]);
+    }
+
+    /**
+     * Actualiza una reseña propia.
+     */
+    public function updateMiResena(
+        MiResenaUpdateRequest $request,
+        Reseña $reseña
+    ): RedirectResponse {
+        $this->service->actualizarMiResena(
+            $reseña,
+            (int) Auth::id(),
+            $request->validated()
+        );
+
+        return redirect()
+            ->route('mi-cuenta.resenas')
+            ->with(
+                'success',
+                'Tu reseña fue actualizada correctamente.'
+            );
+    }
+
+    /**
+     * Elimina una reseña propia.
+     */
+    public function destroyMiResena(
+        Reseña $reseña
+    ): RedirectResponse {
+        $this->service->eliminarMiResena(
+            $reseña,
+            (int) Auth::id()
+        );
+
+        return redirect()
+            ->route('mi-cuenta.resenas')
+            ->with(
+                'success',
+                'Tu reseña fue eliminada correctamente.'
+            );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | ADMINISTRACIÓN DE RESEÑAS
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Muestra todas las reseñas para su gestión administrativa.
      */
     public function index(): View
     {
         $resenas = $this->service->getAll();
 
-        return view(
-            'Reseñas.index',
-            compact('resenas')
-        );
+        return view('Reseñas.index', [
+            'resenas' => $resenas,
+        ]);
     }
 
     /**
-     * Muestra el formulario para crear una reseña.
+     * Muestra el formulario administrativo de creación.
+     *
+     * El administrador selecciona el usuario asociado y
+     * el producto. No se solicita un cliente adicional.
      */
     public function create(): View
     {
@@ -45,28 +189,24 @@ class ReseñaController extends Controller
 
         $productos = Producto::orderBy('nombre')->get();
 
-        $clientes = Cliente::orderBy('nombre')->get();
-
-        return view(
-            'Reseñas.create',
-            compact(
-                'usuarios',
-                'productos',
-                'clientes'
-            )
-        );
+        return view('Reseñas.create', [
+            'usuarios' => $usuarios,
+            'productos' => $productos,
+            'modoMiCuenta' => false,
+        ]);
     }
 
     /**
-     * Guarda una nueva reseña.
+     * Guarda una reseña creada desde la administración.
+     *
+     * ResenaStoreRequest y ReseñaService deben estar
+     * adaptados para no exigir id_cliente si el modelo
+     * de datos no necesita esa relación.
      */
     public function store(
         ResenaStoreRequest $request
     ): RedirectResponse {
-
-        $this->service->create(
-            $request->validated()
-        );
+        $this->service->create($request->validated());
 
         return redirect()
             ->route('reseñas.index')
@@ -77,36 +217,25 @@ class ReseñaController extends Controller
     }
 
     /**
-     * Muestra una reseña específica.
+     * Muestra el detalle de una reseña.
      */
     public function show(Reseña $reseña): View
     {
-        /*
-         * Buscamos nuevamente la reseña mediante
-         * el servicio para cargar sus relaciones:
-         *
-         * usuario
-         * producto
-         * cliente
-         */
+        // El servicio puede cargar las relaciones del modelo.
         $reseña = $this->service->getById(
             $reseña->getKey()
         );
 
-        /*
-         * IMPORTANTE:
-         *
-         * La variable enviada a Blade se llama
-         * exactamente $reseña.
-         */
-        return view(
-            'Reseñas.show',
-            compact('reseña')
-        );
+        return view('Reseñas.show', [
+            'reseña' => $reseña,
+        ]);
     }
 
     /**
-     * Muestra el formulario para editar una reseña.
+     * Muestra el formulario administrativo de edición.
+     *
+     * No se carga una lista de clientes porque el formulario
+     * ya no permite asignar manualmente un cliente.
      */
     public function edit(Reseña $reseña): View
     {
@@ -118,37 +247,28 @@ class ReseñaController extends Controller
 
         $productos = Producto::orderBy('nombre')->get();
 
-        $clientes = Cliente::orderBy('nombre')->get();
-
-        return view(
-            'Reseñas.edit',
-            compact(
-                'reseña',
-                'usuarios',
-                'productos',
-                'clientes'
-            )
-        );
+        return view('Reseñas.edit', [
+            'reseña' => $reseña,
+            'usuarios' => $usuarios,
+            'productos' => $productos,
+            'modoMiCuenta' => false,
+        ]);
     }
 
     /**
-     * Actualiza una reseña.
+     * Actualiza una reseña desde la administración.
      */
     public function update(
         ResenaUpdateRequest $request,
         Reseña $reseña
     ): RedirectResponse {
-
         $this->service->update(
             $reseña,
             $request->validated()
         );
 
         return redirect()
-            ->route(
-                'reseñas.show',
-                $reseña
-            )
+            ->route('reseñas.show', $reseña)
             ->with(
                 'success',
                 'Reseña actualizada correctamente.'
@@ -156,12 +276,11 @@ class ReseñaController extends Controller
     }
 
     /**
-     * Elimina una reseña.
+     * Elimina una reseña desde la administración.
      */
     public function destroy(
         Reseña $reseña
     ): RedirectResponse {
-
         $this->service->delete($reseña);
 
         return redirect()
@@ -172,4 +291,3 @@ class ReseñaController extends Controller
             );
     }
 }
-

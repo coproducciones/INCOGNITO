@@ -1,224 +1,319 @@
 @extends('layouts.app')
 
-@section('title', 'Gestión de proveedores')
+@section('title', 'Proveedores')
 
 @section('content')
 
-<div class="max-w-7xl mx-auto px-4 py-6">
+<div class="space-y-6 px-4 py-6 sm:px-6 lg:px-8">
 
-    {{-- ========================================================= --}}
     {{-- ENCABEZADO --}}
-    {{-- ========================================================= --}}
-
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 
         <div>
-            <h1 class="text-2xl font-bold text-white">
+            <p class="text-sm font-medium uppercase tracking-widest text-[#00c896]">
+                Gestión de proveedores
+            </p>
+
+            <h1 class="mt-2 text-2xl font-bold text-white sm:text-3xl">
                 Proveedores
             </h1>
 
-            <p class="text-sm text-gray-400">
-                Gestión de perfiles y disponibilidad.
+            <p class="mt-2 text-sm text-gray-400">
+                Consulta y administra los proveedores registrados en Incógnito.
             </p>
         </div>
 
-        <a
-            href="{{ route('proveedores.create') }}"
-            class="px-4 py-2 rounded-lg bg-[#00c896] text-black font-semibold"
-        >
-            Nuevo proveedor
-        </a>
+        @if(auth()->check() && auth()->user()->tienePermiso('proveedores.crear'))
+            <a
+                href="{{ route('proveedores.create') }}"
+                class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#00c896] px-5 py-3 text-sm font-semibold text-black transition hover:opacity-90"
+            >
+                <span class="text-lg">+</span>
+                Registrar proveedor
+            </a>
+        @endif
 
     </div>
 
 
-    {{-- ========================================================= --}}
     {{-- MENSAJE DE ÉXITO --}}
-    {{-- ========================================================= --}}
-
     @if(session('success'))
-
-        <div class="mb-4 rounded-lg border border-green-500/30 bg-green-500/10 px-4 py-3 text-green-300">
+        <div class="rounded-xl border border-[#00c896]/20 bg-[#00c896]/10 p-4 text-sm text-[#00c896]">
             {{ session('success') }}
         </div>
-
     @endif
 
 
-    {{-- ========================================================= --}}
-    {{-- TABLA --}}
-    {{-- ========================================================= --}}
-
-    <div class="overflow-x-auto rounded-xl border border-white/10 bg-[#111111]">
-
-        <table class="min-w-full text-sm text-gray-200">
-
-            <thead class="border-b border-white/10 text-left text-xs uppercase tracking-wider text-gray-400">
-
-                <tr>
-
-                    {{-- ID --}}
-                    <th class="px-4 py-3">
-                        ID
-                    </th>
-
-                    {{-- Usuario --}}
-                    <th class="px-4 py-3">
-                        Usuario
-                    </th>
-
-                    {{-- Especialidad --}}
-                    <th class="px-4 py-3">
-                        Especialidad
-                    </th>
-
-                    {{-- Teléfono --}}
-                    <th class="px-4 py-3">
-                        Teléfono
-                    </th>
-
-                    {{-- WhatsApp --}}
-                    <th class="px-4 py-3">
-                        WhatsApp
-                    </th>
-
-                    {{-- Acciones --}}
-                    <th class="px-4 py-3">
-                        Acciones
-                    </th>
-
-                </tr>
-
-            </thead>
+    {{-- MENSAJE DE ERROR --}}
+    @if(session('error'))
+        <div class="rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-300">
+            {{ session('error') }}
+        </div>
+    @endif
 
 
-            <tbody class="divide-y divide-white/5">
+    {{-- RESUMEN --}}
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
 
-                @forelse($proveedores as $proveedor)
+        <div class="rounded-xl border border-white/10 bg-[#111111] p-5">
+            <p class="text-sm text-gray-400">
+                Total de proveedores
+            </p>
 
-                    <tr>
+            <p class="mt-3 text-3xl font-bold text-white">
+                {{ $proveedores->count() }}
+            </p>
 
-                        {{-- ================================================= --}}
-                        {{-- ID DEL PROVEEDOR --}}
-                        {{-- ================================================= --}}
+            <p class="mt-2 text-xs text-gray-500">
+                Registros disponibles
+            </p>
+        </div>
 
-                        <td class="px-4 py-3">
+        <div class="rounded-xl border border-white/10 bg-[#111111] p-5">
+            <p class="text-sm text-gray-400">
+                Usuarios relacionados
+            </p>
 
-                            <span class="inline-flex items-center rounded-md border border-white/10 bg-white/5 px-2 py-1 text-xs font-semibold text-gray-300">
-                                #{{ $proveedor->id_proveedor }}
-                            </span>
+            <p class="mt-3 text-3xl font-bold text-[#00c896]">
+                {{ $proveedores->whereNotNull('id_usuario')->count() }}
+            </p>
 
-                        </td>
+            <p class="mt-2 text-xs text-gray-500">
+                Proveedores asociados a un usuario
+            </p>
+        </div>
 
-
-                        {{-- ================================================= --}}
-                        {{-- USUARIO --}}
-                        {{-- ================================================= --}}
-
-                        <td class="px-4 py-3">
-
-                            {{ $proveedor->usuario?->nombre ?? 'Sin usuario' }}
-
-                        </td>
-
-
-                        {{-- ================================================= --}}
-                        {{-- ESPECIALIDAD --}}
-                        {{-- ================================================= --}}
-
-                        <td class="px-4 py-3">
-
-                            {{ $proveedor->especialidad }}
-
-                        </td>
+    </div>
 
 
-                        {{-- ================================================= --}}
-                        {{-- TELÉFONO --}}
-                        {{-- ================================================= --}}
+    {{-- TABLA DE PROVEEDORES --}}
+    <div class="overflow-hidden rounded-xl border border-white/10 bg-[#111111]">
 
-                        <td class="px-4 py-3">
+        <div class="flex flex-col gap-2 border-b border-white/10 p-5 sm:flex-row sm:items-center sm:justify-between">
 
-                            {{ $proveedor->telefono }}
+            <div>
+                <h2 class="text-lg font-semibold text-white">
+                    Listado de proveedores
+                </h2>
 
-                        </td>
+                <p class="mt-1 text-sm text-gray-400">
+                    Información registrada y acciones disponibles.
+                </p>
+            </div>
+
+            <span class="w-fit rounded-full border border-white/10 bg-[#1a1a1a] px-3 py-1 text-xs text-gray-300">
+                {{ $proveedores->count() }} registros
+            </span>
+
+        </div>
 
 
-                        {{-- ================================================= --}}
-                        {{-- WHATSAPP --}}
-                        {{-- ================================================= --}}
+        @if($proveedores->isEmpty())
 
-                        <td class="px-4 py-3">
+            {{-- ESTADO VACÍO --}}
+            <div class="px-6 py-16 text-center">
 
-                            {{ $proveedor->whatsapp ?? '—' }}
+                <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-white/10 bg-[#1a1a1a]">
+                    <span class="text-2xl text-[#00c896]">+</span>
+                </div>
 
-                        </td>
+                <h3 class="mt-4 text-lg font-semibold text-white">
+                    No hay proveedores registrados
+                </h3>
+
+                <p class="mx-auto mt-2 max-w-md text-sm text-gray-400">
+                    Cuando registres un proveedor, su información aparecerá en este listado.
+                </p>
+
+                @if(auth()->check() && auth()->user()->tienePermiso('proveedores.crear'))
+                    <a
+                        href="{{ route('proveedores.create') }}"
+                        class="mt-5 inline-flex rounded-lg bg-[#00c896] px-5 py-2.5 text-sm font-semibold text-black transition hover:opacity-90"
+                    >
+                        Registrar primer proveedor
+                    </a>
+                @endif
+
+            </div>
+
+        @else
+
+            {{-- TABLA RESPONSIVA --}}
+            <div class="overflow-x-auto">
+
+                <table class="min-w-full divide-y divide-white/10 text-left">
+
+                    <thead class="bg-[#0d0d0d]">
+                        <tr>
+                            <th class="whitespace-nowrap px-5 py-4 text-xs font-semibold uppercase tracking-wider text-gray-400">
+                                Proveedor
+                            </th>
+
+                            <th class="whitespace-nowrap px-5 py-4 text-xs font-semibold uppercase tracking-wider text-gray-400">
+                                Usuario relacionado
+                            </th>
+
+                            <th class="whitespace-nowrap px-5 py-4 text-xs font-semibold uppercase tracking-wider text-gray-400">
+                                Contacto
+                            </th>
+
+                            <th class="whitespace-nowrap px-5 py-4 text-xs font-semibold uppercase tracking-wider text-gray-400">
+                                WhatsApp
+                            </th>
+
+                            <th class="whitespace-nowrap px-5 py-4 text-right text-xs font-semibold uppercase tracking-wider text-gray-400">
+                                Acciones
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody class="divide-y divide-white/10">
+
+                        @foreach($proveedores as $proveedor)
+
+                            <tr class="transition hover:bg-white/[0.03]">
+
+                                {{-- PROVEEDOR --}}
+                                <td class="px-5 py-4">
+
+                                    <div class="flex items-center gap-3">
+
+                                        @if($proveedor->foto_url)
+                                            <img
+                                                src="{{ $proveedor->foto_url }}"
+                                                alt="Foto de {{ $proveedor->especialidad }}"
+                                                class="h-11 w-11 rounded-lg border border-white/10 object-cover"
+                                                loading="lazy"
+                                            >
+                                        @else
+                                            <div class="flex h-11 w-11 items-center justify-center rounded-lg border border-white/10 bg-[#1a1a1a] text-sm font-bold text-[#00c896]">
+                                                {{ strtoupper(substr($proveedor->especialidad ?? 'P', 0, 1)) }}
+                                            </div>
+                                        @endif
+
+                                        <div class="min-w-0">
+                                            <p class="font-semibold text-white">
+                                                {{ $proveedor->especialidad }}
+                                            </p>
+
+                                            <p class="mt-1 text-xs text-gray-500">
+                                                ID #{{ $proveedor->id_proveedor }}
+                                            </p>
+                                        </div>
+
+                                    </div>
+
+                                </td>
 
 
-                        {{-- ================================================= --}}
-                        {{-- ACCIONES --}}
-                        {{-- ================================================= --}}
+                                {{-- USUARIO RELACIONADO --}}
+                                <td class="px-5 py-4">
 
-                        <td class="px-4 py-3">
+                                    @if($proveedor->usuario)
+                                        <p class="text-sm font-medium text-gray-200">
+                                            {{ $proveedor->usuario->nombre }}
+                                        </p>
 
-                            <div class="flex flex-wrap gap-2">
+                                        <p class="mt-1 text-xs text-gray-500">
+                                            {{ $proveedor->usuario->email }}
+                                        </p>
+                                    @else
+                                        <span class="text-sm text-gray-500">
+                                            Sin usuario relacionado
+                                        </span>
+                                    @endif
 
-                                <a
-                                    href="{{ route('proveedores.edit', $proveedor) }}"
-                                    class="text-yellow-300 hover:text-yellow-200"
-                                >
-                                    Editar
-                                </a>
+                                </td>
 
-                                <a
-                                    href="{{ route('proveedores.disponibilidades.index', $proveedor) }}"
-                                    class="text-[#00c896] hover:text-[#00e0aa]"
-                                >
-                                    Disponibilidad
-                                </a>
 
-                                <form
-                                    method="POST"
-                                    action="{{ route('proveedores.destroy', $proveedor) }}"
-                                    onsubmit="return confirm('¿Eliminar este proveedor?')"
-                                >
+                                {{-- TELÉFONO --}}
+                                <td class="whitespace-nowrap px-5 py-4">
+                                    <span class="text-sm text-gray-300">
+                                        {{ $proveedor->telefono ?: 'No registrado' }}
+                                    </span>
+                                </td>
 
-                                    @csrf
-                                    @method('DELETE')
 
-                                    <button
-                                        type="submit"
-                                        class="text-red-300 hover:text-red-200"
-                                    >
-                                        Eliminar
-                                    </button>
+                                {{-- WHATSAPP --}}
+                                <td class="whitespace-nowrap px-5 py-4">
 
-                                </form>
+                                    @if($proveedor->whatsapp)
+                                        <span class="text-sm text-gray-300">
+                                            {{ $proveedor->whatsapp }}
+                                        </span>
+                                    @else
+                                        <span class="text-sm text-gray-500">
+                                            No registrado
+                                        </span>
+                                    @endif
 
-                            </div>
+                                </td>
 
-                        </td>
 
-                    </tr>
+                                {{-- ACCIONES: EDITAR Y ELIMINAR --}}
+                                <td class="px-5 py-4">
 
-                @empty
+                                    <div class="flex flex-wrap items-center justify-end gap-2">
 
-                    <tr>
+                                        {{-- EDITAR --}}
+                                        @if(auth()->check() && auth()->user()->tienePermiso('proveedores.editar'))
+                                            <a
+                                                href="{{ route('proveedores.edit', $proveedor->id_proveedor) }}"
+                                                class="rounded-lg border border-white/10 px-3 py-2 text-xs font-medium text-gray-300 transition hover:border-[#00c896]/40 hover:text-[#00c896]"
+                                            >
+                                                Editar
+                                            </a>
+                                        @endif
 
-                        <td
-                            colspan="6"
-                            class="px-4 py-8 text-center text-gray-500"
-                        >
-                            No hay proveedores registrados.
-                        </td>
 
-                    </tr>
+                                        {{-- ELIMINAR --}}
+                                        @if(auth()->check() && auth()->user()->tienePermiso('proveedores.eliminar'))
+                                            <form
+                                                method="POST"
+                                                action="{{ route('proveedores.destroy', $proveedor->id_proveedor) }}"
+                                                onsubmit="return confirm('¿Estás seguro de que deseas eliminar este proveedor?');"
+                                            >
+                                                @csrf
+                                                @method('DELETE')
 
-                @endforelse
+                                                <button
+                                                    type="submit"
+                                                    class="rounded-lg border border-red-500/20 px-3 py-2 text-xs font-medium text-red-300 transition hover:bg-red-500/10"
+                                                >
+                                                    Eliminar
+                                                </button>
+                                            </form>
+                                        @endif
 
-            </tbody>
 
-        </table>
+                                        {{-- SIN ACCIONES DISPONIBLES --}}
+                                        @if(
+                                            !auth()->check()
+                                            || (
+                                                !auth()->user()->tienePermiso('proveedores.editar')
+                                                && !auth()->user()->tienePermiso('proveedores.eliminar')
+                                            )
+                                        )
+                                            <span class="text-xs text-gray-500">
+                                                Sin acciones disponibles
+                                            </span>
+                                        @endif
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                        @endforeach
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        @endif
 
     </div>
 

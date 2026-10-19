@@ -263,18 +263,20 @@
                     CANCELAR
                 </a>
 
-                <button
-                    type="submit"
-                    class="px-5 py-3 font-black uppercase tracking-widest text-black"
-                    style="
-                        font-size:10px;
-                        background:#00c896;
-                        border-radius:4px;
-                        cursor:pointer;
-                    "
-                >
-                    GUARDAR CLIENTE
-                </button>
+                @if(auth()->check() && auth()->user()->tienePermiso('clientes.crear'))
+                    <button
+                        type="submit"
+                        class="px-5 py-3 font-black uppercase tracking-widest text-black"
+                        style="
+                            font-size:10px;
+                            background:#00c896;
+                            border-radius:4px;
+                            cursor:pointer;
+                        "
+                    >
+                        GUARDAR CLIENTE
+                    </button>
+                @endif
 
             </div>
 

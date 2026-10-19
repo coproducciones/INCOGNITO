@@ -8,9 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class PedidoEvento extends Model
 {
     protected $table = 'pedido_evento';
-
     protected $primaryKey = 'id_evento';
-
     public $timestamps = false;
 
     protected $fillable = [

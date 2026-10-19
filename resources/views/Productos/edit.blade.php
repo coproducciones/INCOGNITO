@@ -3,163 +3,97 @@
 @section('title', 'Editar Producto')
 
 @section('content')
-
-<div class="flex items-center justify-between mb-8">
+<div class="mb-8 flex items-center justify-between">
     <div>
-        <h1 class="font-black uppercase tracking-widest text-white"
-            style="font-size:22px; letter-spacing:0.15em;">EDITAR PRODUCTO</h1>
-        <p class="font-bold uppercase tracking-widest mt-1"
-            style="font-size:10px; color:rgba(255,255,255,0.4);">
-            GESTIÓN DE PRODUCTOS
-        </p>
+        <h1 class="text-xl font-black uppercase tracking-widest text-white">Editar producto</h1>
+        <p class="mt-1 text-xs font-bold uppercase tracking-widest text-white/40">Gestión de productos</p>
     </div>
-    <a href="{{ route('productos.index') }}"
-        class="font-black uppercase tracking-widest px-5 py-2 text-white"
-        style="font-size:11px; border:1px solid rgba(255,255,255,0.2); border-radius:4px; letter-spacing:0.1em;">
-        ← VOLVER
+    <a href="{{ route('productos.index') }}" class="rounded border border-white/20 px-5 py-2 text-xs font-bold uppercase text-white">
+        ← Volver
     </a>
 </div>
 
-@if($errors->any())
-    <div class="mb-6 px-4 py-3 font-bold uppercase tracking-widest"
-        style="font-size:10px; background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.3); border-radius:4px; color:#f87171;">
-        Por favor corrige los errores antes de continuar.
+@if ($errors->any())
+    <div class="mb-6 rounded border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm text-red-300">
+        Revisa los campos señalados antes de continuar.
     </div>
 @endif
 
-<div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px;" class="p-8">
-    <form action="{{ route('productos.update', $producto) }}" method="POST">
+<div class="rounded-lg border border-white/10 bg-white/[0.03] p-5 sm:p-8">
+    <form action="{{ route('productos.update', $producto) }}" method="POST" class="space-y-5">
         @csrf
         @method('PUT')
 
-        {{-- Categoría --}}
-        <div class="mb-5">
-            <label class="block font-black uppercase tracking-widest mb-2"
-                style="font-size:10px; color:rgba(255,255,255,0.4);">
-                Categoría <span style="color:#00c896;">*</span>
-            </label>
-            <select name="categoria_id"
-                class="w-full px-4 py-2 font-bold text-white bg-transparent outline-none"
-                style="border:1px solid rgba(255,255,255,0.15); border-radius:4px; font-size:13px; background:#111; cursor:pointer;"
-                onfocus="this.style.borderColor='#00c896'"
-                onblur="this.style.borderColor='rgba(255,255,255,0.15)'">
-                <option value="">-- Selecciona una categoría --</option>
-                @foreach($categorias as $categoria)
-                    <option value="{{ $categoria->id }}"
-                        {{ old('categoria_id', $producto->categoria_id) == $categoria->id ? 'selected' : '' }}>
+        {{-- Categoría actual y opciones disponibles. --}}
+        <div>
+            <label for="categoria_id" class="mb-2 block text-xs font-bold uppercase text-white/60">Categoría *</label>
+            <select id="categoria_id" name="categoria_id" required class="w-full rounded border border-white/15 bg-[#111] px-4 py-3 text-sm text-white">
+                <option value="">Selecciona una categoría</option>
+                @foreach ($categorias as $categoria)
+                    <option value="{{ $categoria->id }}" @selected(old('categoria_id', $producto->categoria_id) == $categoria->id)>
                         {{ $categoria->nombre }}
                     </option>
                 @endforeach
             </select>
-            @error('categoria_id')
-                <p class="mt-1 font-bold uppercase tracking-widest"
-                    style="font-size:10px; color:#f87171;">{{ $message }}</p>
-            @enderror
+            @error('categoria_id') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
         </div>
 
-        {{-- Nombre --}}
-        <div class="mb-5">
-            <label class="block font-black uppercase tracking-widest mb-2"
-                style="font-size:10px; color:rgba(255,255,255,0.4);">
-                Nombre <span style="color:#00c896;">*</span>
-            </label>
-            <input type="text" name="nombre"
-                value="{{ old('nombre', $producto->nombre) }}"
-                class="w-full px-4 py-2 font-bold text-white bg-transparent outline-none"
-                style="border:1px solid rgba(255,255,255,0.15); border-radius:4px; font-size:13px;"
-                placeholder="Nombre del producto"
-                onfocus="this.style.borderColor='#00c896'"
-                onblur="this.style.borderColor='rgba(255,255,255,0.15)'">
-            @error('nombre')
-                <p class="mt-1 font-bold uppercase tracking-widest"
-                    style="font-size:10px; color:#f87171;">{{ $message }}</p>
-            @enderror
+        {{-- El proveedor asociado se usará como destino de contacto por WhatsApp. --}}
+        <div>
+            <label for="id_proveedor" class="mb-2 block text-xs font-bold uppercase text-white/60">Proveedor *</label>
+            <select id="id_proveedor" name="id_proveedor" required class="w-full rounded border border-white/15 bg-[#111] px-4 py-3 text-sm text-white">
+                <option value="">Selecciona un proveedor</option>
+                @foreach ($proveedores as $proveedor)
+                    <option value="{{ $proveedor->id_proveedor }}" @selected(old('id_proveedor', $producto->id_proveedor) == $proveedor->id_proveedor)>
+                        {{ $proveedor->especialidad }} — {{ $proveedor->usuario->nombre ?? 'Proveedor #' . $proveedor->id_proveedor }}
+                    </option>
+                @endforeach
+            </select>
+            <p class="mt-1 text-xs text-white/40">El proveedor debe tener WhatsApp con código de país para poder contactarlo.</p>
+            @if ($proveedores->isEmpty())
+                <p class="mt-2 text-xs text-amber-300">No hay proveedores activos disponibles.</p>
+            @endif
+            @error('id_proveedor') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
         </div>
 
-        {{-- Descripción --}}
-        <div class="mb-5">
-            <label class="block font-black uppercase tracking-widest mb-2"
-                style="font-size:10px; color:rgba(255,255,255,0.4);">
-                Descripción
-            </label>
-            <textarea name="descripcion" rows="3"
-                class="w-full px-4 py-2 font-bold text-white bg-transparent outline-none"
-                style="border:1px solid rgba(255,255,255,0.15); border-radius:4px; font-size:13px; resize:vertical;"
-                placeholder="Descripción del producto"
-                onfocus="this.style.borderColor='#00c896'"
-                onblur="this.style.borderColor='rgba(255,255,255,0.15)'">{{ old('descripcion', $producto->descripcion) }}</textarea>
-            @error('descripcion')
-                <p class="mt-1 font-bold uppercase tracking-widest"
-                    style="font-size:10px; color:#f87171;">{{ $message }}</p>
-            @enderror
+        <div>
+            <label for="nombre" class="mb-2 block text-xs font-bold uppercase text-white/60">Nombre *</label>
+            <input id="nombre" name="nombre" type="text" maxlength="80" required value="{{ old('nombre', $producto->nombre) }}" class="w-full rounded border border-white/15 bg-transparent px-4 py-3 text-sm text-white">
+            @error('nombre') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
         </div>
 
-        {{-- Precio y Stock --}}
-        <div class="grid grid-cols-2 gap-5 mb-5">
+        <div>
+            <label for="descripcion" class="mb-2 block text-xs font-bold uppercase text-white/60">Descripción</label>
+            <textarea id="descripcion" name="descripcion" rows="3" class="w-full rounded border border-white/15 bg-transparent px-4 py-3 text-sm text-white">{{ old('descripcion', $producto->descripcion) }}</textarea>
+            @error('descripcion') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
+        </div>
+
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
             <div>
-                <label class="block font-black uppercase tracking-widest mb-2"
-                    style="font-size:10px; color:rgba(255,255,255,0.4);">
-                    Precio <span style="color:#00c896;">*</span>
-                </label>
-                <input type="number" name="precio"
-                    value="{{ old('precio', $producto->precio) }}"
-                    step="0.01" min="0"
-                    class="w-full px-4 py-2 font-bold text-white bg-transparent outline-none"
-                    style="border:1px solid rgba(255,255,255,0.15); border-radius:4px; font-size:13px;"
-                    placeholder="0.00"
-                    onfocus="this.style.borderColor='#00c896'"
-                    onblur="this.style.borderColor='rgba(255,255,255,0.15)'">
-                @error('precio')
-                    <p class="mt-1 font-bold uppercase tracking-widest"
-                        style="font-size:10px; color:#f87171;">{{ $message }}</p>
-                @enderror
+                <label for="precio" class="mb-2 block text-xs font-bold uppercase text-white/60">Precio *</label>
+                <input id="precio" name="precio" type="number" min="0" step="0.01" required value="{{ old('precio', $producto->precio) }}" class="w-full rounded border border-white/15 bg-transparent px-4 py-3 text-sm text-white">
+                @error('precio') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
             </div>
             <div>
-                <label class="block font-black uppercase tracking-widest mb-2"
-                    style="font-size:10px; color:rgba(255,255,255,0.4);">
-                    Stock <span style="color:#00c896;">*</span>
-                </label>
-                <input type="number" name="stock"
-                    value="{{ old('stock', $producto->stock) }}"
-                    min="0"
-                    class="w-full px-4 py-2 font-bold text-white bg-transparent outline-none"
-                    style="border:1px solid rgba(255,255,255,0.15); border-radius:4px; font-size:13px;"
-                    placeholder="0"
-                    onfocus="this.style.borderColor='#00c896'"
-                    onblur="this.style.borderColor='rgba(255,255,255,0.15)'">
-                @error('stock')
-                    <p class="mt-1 font-bold uppercase tracking-widest"
-                        style="font-size:10px; color:#f87171;">{{ $message }}</p>
-                @enderror
+                <label for="stock" class="mb-2 block text-xs font-bold uppercase text-white/60">Stock *</label>
+                <input id="stock" name="stock" type="number" min="0" step="1" required value="{{ old('stock', $producto->stock) }}" class="w-full rounded border border-white/15 bg-transparent px-4 py-3 text-sm text-white">
+                @error('stock') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
             </div>
         </div>
 
-        {{-- Activo --}}
-        <div class="mb-8 flex items-center gap-3">
-            <input type="checkbox" name="activo" id="activo" value="1"
-                {{ old('activo', $producto->activo) ? 'checked' : '' }}
-                style="accent-color:#00c896; width:16px; height:16px; cursor:pointer;">
-            <label for="activo" class="font-black uppercase tracking-widest"
-                style="font-size:10px; color:rgba(255,255,255,0.4); cursor:pointer;">
-                PRODUCTO ACTIVO
-            </label>
-        </div>
+        <label class="flex items-center gap-3 text-xs font-bold uppercase text-white/60">
+            <input type="checkbox" name="activo" value="1" @checked(old('activo', $producto->activo)) class="accent-[#00c896]">
+            Producto activo
+        </label>
 
-        {{-- Botones --}}
-        <div class="flex items-center gap-4">
-            <button type="submit"
-                class="font-black uppercase tracking-widest px-6 py-2 text-black"
-                style="font-size:11px; background:#00c896; border-radius:4px; letter-spacing:0.1em; cursor:pointer; border:none;">
-                GUARDAR CAMBIOS
-            </button>
-            <a href="{{ route('productos.index') }}"
-                class="font-black uppercase tracking-widest px-6 py-2 text-white"
-                style="font-size:11px; border:1px solid rgba(255,255,255,0.2); border-radius:4px; letter-spacing:0.1em;">
-                CANCELAR
-            </a>
+        <div class="flex flex-wrap gap-3 pt-2">
+            @if (auth()->check() && auth()->user()->tienePermiso('productos.editar'))
+                <button type="submit" @disabled($proveedores->isEmpty()) class="rounded bg-[#00c896] px-6 py-3 text-xs font-black uppercase tracking-widest text-black disabled:cursor-not-allowed disabled:opacity-50">
+                    Guardar cambios
+                </button>
+            @endif
+            <a href="{{ route('productos.index') }}" class="rounded border border-white/20 px-6 py-3 text-xs font-bold uppercase text-white">Cancelar</a>
         </div>
-
     </form>
 </div>
-
 @endsection

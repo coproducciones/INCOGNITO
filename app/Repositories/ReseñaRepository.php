@@ -83,5 +83,50 @@ class ReseñaRepository
             ->orderByDesc('fecha')
             ->get();
     }
+
+    /**
+     * Obtiene solamente las reseñas del usuario autenticado.
+     */
+    public function forUsuario(int $usuarioId): Collection
+    {
+        return Reseña::with([
+            'usuario',
+            'producto',
+            'cliente',
+        ])
+            ->where('id_usuario', $usuarioId)
+            ->orderByDesc('fecha')
+            ->get();
+    }
+
+    /**
+     * Busca una reseña solamente si pertenece al usuario indicado.
+     */
+    public function findForUsuario(
+        int $reseñaId,
+        int $usuarioId
+    ): Reseña {
+        return Reseña::with([
+            'usuario',
+            'producto',
+            'cliente',
+        ])
+            ->where('id_usuario', $usuarioId)
+            ->findOrFail($reseñaId);
+    }
+
+    /**
+     * Comprueba si el usuario ya reseñó un producto.
+     */
+    public function existsForUsuarioProducto(
+        int $usuarioId,
+        int $productoId
+    ): bool {
+        return Reseña::query()
+            ->where('id_usuario', $usuarioId)
+            ->where('id_producto', $productoId)
+            ->exists();
+    }
+
 }
 

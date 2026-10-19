@@ -18,6 +18,12 @@ class ProductoStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'id_proveedor' => [
+                'required',
+                'integer',
+                'exists:proveedor,id_proveedor',
+            ],
+
             'categoria_id' => [
                 'required',
                 'exists:categorias,id',
@@ -60,6 +66,10 @@ class ProductoStoreRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'id_proveedor.required' => 'Debes seleccionar un proveedor.',
+            'id_proveedor.integer' => 'El proveedor seleccionado no es válido.',
+            'id_proveedor.exists' => 'El proveedor seleccionado no existe.',
+
             'categoria_id.required' => 'Debes seleccionar una categoría.',
             'categoria_id.exists' => 'La categoría seleccionada no existe.',
 

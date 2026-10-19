@@ -43,8 +43,10 @@ class EstadoGeneral extends Model
         'tipo',
         'nombre',
     ];
-
-
+    public function usuarios(): HasMany
+    {
+        return $this->hasMany(Usuario::class, 'id_estado', 'id_estado');
+    }
     /*
      * =========================================================
      * ESTADO → PEDIDOS
@@ -61,10 +63,7 @@ class EstadoGeneral extends Model
             'id_estado'
         );
     }
-
-
-    /*
-     * =========================================================
+ /* * =========================================================
      * ESTADO → EVENTOS
      * =========================================================
      *

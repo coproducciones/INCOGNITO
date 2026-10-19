@@ -8,23 +8,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Producto extends Model
 {
-    /*
-     * =========================================================
-     * TABLA
-     * =========================================================
-     */
-
     protected $table = 'productos';
-
-
-    /*
-     * =========================================================
-     * CAMPOS ASIGNABLES
-     * =========================================================
-     */
 
     protected $fillable = [
         'categoria_id',
+        'id_proveedor',
         'nombre',
         'descripcion',
         'precio',
@@ -32,34 +20,13 @@ class Producto extends Model
         'activo',
     ];
 
-
-    /*
-     * =========================================================
-     * CASTS
-     * =========================================================
-     */
-
     protected $casts = [
         'precio' => 'decimal:2',
         'stock' => 'integer',
         'activo' => 'boolean',
     ];
 
-
-    /*
-     * =========================================================
-     * PRODUCTO → CATEGORÍA
-     *
-     * Ejemplo:
-     *
-     * Producto:
-     * Cámara Sony
-     *
-     * Categoría:
-     * Audiovisual
-     * =========================================================
-     */
-
+    /** Un producto pertenece a una categoría. */
     public function categoria(): BelongsTo
     {
         return $this->belongsTo(
@@ -69,15 +36,17 @@ class Producto extends Model
         );
     }
 
+    /** Un producto pertenece a un proveedor. */
+    public function proveedor(): BelongsTo
+    {
+        return $this->belongsTo(
+            Proveedor::class,
+            'id_proveedor',
+            'id_proveedor'
+        );
+    }
 
-    /*
-     * =========================================================
-     * PRODUCTO → DETALLES DE PEDIDO
-     *
-     * Un producto puede estar en muchos pedidos.
-     * =========================================================
-     */
-
+    /** Un producto puede aparecer en varios detalles de pedido. */
     public function detallesPedido(): HasMany
     {
         return $this->hasMany(

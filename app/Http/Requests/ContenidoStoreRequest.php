@@ -16,18 +16,17 @@ class ContenidoStoreRequest extends FormRequest
         return [
             'titulo' => ['required', 'string', 'max:150'],
             'descripcion' => ['nullable', 'string'],
-            'seccion' => ['required', 'string', 'max:100'],
+            'categoria_id' => ['required', 'integer', 'exists:categorias,id'],
         ];
     }
-    public function withValidator($validator)
+
+    public function messages(): array
     {
-        $validator->after(function ($validator) {
-            $this->validate([
-                'titulo' => 'required|string|max:255',
-                'categoria_id' => 'required|exists:categorias,id',
-                'descripcion' => 'nullable|string',
-            ]);
-        });
+        return [
+            'titulo.required' => 'El título es obligatorio.',
+            'titulo.max' => 'El título no puede superar los 150 caracteres.',
+            'categoria_id.required' => 'Debes seleccionar una categoría.',
+            'categoria_id.exists' => 'La categoría seleccionada no existe.',
+        ];
     }
-    
 }

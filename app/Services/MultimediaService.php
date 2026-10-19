@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Models\Multimedia;
 use App\Repositories\MultimediaRepository;
 use Illuminate\Database\Eloquent\Collection;
-use InvalidArgumentException;
+use Illuminate\Validation\ValidationException;
 
 class MultimediaService
 {
@@ -14,50 +14,27 @@ class MultimediaService
     ) {
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Obtener todos
-    |--------------------------------------------------------------------------
-    */
-
     public function getAll(): Collection
     {
         return $this->multimediaRepository->getAll();
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Crear
-    |--------------------------------------------------------------------------
-    */
-
     public function create(array $data): Multimedia
     {
         $data = $this->normalizeTarget($data);
 
-        $data['destacado'] = (bool) (
-            $data['destacado'] ?? false
-        );
+        $data['destacado'] = (bool) ($data['destacado'] ?? false);
 
         return $this->multimediaRepository->create($data);
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Actualizar
-    |--------------------------------------------------------------------------
-    */
 
     public function update(
         Multimedia $multimedia,
         array $data
     ): Multimedia {
-
         $data = $this->normalizeTarget($data);
 
-        $data['destacado'] = (bool) (
-            $data['destacado'] ?? false
-        );
+        $data['destacado'] = (bool) ($data['destacado'] ?? false);
 
         return $this->multimediaRepository->update(
             $multimedia,
@@ -65,67 +42,27 @@ class MultimediaService
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Eliminar
-    |--------------------------------------------------------------------------
-    */
-
     public function delete(Multimedia $multimedia): bool
     {
-        return $this->multimediaRepository->delete(
-            $multimedia
-        );
+        return $this->multimediaRepository->delete($multimedia);
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Normalizar asociación
-    |--------------------------------------------------------------------------
-    */
 
     private function normalizeTarget(array $data): array
     {
-        $targets = [
-            'id_producto',
-            'id_contenido',
-        ];
+        $producto = $data['id_producto'] ?? null;
+        $contenido = $data['id_contenido'] ?? null;
 
-        $filled = array_filter(
-            $targets,
-            function (string $field) use ($data): bool {
+        $tieneProducto = $producto !== null && $producto !== '';
+        $tieneContenido = $contenido !== null && $contenido !== '';
 
-                return array_key_exists($field, $data)
-                    && $data[$field] !== null
-                    && $data[$field] !== '';
-            }
-        );
-
-        /*
-        |--------------------------------------------------------------------------
-        | Debe existir exactamente una asociación
-        |--------------------------------------------------------------------------
-        */
-
-        if (count($filled) !== 1) {
-
-            throw new InvalidArgumentException(
-                'La media debe estar asociada exactamente a un producto o a un contenido.'
-            );
+        if ($tieneProducto === $tieneContenido) {
+            throw ValidationException::withMessages([
+                'destino' => 'Debes seleccionar exactamente un producto o un contenido, no ambos.',
+            ]);
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | El campo no seleccionado se establece como NULL
-        |--------------------------------------------------------------------------
-        */
-
-        foreach ($targets as $field) {
-
-            if (!in_array($field, $filled, true)) {
-                $data[$field] = null;
-            }
-        }
+        $data['id_producto'] = $tieneProducto ? $producto : null;
+        $data['id_contenido'] = $tieneContenido ? $contenido : null;
 
         return $data;
     }

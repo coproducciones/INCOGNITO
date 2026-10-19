@@ -17,10 +17,17 @@ class UsuarioService
     /**
      * Constructor.
      */
-    public function __construct(UsuarioRepository $usuarioRepository)
-    {
+    public function __construct(
+        UsuarioRepository $usuarioRepository
+    ) {
         $this->usuarioRepository = $usuarioRepository;
     }
+
+    /**
+     * =========================================================
+     * CONSULTAS
+     * =========================================================
+     */
 
     /**
      * Obtener todos los usuarios.
@@ -31,7 +38,7 @@ class UsuarioService
     }
 
     /**
-     * Buscar un usuario.
+     * Buscar un usuario por ID.
      */
     public function findById(int $id): Usuario
     {
@@ -39,52 +46,107 @@ class UsuarioService
     }
 
     /**
+     * =========================================================
+     * CREAR
+     * =========================================================
+     */
+
+    /**
      * Crear un usuario.
      */
     public function create(array $data): Usuario
     {
-        /*
-         * La contraseña nunca se guarda
-         * directamente en la base de datos.
-         */
-        $data['password'] = Hash::make($data['password']);
+        if (!empty($data['password'])) {
+            $data['password'] = Hash::make(
+                $data['password']
+            );
+        }
 
         return $this->usuarioRepository->create($data);
     }
 
     /**
-     * Actualizar un usuario.
+     * =========================================================
+     * ACTUALIZAR
+     * =========================================================
      */
-    public function update(Usuario $usuario, array $data): Usuario
-    {
-        /*
-         * Si se escribió una nueva contraseña,
-         * la encriptamos.
-         */
-        if (!empty($data['password'])) {
 
-            $data['password'] = Hash::make($data['password']);
-
+    /**
+     * Actualizar un usuario desde el CRUD administrativo.
+     */
+    public function update(
+        Usuario $usuario,
+        array $data
+    ): Usuario {
+        if (
+            array_key_exists('password', $data) &&
+            !empty($data['password'])
+        ) {
+            $data['password'] = Hash::make(
+                $data['password']
+            );
         } else {
-
-            /*
-             * Si no se escribió contraseña,
-             * eliminamos el campo para conservar
-             * la contraseña actual.
-             */
             unset($data['password']);
         }
 
-        $this->usuarioRepository->update($usuario, $data);
+        $this->usuarioRepository->update(
+            $usuario,
+            $data
+        );
 
         return $usuario->fresh();
     }
 
     /**
+     * Actualizar solamente los datos permitidos del perfil.
+     *
+     * Este método NO modifica:
+     * - id
+     * - id_rol
+     * - id_estado
+     * - permisos
+     */
+    public function updateProfile(
+        Usuario $usuario,
+        array $data
+    ): Usuario {
+        $profileData = [
+            'nombre' => $data['nombre'],
+            'email' => $data['email'],
+            'telefono' => $data['telefono'] ?? null,
+        ];
+
+        if (
+            array_key_exists('password', $data) &&
+            !empty($data['password'])
+        ) {
+            $profileData['password'] = Hash::make(
+                $data['password']
+            );
+        }
+
+        $this->usuarioRepository->update(
+            $usuario,
+            $profileData
+        );
+
+        return $usuario->fresh();
+    }
+
+    /**
+     * =========================================================
+     * ELIMINAR
+     * =========================================================
+     */
+
+    /**
      * Eliminar un usuario.
      */
-    public function delete(Usuario $usuario): bool
-    {
-        return $this->usuarioRepository->delete($usuario);
+    public function delete(
+        Usuario $usuario
+    ): bool {
+        return $this->usuarioRepository->delete(
+            $usuario
+        );
     }
 }

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Cliente extends Model
 {
@@ -17,10 +18,23 @@ class Cliente extends Model
     public $timestamps = false;
 
     protected $fillable = [
+        'id_usuario',
         'nombre',
         'empresa',
         'logo_url',
     ];
+
+    /**
+     * Un cliente puede estar asociado a una cuenta de usuario.
+     */
+    public function usuario(): BelongsTo
+    {
+        return $this->belongsTo(
+            Usuario::class,
+            'id_usuario',
+            'id'
+        );
+    }
 
     /**
      * Un cliente puede tener muchas reseñas.

@@ -107,4 +107,35 @@ class PedidoRepository
 
         return $pedido->refresh();
     }
+
+    /**
+     * Obtiene solamente los pedidos del usuario autenticado.
+     */
+    public function forUsuario(int $usuarioId)
+    {
+        return Pedido::with([
+            'usuario',
+            'estado',
+        ])
+            ->withCount('detalles')
+            ->where('id_usuario', $usuarioId)
+            ->orderByDesc('fecha_pedido')
+            ->get();
+    }
+
+    /**
+     * Obtiene un pedido solamente si pertenece al usuario indicado.
+     */
+    public function findForUsuario(int $pedidoId, int $usuarioId): Pedido
+    {
+        return Pedido::with([
+            'usuario',
+            'estado',
+            'detalles.producto.categoria',
+            'eventos.estado',
+        ])
+            ->where('id_usuario', $usuarioId)
+            ->findOrFail($pedidoId);
+    }
+
 }

@@ -4,6 +4,154 @@
 
 @section('content')
 
+@if($modoMiCuenta ?? false)
+
+<div class="w-full max-w-7xl">
+
+    <div class="mb-8">
+        <a href="{{ route('mi-cuenta.pedidos') }}"
+           class="font-bold uppercase tracking-widest"
+           style="font-size:9px;color:rgba(255,255,255,.4);">
+            ← MIS PEDIDOS
+        </a>
+
+        <h1 class="mt-5 font-black uppercase tracking-widest text-white"
+            style="font-size:22px;letter-spacing:.15em;">
+            PEDIDO #{{ $pedido->id_pedido }}
+        </h1>
+
+        <p class="mt-1 font-bold uppercase tracking-widest"
+           style="font-size:10px;color:rgba(255,255,255,.4);">
+            DETALLE DE TU PEDIDO
+        </p>
+    </div>
+
+    @if(session('success'))
+        <div class="mb-6 px-4 py-3 font-bold uppercase tracking-widest"
+             style="font-size:10px;background:rgba(0,200,150,.1);border:1px solid rgba(0,200,150,.3);border-radius:4px;color:#00c896;">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div class="p-5" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:5px;">
+            <span class="font-black uppercase tracking-widest" style="font-size:9px;color:rgba(255,255,255,.35);">FECHA</span>
+            <p class="mt-2 font-black text-white" style="font-size:13px;">
+                {{ $pedido->fecha_pedido?->format('d/m/Y H:i') ?? 'SIN FECHA' }}
+            </p>
+        </div>
+
+        <div class="p-5" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:5px;">
+            <span class="font-black uppercase tracking-widest" style="font-size:9px;color:rgba(255,255,255,.35);">ESTADO</span>
+            <p class="mt-2 font-black uppercase" style="font-size:13px;color:#fbbf24;">
+                {{ $pedido->estado?->nombre ?? 'SIN ESTADO' }}
+            </p>
+        </div>
+
+        <div class="p-5" style="background:rgba(0,200,150,.05);border:1px solid rgba(0,200,150,.15);border-radius:5px;">
+            <span class="font-black uppercase tracking-widest" style="font-size:9px;color:rgba(255,255,255,.35);">TOTAL</span>
+            <p class="mt-2 font-black" style="font-size:18px;color:#00c896;">
+                ${{ number_format((float) $pedido->total, 0, ',', '.') }}
+            </p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+
+        <div class="xl:col-span-2">
+            <div class="mb-4">
+                <h2 class="font-black uppercase tracking-widest text-white" style="font-size:12px;">
+                    PRODUCTOS
+                </h2>
+            </div>
+
+            <div class="overflow-hidden" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:6px;">
+                @forelse($pedido->detalles as $detalle)
+                    <div class="flex items-center justify-between gap-4 px-6 py-5"
+                         style="border-bottom:1px solid rgba(255,255,255,.06);">
+                        <div>
+                            <p class="font-black uppercase text-white" style="font-size:11px;">
+                                {{ $detalle->producto?->nombre ?? 'PRODUCTO NO DISPONIBLE' }}
+                            </p>
+                            <p class="mt-1 text-gray-500" style="font-size:10px;">
+                                {{ $detalle->cantidad }} × ${{ number_format((float) $detalle->precio_unitario, 0, ',', '.') }}
+                            </p>
+                        </div>
+
+                        <div class="text-right">
+                            <p class="font-black" style="font-size:12px;color:#00c896;">
+                                ${{ number_format((float) $detalle->subtotal, 0, ',', '.') }}
+                            </p>
+
+                            @if(($modoMiCuenta ?? false) && ($pedido->estado?->nombre === 'Pendiente'))
+                                <form method="POST"
+                                      action="{{ route('mi-cuenta.pedidos.detalles.update', [$pedido->id_pedido, $detalle->id_detalle]) }}"
+                                      class="mt-3 flex items-center justify-end gap-2">
+                                    @csrf
+                                    @method('PATCH')
+                                    <input type="number" name="cantidad" min="1"
+                                           value="{{ $detalle->cantidad }}"
+                                           aria-label="Cantidad de {{ $detalle->producto?->nombre }}"
+                                           class="w-16 rounded border border-white/10 bg-black px-2 py-1 text-center text-white">
+                                    <button type="submit" class="text-xs font-bold text-[#00c896]">Guardar</button>
+                                </form>
+                                <form method="POST"
+                                      action="{{ route('mi-cuenta.pedidos.detalles.destroy', [$pedido->id_pedido, $detalle->id_detalle]) }}"
+                                      class="mt-2">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" onclick="return confirm('¿Eliminar este producto del pedido?')"
+                                            class="text-xs text-red-300 hover:text-red-200">Eliminar producto</button>
+                                </form>
+                            @endif
+                        </div>
+                    </div>
+                @empty
+                    <div class="px-6 py-10 text-center font-bold uppercase tracking-widest"
+                         style="font-size:10px;color:rgba(255,255,255,.3);">
+                        ESTE PEDIDO NO TIENE PRODUCTOS
+                    </div>
+                @endforelse
+            </div>
+        </div>
+
+        <div>
+            <h2 class="mb-4 font-black uppercase tracking-widest text-white" style="font-size:12px;">
+                HISTORIAL
+            </h2>
+
+            <div class="overflow-hidden" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:6px;">
+                @forelse($pedido->eventos as $evento)
+                    <div class="px-5 py-5" style="border-bottom:1px solid rgba(255,255,255,.06);">
+                        <p class="font-black uppercase" style="font-size:10px;color:#00c896;">
+                            {{ $evento->tipo_evento }}
+                        </p>
+                        <p class="mt-1 font-bold text-white" style="font-size:11px;">
+                            {{ $evento->estado?->nombre ?? 'SIN ESTADO' }}
+                        </p>
+                        @if($evento->comentario)
+                            <p class="mt-2 text-gray-400" style="font-size:10px;">
+                                {{ $evento->comentario }}
+                            </p>
+                        @endif
+                        <p class="mt-2 text-gray-600" style="font-size:9px;">
+                            {{ $evento->fecha?->format('d/m/Y H:i') }}
+                        </p>
+                    </div>
+                @empty
+                    <div class="px-5 py-10 text-center font-bold uppercase tracking-widest"
+                         style="font-size:9px;color:rgba(255,255,255,.3);">
+                        SIN EVENTOS
+                    </div>
+                @endforelse
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@else
+
 <div class="w-full max-w-7xl">
 
     {{-- ========================================================= --}}
@@ -104,14 +252,117 @@
         </div>
 
     @endif
+{{-- ========================================================= --}}
+{{-- NOTIFICAR PROVEEDORES POR WHATSAPP --}}
+{{-- ========================================================= --}}
 
+@if(auth()->check() && auth()->user()->tienePermiso('pedidos.ver'))
+
+    @php
+        /*
+         * Obtenemos los proveedores de los productos del pedido.
+         * Si un proveedor tiene varios productos, solo aparecerá una vez.
+         */
+        $proveedoresPedido = $pedido->detalles
+            ->map(fn ($detalle) => $detalle->producto?->proveedor)
+            ->filter()
+            ->unique('id_proveedor')
+            ->values();
+    @endphp
+
+    <div
+        class="mb-8 p-6"
+        style="
+            background:rgba(37,211,102,0.04);
+            border:1px solid rgba(37,211,102,0.2);
+            border-radius:6px;
+        "
+    >
+
+        <h2
+            class="font-black uppercase tracking-widest text-white"
+            style="font-size:12px;letter-spacing:0.12em;"
+        >
+            NOTIFICAR PROVEEDORES
+        </h2>
+
+        <p
+            class="mt-2 mb-5"
+            style="
+                font-size:10px;
+                line-height:1.7;
+                color:rgba(255,255,255,0.5);
+            "
+        >
+            Prepara un mensaje de WhatsApp con los productos
+            correspondientes a cada proveedor.
+            Podrás revisar el mensaje antes de enviarlo.
+        </p>
+
+        @forelse($proveedoresPedido as $proveedor)
+
+            <div
+                class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 py-4"
+                style="border-top:1px solid rgba(255,255,255,0.08);"
+            >
+
+                <div>
+                    <p
+                        class="font-black uppercase text-white"
+                        style="font-size:11px;"
+                    >
+                        {{ $proveedor->nombre ?? 'PROVEEDOR #' . $proveedor->id_proveedor }}
+                    </p>
+
+                    <p
+                        class="mt-1"
+                        style="font-size:10px;color:rgba(255,255,255,0.45);"
+                    >
+                        Productos asignados a este proveedor en el pedido.
+                    </p>
+                </div>
+
+                <a
+                    href="{{ route('pedidos.whatsapp.proveedor', [
+                        'pedido' => $pedido->id_pedido,
+                        'proveedor' => $proveedor->id_proveedor,
+                    ]) }}"
+                    class="inline-flex items-center justify-center gap-2 px-5 py-3 font-black uppercase tracking-widest transition-opacity hover:opacity-80"
+                    style="
+                        background:#25D366;
+                        color:#111;
+                        border-radius:4px;
+                        font-size:9px;
+                        text-decoration:none;
+                    "
+                >
+                    <span>WHATSAPP</span>
+                    <span aria-hidden="true">↗</span>
+                </a>
+
+            </div>
+
+        @empty
+
+            <p
+                class="py-4 font-bold"
+                style="font-size:10px;color:rgba(255,255,255,0.4);"
+            >
+                No hay proveedores asignados a los productos de este pedido.
+                Revisa la asignación de proveedores en los productos.
+            </p>
+
+        @endforelse
+
+    </div>
+
+@endif
 
     {{-- ========================================================= --}}
     {{-- RESUMEN --}}
     {{-- ========================================================= --}}
 
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-
 
         {{-- PEDIDO --}}
 
@@ -263,356 +514,350 @@
             {{-- AGREGAR PRODUCTO --}}
             {{-- ================================================= --}}
 
-            <div
-                class="mb-6 p-6"
-                style="
-                    background:rgba(0,200,150,0.04);
-                    border:1px solid rgba(0,200,150,0.15);
-                    border-radius:6px;
-                "
-            >
+            @if(auth()->check() && auth()->user()->tienePermiso('pedidos.editar'))
 
-                <h2
-                    class="font-black uppercase tracking-widest text-white"
+                <div
+                    class="mb-6 p-6"
                     style="
-                        font-size:12px;
-                        letter-spacing:0.12em;
+                        background:rgba(0,200,150,0.04);
+                        border:1px solid rgba(0,200,150,0.15);
+                        border-radius:6px;
                     "
                 >
-                    AGREGAR PRODUCTO
-                </h2>
 
-                <p
-                    class="mt-2 mb-6"
-                    style="
-                        font-size:10px;
-                        line-height:1.6;
-                        color:rgba(255,255,255,0.4);
-                    "
-                >
-                    Selecciona un producto para consultar su información y agregarlo al pedido.
-                </p>
-
-
-                <form
-                    action="{{ route('pedidos.detalles.store', ['pedido' => $pedido->id_pedido]) }}"
-                    method="POST"
-                    id="formAgregarProducto"
-                >
-
-                    @csrf
-
-
-                    {{-- PRODUCTO --}}
-
-                    <div class="mb-5">
-
-                        <label
-                            for="id_producto"
-                            class="mb-2 block font-black uppercase tracking-widest"
-                            style="
-                                font-size:9px;
-                                color:rgba(255,255,255,0.5);
-                            "
-                        >
-                            PRODUCTO
-                        </label>
-
-                        <select
-                            name="id_producto"
-                            id="id_producto"
-                            required
-                            class="w-full px-4 py-3 text-white outline-none"
-                            style="
-                                background:rgba(255,255,255,0.04);
-                                border:1px solid rgba(255,255,255,0.1);
-                                border-radius:4px;
-                                font-size:11px;
-                            "
-                        >
-
-                            <option
-                                value=""
-                                style="background:#111;"
-                            >
-                                SELECCIONAR PRODUCTO
-                            </option>
-
-                            @foreach($productos as $producto)
-
-                                <option
-                                    value="{{ $producto->id }}"
-                                    data-nombre="{{ $producto->nombre }}"
-                                    data-categoria="{{ $producto->categoria?->nombre ?? 'SIN CATEGORÍA' }}"
-                                    data-descripcion="{{ $producto->descripcion ?? 'SIN DESCRIPCIÓN' }}"
-                                    data-precio="{{ $producto->precio }}"
-                                    data-stock="{{ $producto->stock }}"
-                                    style="background:#111;"
-                                >
-                                    {{ strtoupper($producto->nombre) }}
-                                    — ${{ number_format((float) $producto->precio, 0, ',', '.') }}
-                                </option>
-
-                            @endforeach
-
-                        </select>
-
-                        @error('id_producto')
-
-                            <p
-                                class="mt-2 font-bold"
-                                style="
-                                    font-size:9px;
-                                    color:#f87171;
-                                "
-                            >
-                                {{ $message }}
-                            </p>
-
-                        @enderror
-
-                    </div>
-
-
-                    {{-- INFORMACIÓN DEL PRODUCTO --}}
-
-                    <div
-                        id="productoInfo"
-                        class="hidden mb-5 p-5"
+                    <h2
+                        class="font-black uppercase tracking-widest text-white"
                         style="
-                            background:rgba(255,255,255,0.03);
-                            border:1px solid rgba(255,255,255,0.08);
-                            border-radius:4px;
+                            font-size:12px;
+                            letter-spacing:0.12em;
                         "
                     >
+                        AGREGAR PRODUCTO
+                    </h2>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <p
+                        class="mt-2 mb-6"
+                        style="
+                            font-size:10px;
+                            line-height:1.6;
+                            color:rgba(255,255,255,0.4);
+                        "
+                    >
+                        Selecciona un producto para consultar su información y agregarlo al pedido.
+                    </p>
 
 
-                            {{-- NOMBRE --}}
+                    <form
+                        action="{{ route('pedidos.detalles.store', ['pedido' => $pedido->id_pedido]) }}"
+                        method="POST"
+                        id="formAgregarProducto"
+                    >
 
-                            <div>
+                        @csrf
 
-                                <span
-                                    class="font-black uppercase tracking-widest"
-                                    style="
-                                        font-size:8px;
-                                        color:rgba(255,255,255,0.35);
-                                    "
+
+                        {{-- PRODUCTO --}}
+
+                        <div class="mb-5">
+
+                            <label
+                                for="id_producto"
+                                class="mb-2 block font-black uppercase tracking-widest"
+                                style="
+                                    font-size:9px;
+                                    color:rgba(255,255,255,0.5);
+                                "
+                            >
+                                PRODUCTO
+                            </label>
+
+                            <select
+                                name="id_producto"
+                                id="id_producto"
+                                required
+                                class="w-full px-4 py-3 text-white outline-none"
+                                style="
+                                    background:rgba(255,255,255,0.04);
+                                    border:1px solid rgba(255,255,255,0.1);
+                                    border-radius:4px;
+                                    font-size:11px;
+                                "
+                            >
+
+                                <option
+                                    value=""
+                                    style="background:#111;"
                                 >
-                                    PRODUCTO
-                                </span>
+                                    SELECCIONAR PRODUCTO
+                                </option>
+
+                                @foreach($productos as $producto)
+
+                                    <option
+                                        value="{{ $producto->id }}"
+                                        data-nombre="{{ $producto->nombre }}"
+                                        data-categoria="{{ $producto->categoria?->nombre ?? 'SIN CATEGORÍA' }}"
+                                        data-descripcion="{{ $producto->descripcion ?? 'SIN DESCRIPCIÓN' }}"
+                                        data-precio="{{ $producto->precio }}"
+                                        data-stock="{{ $producto->stock }}"
+                                        style="background:#111;"
+                                    >
+                                        {{ strtoupper($producto->nombre) }}
+                                        —
+                                        ${{ number_format((float) $producto->precio, 0, ',', '.') }}
+                                    </option>
+
+                                @endforeach
+
+                            </select>
+
+                            @error('id_producto')
 
                                 <p
-                                    id="productoNombre"
-                                    class="mt-1 font-black text-white"
-                                    style="font-size:12px;"
-                                ></p>
-
-                            </div>
-
-
-                            {{-- CATEGORÍA --}}
-
-                            <div>
-
-                                <span
-                                    class="font-black uppercase tracking-widest"
+                                    class="mt-2 font-bold"
                                     style="
-                                        font-size:8px;
-                                        color:rgba(255,255,255,0.35);
+                                        font-size:9px;
+                                        color:#f87171;
                                     "
                                 >
-                                    CATEGORÍA
-                                </span>
+                                    {{ $message }}
+                                </p>
 
-                                <p
-                                    id="productoCategoria"
-                                    class="mt-1 font-black"
-                                    style="
-                                        font-size:12px;
-                                        color:#00c896;
-                                    "
-                                ></p>
+                            @enderror
 
-                            </div>
+                        </div>
 
 
-                            {{-- PRECIO --}}
+                        {{-- INFORMACIÓN DEL PRODUCTO --}}
 
-                            <div>
+                        <div
+                            id="productoInfo"
+                            class="hidden mb-5 p-5"
+                            style="
+                                background:rgba(255,255,255,0.03);
+                                border:1px solid rgba(255,255,255,0.08);
+                                border-radius:4px;
+                            "
+                        >
 
-                                <span
-                                    class="font-black uppercase tracking-widest"
-                                    style="
-                                        font-size:8px;
-                                        color:rgba(255,255,255,0.35);
-                                    "
-                                >
-                                    PRECIO
-                                </span>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-                                <p
-                                    id="productoPrecio"
-                                    class="mt-1 font-black text-white"
-                                    style="font-size:12px;"
-                                ></p>
+                                <div>
 
-                            </div>
+                                    <span
+                                        class="font-black uppercase tracking-widest"
+                                        style="
+                                            font-size:8px;
+                                            color:rgba(255,255,255,0.35);
+                                        "
+                                    >
+                                        PRODUCTO
+                                    </span>
 
+                                    <p
+                                        id="productoNombre"
+                                        class="mt-1 font-black text-white"
+                                        style="font-size:12px;"
+                                    ></p>
 
-                            {{-- STOCK --}}
-
-                            <div>
-
-                                <span
-                                    class="font-black uppercase tracking-widest"
-                                    style="
-                                        font-size:8px;
-                                        color:rgba(255,255,255,0.35);
-                                    "
-                                >
-                                    STOCK DISPONIBLE
-                                </span>
-
-                                <p
-                                    id="productoStock"
-                                    class="mt-1 font-black text-white"
-                                    style="font-size:12px;"
-                                ></p>
-
-                            </div>
+                                </div>
 
 
-                            {{-- DESCRIPCIÓN --}}
+                                <div>
 
-                            <div class="md:col-span-2">
+                                    <span
+                                        class="font-black uppercase tracking-widest"
+                                        style="
+                                            font-size:8px;
+                                            color:rgba(255,255,255,0.35);
+                                        "
+                                    >
+                                        CATEGORÍA
+                                    </span>
 
-                                <span
-                                    class="font-black uppercase tracking-widest"
-                                    style="
-                                        font-size:8px;
-                                        color:rgba(255,255,255,0.35);
-                                    "
-                                >
-                                    DESCRIPCIÓN
-                                </span>
+                                    <p
+                                        id="productoCategoria"
+                                        class="mt-1 font-black"
+                                        style="
+                                            font-size:12px;
+                                            color:#00c896;
+                                        "
+                                    ></p>
 
-                                <p
-                                    id="productoDescripcion"
-                                    class="mt-1"
-                                    style="
-                                        font-size:10px;
-                                        line-height:1.6;
-                                        color:rgba(255,255,255,0.55);
-                                    "
-                                ></p>
+                                </div>
+
+
+                                <div>
+
+                                    <span
+                                        class="font-black uppercase tracking-widest"
+                                        style="
+                                            font-size:8px;
+                                            color:rgba(255,255,255,0.35);
+                                        "
+                                    >
+                                        PRECIO
+                                    </span>
+
+                                    <p
+                                        id="productoPrecio"
+                                        class="mt-1 font-black text-white"
+                                        style="font-size:12px;"
+                                    ></p>
+
+                                </div>
+
+
+                                <div>
+
+                                    <span
+                                        class="font-black uppercase tracking-widest"
+                                        style="
+                                            font-size:8px;
+                                            color:rgba(255,255,255,0.35);
+                                        "
+                                    >
+                                        STOCK DISPONIBLE
+                                    </span>
+
+                                    <p
+                                        id="productoStock"
+                                        class="mt-1 font-black text-white"
+                                        style="font-size:12px;"
+                                    ></p>
+
+                                </div>
+
+
+                                <div class="md:col-span-2">
+
+                                    <span
+                                        class="font-black uppercase tracking-widest"
+                                        style="
+                                            font-size:8px;
+                                            color:rgba(255,255,255,0.35);
+                                        "
+                                    >
+                                        DESCRIPCIÓN
+                                    </span>
+
+                                    <p
+                                        id="productoDescripcion"
+                                        class="mt-1"
+                                        style="
+                                            font-size:10px;
+                                            line-height:1.6;
+                                            color:rgba(255,255,255,0.55);
+                                        "
+                                    ></p>
+
+                                </div>
 
                             </div>
 
                         </div>
 
-                    </div>
 
+                        {{-- CANTIDAD --}}
 
-                    {{-- CANTIDAD --}}
+                        <div class="mb-5">
 
-                    <div class="mb-5">
-
-                        <label
-                            for="cantidad"
-                            class="mb-2 block font-black uppercase tracking-widest"
-                            style="
-                                font-size:9px;
-                                color:rgba(255,255,255,0.5);
-                            "
-                        >
-                            CANTIDAD
-                        </label>
-
-                        <input
-                            type="number"
-                            name="cantidad"
-                            id="cantidad"
-                            min="1"
-                            value="{{ old('cantidad', 1) }}"
-                            required
-                            class="w-full px-4 py-3 text-white outline-none"
-                            style="
-                                background:rgba(255,255,255,0.04);
-                                border:1px solid rgba(255,255,255,0.1);
-                                border-radius:4px;
-                                font-size:11px;
-                            "
-                        >
-
-                        @error('cantidad')
-
-                            <p
-                                class="mt-2 font-bold"
+                            <label
+                                for="cantidad"
+                                class="mb-2 block font-black uppercase tracking-widest"
                                 style="
                                     font-size:9px;
-                                    color:#f87171;
+                                    color:rgba(255,255,255,0.5);
                                 "
                             >
-                                {{ $message }}
-                            </p>
+                                CANTIDAD
+                            </label>
 
-                        @enderror
+                            <input
+                                type="number"
+                                name="cantidad"
+                                id="cantidad"
+                                min="1"
+                                value="{{ old('cantidad', 1) }}"
+                                required
+                                class="w-full px-4 py-3 text-white outline-none"
+                                style="
+                                    background:rgba(255,255,255,0.04);
+                                    border:1px solid rgba(255,255,255,0.1);
+                                    border-radius:4px;
+                                    font-size:11px;
+                                "
+                            >
 
-                    </div>
+                            @error('cantidad')
+
+                                <p
+                                    class="mt-2 font-bold"
+                                    style="
+                                        font-size:9px;
+                                        color:#f87171;
+                                    "
+                                >
+                                    {{ $message }}
+                                </p>
+
+                            @enderror
+
+                        </div>
 
 
-                    {{-- SUBTOTAL PREVISUALIZADO --}}
+                        {{-- SUBTOTAL PREVISUALIZADO --}}
 
-                    <div
-                        class="flex items-center justify-between mb-5 px-4 py-4"
-                        style="
-                            background:rgba(0,200,150,0.05);
-                            border:1px solid rgba(0,200,150,0.12);
-                            border-radius:4px;
-                        "
-                    >
-
-                        <span
-                            class="font-black uppercase tracking-widest"
+                        <div
+                            class="flex items-center justify-between mb-5 px-4 py-4"
                             style="
-                                font-size:9px;
-                                color:rgba(255,255,255,0.4);
+                                background:rgba(0,200,150,0.05);
+                                border:1px solid rgba(0,200,150,0.12);
+                                border-radius:4px;
                             "
                         >
-                            SUBTOTAL
-                        </span>
 
-                        <span
-                            id="productoSubtotal"
-                            class="font-black"
+                            <span
+                                class="font-black uppercase tracking-widest"
+                                style="
+                                    font-size:9px;
+                                    color:rgba(255,255,255,0.4);
+                                "
+                            >
+                                SUBTOTAL
+                            </span>
+
+                            <span
+                                id="productoSubtotal"
+                                class="font-black"
+                                style="
+                                    font-size:15px;
+                                    color:#00c896;
+                                "
+                            >
+                                $0
+                            </span>
+
+                        </div>
+
+
+                        <button
+                            type="submit"
+                            class="font-black uppercase tracking-widest px-5 py-3 text-black transition-all hover:opacity-80"
                             style="
-                                font-size:15px;
-                                color:#00c896;
+                                font-size:10px;
+                                background:#00c896;
+                                border-radius:4px;
                             "
                         >
-                            $0
-                        </span>
+                            + AGREGAR PRODUCTO
+                        </button>
 
-                    </div>
+                    </form>
 
+                </div>
 
-                    <button
-                        type="submit"
-                        class="font-black uppercase tracking-widest px-5 py-3 text-black transition-all hover:opacity-80"
-                        style="
-                            font-size:10px;
-                            background:#00c896;
-                            border-radius:4px;
-                        "
-                    >
-                        + AGREGAR PRODUCTO
-                    </button>
-
-                </form>
-
-            </div>
+            @endif
 
 
             {{-- ================================================= --}}
@@ -659,63 +904,33 @@
                                 "
                             >
 
-                                <th
-                                    class="px-6 py-4 text-left font-black uppercase tracking-widest"
-                                    style="
-                                        font-size:9px;
-                                        color:rgba(255,255,255,0.4);
-                                    "
-                                >
+                                <th class="px-6 py-4 text-left font-black uppercase tracking-widest"
+                                    style="font-size:9px;color:rgba(255,255,255,0.4);">
                                     PRODUCTO
                                 </th>
 
-                                <th
-                                    class="px-6 py-4 text-left font-black uppercase tracking-widest"
-                                    style="
-                                        font-size:9px;
-                                        color:rgba(255,255,255,0.4);
-                                    "
-                                >
+                                <th class="px-6 py-4 text-left font-black uppercase tracking-widest"
+                                    style="font-size:9px;color:rgba(255,255,255,0.4);">
                                     CATEGORÍA
                                 </th>
 
-                                <th
-                                    class="px-6 py-4 text-left font-black uppercase tracking-widest"
-                                    style="
-                                        font-size:9px;
-                                        color:rgba(255,255,255,0.4);
-                                    "
-                                >
+                                <th class="px-6 py-4 text-left font-black uppercase tracking-widest"
+                                    style="font-size:9px;color:rgba(255,255,255,0.4);">
                                     CANTIDAD
                                 </th>
 
-                                <th
-                                    class="px-6 py-4 text-left font-black uppercase tracking-widest"
-                                    style="
-                                        font-size:9px;
-                                        color:rgba(255,255,255,0.4);
-                                    "
-                                >
+                                <th class="px-6 py-4 text-left font-black uppercase tracking-widest"
+                                    style="font-size:9px;color:rgba(255,255,255,0.4);">
                                     PRECIO
                                 </th>
 
-                                <th
-                                    class="px-6 py-4 text-left font-black uppercase tracking-widest"
-                                    style="
-                                        font-size:9px;
-                                        color:rgba(255,255,255,0.4);
-                                    "
-                                >
+                                <th class="px-6 py-4 text-left font-black uppercase tracking-widest"
+                                    style="font-size:9px;color:rgba(255,255,255,0.4);">
                                     SUBTOTAL
                                 </th>
 
-                                <th
-                                    class="px-6 py-4 text-left font-black uppercase tracking-widest"
-                                    style="
-                                        font-size:9px;
-                                        color:rgba(255,255,255,0.4);
-                                    "
-                                >
+                                <th class="px-6 py-4 text-left font-black uppercase tracking-widest"
+                                    style="font-size:9px;color:rgba(255,255,255,0.4);">
                                     ACCIÓN
                                 </th>
 
@@ -728,17 +943,9 @@
 
                             @forelse($pedido->detalles as $detalle)
 
-                                <tr
-                                    style="
-                                        border-bottom:1px solid rgba(255,255,255,0.05);
-                                    "
-                                >
+                                <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
 
-                                    {{-- PRODUCTO --}}
-
-                                    <td
-                                        class="px-6 py-4"
-                                    >
+                                    <td class="px-6 py-4">
 
                                         <p
                                             class="font-bold text-white"
@@ -764,11 +971,7 @@
                                     </td>
 
 
-                                    {{-- CATEGORÍA --}}
-
-                                    <td
-                                        class="px-6 py-4"
-                                    >
+                                    <td class="px-6 py-4">
 
                                         <span
                                             class="font-bold uppercase"
@@ -783,8 +986,6 @@
                                     </td>
 
 
-                                    {{-- CANTIDAD --}}
-
                                     <td
                                         class="px-6 py-4 font-bold text-white"
                                         style="font-size:12px;"
@@ -792,8 +993,6 @@
                                         {{ $detalle->cantidad }}
                                     </td>
 
-
-                                    {{-- PRECIO --}}
 
                                     <td
                                         class="px-6 py-4 font-bold"
@@ -806,8 +1005,6 @@
                                     </td>
 
 
-                                    {{-- SUBTOTAL --}}
-
                                     <td
                                         class="px-6 py-4 font-black"
                                         style="
@@ -819,36 +1016,36 @@
                                     </td>
 
 
-                                    {{-- ELIMINAR --}}
+                                    <td class="px-6 py-4">
 
-                                    <td
-                                        class="px-6 py-4"
-                                    >
+                                        @if(auth()->check() && auth()->user()->tienePermiso('pedidos.editar'))
 
-                                        <form
-                                            action="{{ route('pedidos.detalles.destroy', [
-                                                'pedido' => $pedido->id_pedido,
-                                                'detalle' => $detalle->id_detalle,
-                                            ]) }}"
-                                            method="POST"
-                                        >
-
-                                            @csrf
-
-                                            @method('DELETE')
-
-                                            <button
-                                                type="submit"
-                                                class="font-black uppercase tracking-widest transition-opacity hover:opacity-70"
-                                                style="
-                                                    font-size:9px;
-                                                    color:#f87171;
-                                                "
+                                            <form
+                                                action="{{ route('pedidos.detalles.destroy', [
+                                                    'pedido' => $pedido->id_pedido,
+                                                    'detalle' => $detalle->id_detalle,
+                                                ]) }}"
+                                                method="POST"
                                             >
-                                                BORRAR
-                                            </button>
 
-                                        </form>
+                                                @csrf
+                                                @method('DELETE')
+
+                                                <button
+                                                    type="submit"
+                                                    onclick="return confirm('¿Borrar este producto del pedido?')"
+                                                    class="font-black uppercase tracking-widest transition-opacity hover:opacity-70"
+                                                    style="
+                                                        font-size:9px;
+                                                        color:#f87171;
+                                                    "
+                                                >
+                                                    BORRAR
+                                                </button>
+
+                                            </form>
+
+                                        @endif
 
                                     </td>
 
@@ -924,165 +1121,164 @@
         {{-- CAMBIAR ESTADO --}}
         {{-- ===================================================== --}}
 
-        <div>
+        @if(auth()->check() && auth()->user()->tienePermiso('pedidos.editar'))
 
-            <div
-                class="p-6"
-                style="
-                    background:rgba(255,255,255,0.03);
-                    border:1px solid rgba(255,255,255,0.08);
-                    border-radius:6px;
-                "
-            >
+            <div>
 
-                <h2
-                    class="font-black uppercase tracking-widest text-white"
+                <div
+                    class="p-6"
                     style="
-                        font-size:12px;
-                        letter-spacing:0.12em;
+                        background:rgba(255,255,255,0.03);
+                        border:1px solid rgba(255,255,255,0.08);
+                        border-radius:6px;
                     "
                 >
-                    ACTUALIZAR ESTADO
-                </h2>
 
-                <p
-                    class="mt-2 mb-6"
-                    style="
-                        font-size:10px;
-                        line-height:1.6;
-                        color:rgba(255,255,255,0.4);
-                    "
-                >
-                    Cambia el estado del pedido y registra
-                    un evento en su historial.
-                </p>
-
-
-                <form
-                    action="{{ route('pedidos.estado.update', ['pedido' => $pedido->id_pedido]) }}"
-                    method="POST"
-                >
-
-                    @csrf
-
-                    @method('PATCH')
-
-
-                    {{-- ESTADO --}}
-
-                    <div class="mb-5">
-
-                        <label
-                            for="id_estado"
-                            class="mb-2 block font-black uppercase tracking-widest"
-                            style="
-                                font-size:9px;
-                                color:rgba(255,255,255,0.5);
-                            "
-                        >
-                            NUEVO ESTADO
-                        </label>
-
-                        <select
-                            name="id_estado"
-                            id="id_estado"
-                            required
-                            class="w-full px-4 py-3 text-white outline-none"
-                            style="
-                                background:rgba(255,255,255,0.04);
-                                border:1px solid rgba(255,255,255,0.1);
-                                border-radius:4px;
-                                font-size:11px;
-                            "
-                        >
-
-                            <option
-                                value=""
-                                style="background:#111;"
-                            >
-                                SELECCIONAR ESTADO
-                            </option>
-
-                            @foreach($estados as $estado)
-
-                                <option
-                                    value="{{ $estado->id_estado }}"
-                                    style="background:#111;"
-                                    {{ $pedido->id_estado == $estado->id_estado ? 'selected' : '' }}
-                                >
-                                    {{ strtoupper($estado->nombre) }}
-                                </option>
-
-                            @endforeach
-
-                        </select>
-
-                        @error('id_estado')
-
-                            <p
-                                class="mt-2 font-bold"
-                                style="
-                                    font-size:9px;
-                                    color:#f87171;
-                                "
-                            >
-                                {{ $message }}
-                            </p>
-
-                        @enderror
-
-                    </div>
-
-
-                    {{-- COMENTARIO --}}
-
-                    <div class="mb-5">
-
-                        <label
-                            for="comentario"
-                            class="mb-2 block font-black uppercase tracking-widest"
-                            style="
-                                font-size:9px;
-                                color:rgba(255,255,255,0.5);
-                            "
-                        >
-                            COMENTARIO
-                        </label>
-
-                        <textarea
-                            name="comentario"
-                            id="comentario"
-                            rows="4"
-                            class="w-full px-4 py-3 text-white outline-none resize-none"
-                            style="
-                                background:rgba(255,255,255,0.04);
-                                border:1px solid rgba(255,255,255,0.1);
-                                border-radius:4px;
-                                font-size:11px;
-                            "
-                            placeholder="COMENTARIO DEL CAMBIO..."
-                        >{{ old('comentario') }}</textarea>
-
-                    </div>
-
-
-                    <button
-                        type="submit"
-                        class="w-full font-black uppercase tracking-widest px-5 py-3 text-black transition-all hover:opacity-80"
+                    <h2
+                        class="font-black uppercase tracking-widest text-white"
                         style="
-                            font-size:10px;
-                            background:#00c896;
-                            border-radius:4px;
+                            font-size:12px;
+                            letter-spacing:0.12em;
                         "
                     >
                         ACTUALIZAR ESTADO
-                    </button>
+                    </h2>
 
-                </form>
+                    <p
+                        class="mt-2 mb-6"
+                        style="
+                            font-size:10px;
+                            line-height:1.6;
+                            color:rgba(255,255,255,0.4);
+                        "
+                    >
+                        Cambia el estado del pedido y registra
+                        un evento en su historial.
+                    </p>
+
+
+                    <form
+                        action="{{ route('pedidos.estado.update', ['pedido' => $pedido->id_pedido]) }}"
+                        method="POST"
+                    >
+
+                        @csrf
+                        @method('PATCH')
+
+
+                        <div class="mb-5">
+
+                            <label
+                                for="id_estado"
+                                class="mb-2 block font-black uppercase tracking-widest"
+                                style="
+                                    font-size:9px;
+                                    color:rgba(255,255,255,0.5);
+                                "
+                            >
+                                NUEVO ESTADO
+                            </label>
+
+                            <select
+                                name="id_estado"
+                                id="id_estado"
+                                required
+                                class="w-full px-4 py-3 text-white outline-none"
+                                style="
+                                    background:rgba(255,255,255,0.04);
+                                    border:1px solid rgba(255,255,255,0.1);
+                                    border-radius:4px;
+                                    font-size:11px;
+                                "
+                            >
+
+                                <option
+                                    value=""
+                                    style="background:#111;"
+                                >
+                                    SELECCIONAR ESTADO
+                                </option>
+
+                                @foreach($estados as $estado)
+
+                                    <option
+                                        value="{{ $estado->id_estado }}"
+                                        style="background:#111;"
+                                        {{ $pedido->id_estado == $estado->id_estado ? 'selected' : '' }}
+                                    >
+                                        {{ strtoupper($estado->nombre) }}
+                                    </option>
+
+                                @endforeach
+
+                            </select>
+
+                            @error('id_estado')
+
+                                <p
+                                    class="mt-2 font-bold"
+                                    style="
+                                        font-size:9px;
+                                        color:#f87171;
+                                    "
+                                >
+                                    {{ $message }}
+                                </p>
+
+                            @enderror
+
+                        </div>
+
+
+                        <div class="mb-5">
+
+                            <label
+                                for="comentario"
+                                class="mb-2 block font-black uppercase tracking-widest"
+                                style="
+                                    font-size:9px;
+                                    color:rgba(255,255,255,0.5);
+                                "
+                            >
+                                COMENTARIO
+                            </label>
+
+                            <textarea
+                                name="comentario"
+                                id="comentario"
+                                rows="4"
+                                class="w-full px-4 py-3 text-white outline-none resize-none"
+                                style="
+                                    background:rgba(255,255,255,0.04);
+                                    border:1px solid rgba(255,255,255,0.1);
+                                    border-radius:4px;
+                                    font-size:11px;
+                                "
+                                placeholder="COMENTARIO DEL CAMBIO..."
+                            >{{ old('comentario') }}</textarea>
+
+                        </div>
+
+
+                        <button
+                            type="submit"
+                            class="w-full font-black uppercase tracking-widest px-5 py-3 text-black transition-all hover:opacity-80"
+                            style="
+                                font-size:10px;
+                                background:#00c896;
+                                border-radius:4px;
+                            "
+                        >
+                            ACTUALIZAR ESTADO
+                        </button>
+
+                    </form>
+
+                </div>
 
             </div>
 
-        </div>
+        @endif
 
     </div>
 
@@ -1119,11 +1315,10 @@
 
                     <div class="flex gap-4">
 
-
                         {{-- PUNTO --}}
 
                         <div
-                            class= flex-shrink-0 flex items-center justify-center
+                            class="flex-shrink-0 flex items-center justify-center"
                             style="
                                 width:32px;
                                 height:32px;
@@ -1135,6 +1330,7 @@
 
                             <span
                                 style="
+                                    display:block;
                                     width:6px;
                                     height:6px;
                                     background:#00c896;
@@ -1316,10 +1512,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     /*
-     * =========================================================
-     * FORMATO DE DINERO
-     * =========================================================
+     * La sección de agregar producto solo existe
+     * cuando el usuario tiene pedidos.editar.
+     *
+     * Evitamos ejecutar JavaScript sobre elementos
+     * que no existen.
      */
+
+    if (!productoSelect || !cantidadInput) {
+        return;
+    }
+
 
     function formatoPrecio(valor)
     {
@@ -1332,12 +1535,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
-    /*
-     * =========================================================
-     * ACTUALIZAR INFORMACIÓN DEL PRODUCTO
-     * =========================================================
-     */
-
     function actualizarProducto()
     {
         const option =
@@ -1345,11 +1542,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 productoSelect.selectedIndex
             ];
 
-
-        /*
-         * Si no se seleccionó producto,
-         * ocultamos la información.
-         */
 
         if (!productoSelect.value) {
 
@@ -1365,11 +1557,6 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-
-        /*
-         * Obtener información almacenada
-         * en los data-* del option.
-         */
 
         const nombre =
             option.dataset.nombre || '';
@@ -1390,10 +1577,6 @@ document.addEventListener('DOMContentLoaded', function () {
             parseInt(cantidadInput.value) || 1;
 
 
-        /*
-         * Mostrar información.
-         */
-
         productoNombre.textContent =
             nombre;
 
@@ -1410,17 +1593,8 @@ document.addEventListener('DOMContentLoaded', function () {
             stock;
 
 
-        /*
-         * El máximo permitido en el input
-         * es el stock disponible.
-         */
-
         cantidadInput.max = stock;
 
-
-        /*
-         * Calcular subtotal.
-         */
 
         productoSubtotal.textContent =
             '$' +
@@ -1429,21 +1603,11 @@ document.addEventListener('DOMContentLoaded', function () {
             );
 
 
-        /*
-         * Mostrar bloque.
-         */
-
         productoInfo.classList.remove(
             'hidden'
         );
     }
 
-
-    /*
-     * =========================================================
-     * EVENTOS
-     * =========================================================
-     */
 
     productoSelect.addEventListener(
         'change',
@@ -1459,5 +1623,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 </script>
+
+@endif
 
 @endsection

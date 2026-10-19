@@ -234,7 +234,6 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
 
-
             {{-- ESTADO --}}
 
             <div
@@ -350,8 +349,6 @@
             "
         >
 
-            {{-- ENCABEZADO --}}
-
             <div class="mb-5">
 
                 <p
@@ -377,22 +374,14 @@
             </div>
 
 
-            {{-- ================================================= --}}
-            {{-- PRODUCTOS DINÁMICOS --}}
-            {{-- ================================================= --}}
-
             <div
                 id="productosContainer"
                 class="space-y-4"
             >
 
-                {{-- PRIMER PRODUCTO --}}
-
                 <div
                     class="producto-row grid grid-cols-1 md:grid-cols-12 gap-3 items-end"
                 >
-
-                    {{-- PRODUCTO --}}
 
                     <div class="md:col-span-6">
 
@@ -449,8 +438,6 @@
                     </div>
 
 
-                    {{-- CANTIDAD --}}
-
                     <div class="md:col-span-3">
 
                         <label
@@ -481,8 +468,6 @@
                     </div>
 
 
-                    {{-- SUBTOTAL --}}
-
                     <div class="md:col-span-2">
 
                         <label
@@ -511,8 +496,6 @@
                     </div>
 
 
-                    {{-- ELIMINAR --}}
-
                     <div class="md:col-span-1">
 
                         <button
@@ -535,10 +518,6 @@
 
             </div>
 
-
-            {{-- ================================================= --}}
-            {{-- AGREGAR OTRO PRODUCTO --}}
-            {{-- ================================================= --}}
 
             <div class="mt-5">
 
@@ -573,17 +552,21 @@
             "
         >
 
-            <button
-                type="submit"
-                class="font-black uppercase tracking-widest px-6 py-3 text-black transition-all hover:opacity-80"
-                style="
-                    font-size:10px;
-                    background:#00c896;
-                    border-radius:4px;
-                "
-            >
-                CREAR PEDIDO
-            </button>
+            @if(auth()->check() && auth()->user()->tienePermiso('pedidos.crear'))
+
+                <button
+                    type="submit"
+                    class="font-black uppercase tracking-widest px-6 py-3 text-black transition-all hover:opacity-80"
+                    style="
+                        font-size:10px;
+                        background:#00c896;
+                        border-radius:4px;
+                    "
+                >
+                    CREAR PEDIDO
+                </button>
+
+            @endif
 
             <a
                 href="{{ route('pedidos.index') }}"
@@ -613,33 +596,12 @@
 
 document.addEventListener('DOMContentLoaded', function () {
 
-    /*
-     * Contenedor donde estarán las filas de productos.
-     */
     const container = document.getElementById('productosContainer');
-
-    /*
-     * Botón para agregar una nueva fila.
-     */
     const addButton = document.getElementById('addProducto');
-
-    /*
-     * Elemento donde mostramos el total general.
-     */
     const totalElement = document.getElementById('totalPedido');
 
-    /*
-     * Índice utilizado para crear correctamente
-     * los nombres productos[0], productos[1], etc.
-     */
     let productIndex = 1;
 
-
-    /*
-     * =========================================================
-     * ACTUALIZAR TOTALES
-     * =========================================================
-     */
 
     function actualizarTotales() {
 
@@ -650,103 +612,46 @@ document.addEventListener('DOMContentLoaded', function () {
         rows.forEach(function (row) {
 
             const select = row.querySelector('.producto-select');
+            const cantidadInput = row.querySelector('.cantidad-input');
+            const subtotalElement = row.querySelector('.subtotal-producto');
 
-            const cantidadInput =
-                row.querySelector('.cantidad-input');
+            const option = select.options[select.selectedIndex];
 
-            const subtotalElement =
-                row.querySelector('.subtotal-producto');
+            const precio = parseFloat(
+                option?.dataset.precio || 0
+            );
 
+            const cantidad = parseInt(
+                cantidadInput.value || 0
+            );
 
-            /*
-             * Precio obtenido del option seleccionado.
-             */
-            const option =
-                select.options[select.selectedIndex];
+            const subtotal = precio * cantidad;
 
-            const precio =
-                parseFloat(
-                    option?.dataset.precio || 0
-                );
-
-
-            /*
-             * Cantidad seleccionada.
-             */
-            const cantidad =
-                parseInt(
-                    cantidadInput.value || 0
-                );
-
-
-            /*
-             * Calculamos el subtotal.
-             */
-            const subtotal =
-                precio * cantidad;
-
-
-            /*
-             * Mostramos el subtotal.
-             */
             subtotalElement.textContent =
                 '$' + subtotal.toFixed(2);
 
-
-            /*
-             * Sumamos al total general.
-             */
             total += subtotal;
 
         });
 
-
-        /*
-         * Mostramos el total del pedido.
-         */
         totalElement.textContent =
             '$' + total.toFixed(2);
     }
 
 
-    /*
-     * =========================================================
-     * AGREGAR PRODUCTO
-     * =========================================================
-     */
-
     addButton.addEventListener('click', function () {
 
-        /*
-         * Tomamos la primera fila como plantilla.
-         */
         const original =
             container.querySelector('.producto-row');
 
-        /*
-         * Clonamos la fila.
-         */
         const clone =
             original.cloneNode(true);
 
-
-        /*
-         * Cambiamos los nombres de los campos.
-         *
-         * Ejemplo:
-         *
-         * productos[0][id_producto]
-         *
-         * pasa a:
-         *
-         * productos[1][id_producto]
-         */
         const select =
             clone.querySelector('.producto-select');
 
         const cantidad =
             clone.querySelector('.cantidad-input');
-
 
         select.name =
             `productos[${productIndex}][id_producto]`;
@@ -754,42 +659,20 @@ document.addEventListener('DOMContentLoaded', function () {
         cantidad.name =
             `productos[${productIndex}][cantidad]`;
 
-
-        /*
-         * Limpiamos los valores.
-         */
         select.value = '';
 
         cantidad.value = 1;
 
-
-        /*
-         * Reiniciamos subtotal.
-         */
         clone.querySelector(
             '.subtotal-producto'
         ).textContent = '$0.00';
 
-
-        /*
-         * Agregamos la nueva fila.
-         */
         container.appendChild(clone);
 
-
-        /*
-         * Incrementamos el índice.
-         */
         productIndex++;
 
     });
 
-
-    /*
-     * =========================================================
-     * CAMBIOS EN PRODUCTOS Y CANTIDADES
-     * =========================================================
-     */
 
     container.addEventListener('change', function (event) {
 
@@ -797,9 +680,7 @@ document.addEventListener('DOMContentLoaded', function () {
             event.target.classList.contains('producto-select') ||
             event.target.classList.contains('cantidad-input')
         ) {
-
             actualizarTotales();
-
         }
 
     });
@@ -810,19 +691,11 @@ document.addEventListener('DOMContentLoaded', function () {
         if (
             event.target.classList.contains('cantidad-input')
         ) {
-
             actualizarTotales();
-
         }
 
     });
 
-
-    /*
-     * =========================================================
-     * ELIMINAR PRODUCTO
-     * =========================================================
-     */
 
     container.addEventListener('click', function (event) {
 
@@ -833,10 +706,6 @@ document.addEventListener('DOMContentLoaded', function () {
             const rows =
                 container.querySelectorAll('.producto-row');
 
-
-            /*
-             * Siempre dejamos al menos una fila.
-             */
             if (rows.length === 1) {
 
                 const row = rows[0];
@@ -854,14 +723,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-
-            /*
-             * Eliminamos la fila.
-             */
             event.target
                 .closest('.producto-row')
                 .remove();
-
 
             actualizarTotales();
 
@@ -869,10 +733,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     });
 
-
-    /*
-     * Calculamos el total inicialmente.
-     */
     actualizarTotales();
 
 });

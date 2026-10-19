@@ -158,9 +158,7 @@
 
 
         {{-- ESTADO --}}
-        <div
-            class="flex items-center justify-between py-5"
-        >
+        <div class="flex items-center justify-between py-5">
 
             <span
                 class="font-black uppercase tracking-widest"
@@ -208,46 +206,50 @@
     <div class="flex items-center justify-end gap-3 mt-6">
 
         {{-- EDITAR --}}
-        <a
-            href="{{ route('clientes.edit', $cliente) }}"
-            class="px-5 py-3 font-black uppercase tracking-widest"
-            style="
-                font-size:10px;
-                color:#00c896;
-                border:1px solid rgba(0,200,150,0.25);
-                border-radius:4px;
-            "
-        >
-            EDITAR
-        </a>
-
-
-        {{-- ELIMINAR --}}
-        <form
-            action="{{ route('clientes.destroy', $cliente) }}"
-            method="POST"
-            onsubmit="return confirm('¿Estás seguro de eliminar este cliente?')"
-        >
-
-            @csrf
-            @method('DELETE')
-
-            <button
-                type="submit"
+        @if(auth()->check() && auth()->user()->tienePermiso('clientes.editar'))
+            <a
+                href="{{ route('clientes.edit', $cliente) }}"
                 class="px-5 py-3 font-black uppercase tracking-widest"
                 style="
                     font-size:10px;
-                    color:#f87171;
-                    border:1px solid rgba(248,113,113,0.25);
+                    color:#00c896;
+                    border:1px solid rgba(0,200,150,0.25);
                     border-radius:4px;
-                    background:transparent;
-                    cursor:pointer;
                 "
             >
-                ELIMINAR
-            </button>
+                EDITAR
+            </a>
+        @endif
 
-        </form>
+
+        {{-- ELIMINAR --}}
+        @if(auth()->check() && auth()->user()->tienePermiso('clientes.eliminar'))
+            <form
+                action="{{ route('clientes.destroy', $cliente) }}"
+                method="POST"
+                onsubmit="return confirm('¿Estás seguro de eliminar este cliente?')"
+            >
+
+                @csrf
+                @method('DELETE')
+
+                <button
+                    type="submit"
+                    class="px-5 py-3 font-black uppercase tracking-widest"
+                    style="
+                        font-size:10px;
+                        color:#f87171;
+                        border:1px solid rgba(248,113,113,0.25);
+                        border-radius:4px;
+                        background:transparent;
+                        cursor:pointer;
+                    "
+                >
+                    ELIMINAR
+                </button>
+
+            </form>
+        @endif
 
     </div>
 

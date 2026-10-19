@@ -12,46 +12,54 @@
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
 
         <div>
-            <h1 class="text-3xl font-bold text-white drop-shadow"> 
+
+            <h1 class="text-3xl font-bold text-white drop-shadow">
                 Usuarios
             </h1>
 
             <p class="text-gray-600 mt-1">
                 Administración de usuarios del sistema
             </p>
+
         </div>
 
-        <a
-            href="{{ route('usuarios.create') }}"
-            class="bg-blue-600 hover:bg-blue-700 text-black font-semibold px-5 py-2 rounded-lg shadow transition"
-        >
-            + Nuevo usuario
-        </a>
+        {{-- Nivel 2: crear usuario --}}
+        @if(auth()->check() && auth()->user()->tienePermiso('usuarios.crear'))
+
+            <a href="{{ route('usuarios.create') }}"
+                class="bg-blue-600 hover:bg-blue-700 text-black font-semibold px-5 py-2 rounded-lg shadow transition">
+                + Nuevo usuario
+            </a>
+
+        @endif
 
     </div>
 
-
     {{-- Mensaje de éxito --}}
     @if(session('success'))
+
         <div class="mb-5 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg">
             {{ session('success') }}
         </div>
-    @endif
 
+    @endif
 
     {{-- Mensajes de error --}}
     @if($errors->any())
+
         <div class="mb-5 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
 
             <ul class="list-disc list-inside">
+
                 @foreach($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
+
             </ul>
 
         </div>
-    @endif
 
+    @endif
 
     {{-- Tabla --}}
     <div class="bg-white rounded-xl shadow-md overflow-hidden">
@@ -123,39 +131,43 @@
                                 <div class="flex justify-center gap-2">
 
                                     {{-- Ver --}}
-                                    <a
-                                        href="{{ route('usuarios.show', $usuario->id) }}"
-                                        class="bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 rounded-lg text-sm shadow"
-                                    >
-                                        Ver
-                                    </a>
+                                    @if(auth()->check() && auth()->user()->tienePermiso('usuarios.ver'))
+
+                                        <a href="{{ route('usuarios.show', $usuario->id) }}"
+                                            class="bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 rounded-lg text-sm shadow">
+                                            Ver
+                                        </a>
+
+                                    @endif
 
                                     {{-- Editar --}}
-                                    <a
-                                        href="{{ route('usuarios.edit', $usuario->id) }}"
-                                        class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-2 rounded-lg text-sm shadow"
-                                    >
-                                        Editar
-                                    </a>
+                                    @if(auth()->check() && auth()->user()->tienePermiso('usuarios.editar'))
+
+                                        <a href="{{ route('usuarios.edit', $usuario->id) }}"
+                                            class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-2 rounded-lg text-sm shadow">
+                                            Editar
+                                        </a>
+
+                                    @endif
 
                                     {{-- Eliminar --}}
-                                    <form
-                                        action="{{ route('usuarios.destroy', $usuario->id) }}"
-                                        method="POST"
-                                        onsubmit="return confirm('¿Está seguro de eliminar este usuario?');"
-                                    >
+                                    @if(auth()->check() && auth()->user()->tienePermiso('usuarios.eliminar'))
 
-                                        @csrf
-                                        @method('DELETE')
+                                        <form action="{{ route('usuarios.destroy', $usuario->id) }}"
+                                            method="POST"
+                                            onsubmit="return confirm('¿Está seguro de eliminar este usuario?');">
 
-                                        <button
-                                            type="submit"
-                                            class="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg text-sm shadow"
-                                        >
-                                            Eliminar
-                                        </button>
+                                            @csrf
+                                            @method('DELETE')
 
-                                    </form>
+                                            <button type="submit"
+                                                class="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg text-sm shadow">
+                                                Eliminar
+                                            </button>
+
+                                        </form>
+
+                                    @endif
 
                                 </div>
 
@@ -167,10 +179,8 @@
 
                         <tr>
 
-                            <td
-                                colspan="6"
-                                class="px-6 py-8 text-center text-gray-500"
-                            >
+                            <td colspan="6"
+                                class="px-6 py-8 text-center text-gray-500">
                                 No hay usuarios registrados.
                             </td>
 

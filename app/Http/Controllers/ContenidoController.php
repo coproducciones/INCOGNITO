@@ -2,81 +2,136 @@
 
 namespace App\Http\Controllers;
 
-
 use App\Http\Requests\ContenidoStoreRequest;
 use App\Http\Requests\ContenidoUpdateRequest;
-use App\Models\Contenido;
 use App\Models\Categoria;
-use Illuminate\Http\Request;
+use App\Models\Contenido;
 use App\Services\ContenidoService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class ContenidoController extends Controller
 {
     public function __construct(
-        protected ContenidoService $contenidoService) {
-
+        protected ContenidoService $contenidoService
+    ) {
     }
 
+    /**
+     * Listar contenidos.
+     */
     public function index(): View
     {
         $contenidos = $this->contenidoService->getAll();
+
         return view('Contenidos.index', compact('contenidos'));
     }
 
+    /**
+     * Mostrar formulario de creación.
+     */
     public function create(): View
     {
-        $categorias = Categoria::orderBy('nombre')->get();
+        $categorias = Categoria::query()
+            ->orderBy('nombre')
+            ->get();
+
         return view('Contenidos.create', compact('categorias'));
     }
 
-public function store(Request $request)
-{
-    $request->validate([
-        'titulo'       => 'required|string|max:255',
-        'categoria_id' => 'required|exists:categorias,id',
-        'descripcion'  => 'nullable|string',
-    ]);
+    /**
+     * Guardar un contenido nuevo.
+     */
+    public function store(
+        ContenidoStoreRequest $request
+    ): RedirectResponse {
+        $data = $request->validated();
 
-    // Buscamos el nombre de la categoría seleccionada
-    $categoria = Categoria::findOrFail($request->categoria_id);
+        DB::transaction(function () use ($data): void {
+            $categoria = Categoria::findOrFail(
+                $data['categoria_id']
+            );
 
-    // Creamos el contenido
-    $contenido = Contenido::create([
-        'titulo'      => $request->titulo,
-        'descripcion' => $request->descripcion,
-        'seccion'     => $categoria->nombre,   // ← guardamos el nombre de la categoría
-    ]);
+            $contenido = $this->contenidoService->create([
+                'titulo' => $data['titulo'],
+                'descripcion' => $data['descripcion'] ?? null,
+                'seccion' => $categoria->nombre,
+            ]);
 
-    // Asociamos la categoría (relación muchos a muchos)
-    $contenido->categorias()->attach($request->categoria_id);
+            $contenido->categorias()->sync([
+                $categoria->id,
+            ]);
+        });
 
-    return redirect()->route('contenidos.create')
-                     ->with('success', 'Contenido creado correctamente.');
-}
+        return redirect()
+            ->route('contenidos.index')
+            ->with('success', 'Contenido creado correctamente.');
+    }
 
+    /**
+     * Mostrar el detalle de un contenido.
+     */
     public function show(Contenido $contenido): View
     {
+        $contenido->load('categorias', 'media');
+
         return view('Contenidos.show', compact('contenido'));
     }
 
+    /**
+     * Mostrar formulario de edición.
+     */
     public function edit(Contenido $contenido): View
     {
-        return view('Contenidos.edit', compact('contenido'));
+        $categorias = Categoria::query()
+            ->orderBy('nombre')
+            ->get();
+
+        $contenido->load('categorias');
+
+        return view(
+            'Contenidos.edit',
+            compact('contenido', 'categorias')
+        );
     }
 
-    public function update(ContenidoUpdateRequest $request, Contenido $contenido): RedirectResponse
-    {
-        $this->contenidoService->update($contenido, $request->validated());
+    /**
+     * Actualizar un contenido.
+     */
+    public function update(
+        ContenidoUpdateRequest $request,
+        Contenido $contenido
+    ): RedirectResponse {
+        $data = $request->validated();
+
+        DB::transaction(function () use ($data, $contenido): void {
+            $categoria = Categoria::findOrFail(
+                $data['categoria_id']
+            );
+
+            $this->contenidoService->update($contenido, [
+                'titulo' => $data['titulo'],
+                'descripcion' => $data['descripcion'] ?? null,
+                'seccion' => $categoria->nombre,
+            ]);
+
+            $contenido->categorias()->sync([
+                $categoria->id,
+            ]);
+        });
 
         return redirect()
             ->route('contenidos.index')
             ->with('success', 'Contenido actualizado correctamente.');
     }
 
-    public function destroy(Contenido $contenido): RedirectResponse
-    {
+    /**
+     * Eliminar un contenido.
+     */
+    public function destroy(
+        Contenido $contenido
+    ): RedirectResponse {
         $this->contenidoService->delete($contenido);
 
         return redirect()

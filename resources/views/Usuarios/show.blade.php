@@ -23,7 +23,6 @@
 
         </div>
 
-
         {{-- Información --}}
         <div class="bg-white rounded-xl shadow-md p-6">
 
@@ -31,6 +30,7 @@
 
                 {{-- ID --}}
                 <div>
+
                     <p class="text-sm text-gray-600">
                         ID
                     </p>
@@ -38,11 +38,12 @@
                     <p class="text-lg font-semibold text-black">
                         {{ $usuario->id }}
                     </p>
-                </div>
 
+                </div>
 
                 {{-- Nombre --}}
                 <div>
+
                     <p class="text-sm text-gray-500">
                         Nombre
                     </p>
@@ -50,11 +51,12 @@
                     <p class="text-lg font-semibold text-black">
                         {{ $usuario->nombre }}
                     </p>
-                </div>
 
+                </div>
 
                 {{-- Email --}}
                 <div>
+
                     <p class="text-sm text-gray-500">
                         Correo electrónico
                     </p>
@@ -62,11 +64,12 @@
                     <p class="text-lg font-semibold text-black">
                         {{ $usuario->email }}
                     </p>
-                </div>
 
+                </div>
 
                 {{-- Teléfono --}}
                 <div>
+
                     <p class="text-sm text-gray-500">
                         Teléfono
                     </p>
@@ -74,11 +77,12 @@
                     <p class="text-lg font-semibold text-black">
                         {{ $usuario->telefono ?? 'No registrado' }}
                     </p>
-                </div>
 
+                </div>
 
                 {{-- Fecha de creación --}}
                 <div>
+
                     <p class="text-sm text-gray-500">
                         Fecha de registro
                     </p>
@@ -86,11 +90,12 @@
                     <p class="text-lg font-semibold text-black">
                         {{ $usuario->created_at?->format('d/m/Y H:i') }}
                     </p>
-                </div>
 
+                </div>
 
                 {{-- Última actualización --}}
                 <div>
+
                     <p class="text-sm text-gray-500">
                         Última actualización
                     </p>
@@ -98,27 +103,28 @@
                     <p class="text-lg font-semibold text-black">
                         {{ $usuario->updated_at?->format('d/m/Y H:i') }}
                     </p>
+
                 </div>
 
             </div>
 
-
             {{-- Botones --}}
             <div class="flex justify-end gap-3 mt-8">
 
-                <a
-                    href="{{ route('usuarios.index') }}"
-                    class="bg-gray-500 hover:bg-gray-600 text-white font-semibold px-5 py-2 rounded-lg shadow"
-                >
+                <a href="{{ route('usuarios.index') }}"
+                    class="bg-gray-500 hover:bg-gray-600 text-white font-semibold px-5 py-2 rounded-lg shadow">
                     Volver
                 </a>
 
-                <a
-                    href="{{ route('usuarios.edit', $usuario->id) }}"
-                    class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold px-5 py-2 rounded-lg shadow"
-                >
-                    Editar
-                </a>
+                {{-- Nivel 2: editar usuario --}}
+                @if(auth()->check() && auth()->user()->tienePermiso('usuarios.editar'))
+
+                    <a href="{{ route('usuarios.edit', $usuario->id) }}"
+                        class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold px-5 py-2 rounded-lg shadow">
+                        Editar
+                    </a>
+
+                @endif
 
             </div>
 

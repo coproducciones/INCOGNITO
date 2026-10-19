@@ -13,7 +13,6 @@
     >
 
         @csrf
-
         @method('PUT')
 
         <h1 class="mb-6 text-2xl font-semibold text-white">
@@ -21,6 +20,7 @@
         </h1>
 
         @include('Multimedias._form')
+
 
         <div class="mt-6 flex justify-end gap-3">
 
@@ -31,12 +31,16 @@
                 Cancelar
             </a>
 
-            <button
-                type="submit"
-                class="rounded-lg bg-[#00c896] px-4 py-2 font-semibold text-black hover:bg-[#00b085]"
-            >
-                Guardar cambios
-            </button>
+            @if(auth()->check() && auth()->user()->tienePermiso('multimedia.editar'))
+
+                <button
+                    type="submit"
+                    class="rounded-lg bg-[#00c896] px-4 py-2 font-semibold text-black hover:bg-[#00b085]"
+                >
+                    Guardar cambios
+                </button>
+
+            @endif
 
         </div>
 

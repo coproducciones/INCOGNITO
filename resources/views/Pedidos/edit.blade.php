@@ -146,8 +146,10 @@
                 required
             >
 
-                <option value=""
-                style="background:#111;">
+                <option
+                    value=""
+                    style="background:#111;"
+                >
                     SELECCIONA UN USUARIO
                 </option>
 
@@ -209,8 +211,9 @@
                 required
             >
 
-                <option value=""
-                style="background:#111;"
+                <option
+                    value=""
+                    style="background:#111;"
                 >
                     SELECCIONA UN ESTADO
                 </option>
@@ -327,19 +330,22 @@
 
         <div class="flex items-center gap-3">
 
-            <button
-                type="submit"
-                class="inline-flex items-center justify-center font-black uppercase tracking-widest px-5 py-3 text-black transition-all hover:opacity-80"
-                style="
-                    font-size:10px;
-                    background:#00c896;
-                    border-radius:4px;
-                    letter-spacing:0.1em;
-                "
-            >
-                GUARDAR CAMBIOS
-            </button>
+            @if(auth()->check() && auth()->user()->tienePermiso('pedidos.editar'))
 
+                <button
+                    type="submit"
+                    class="inline-flex items-center justify-center font-black uppercase tracking-widest px-5 py-3 text-black transition-all hover:opacity-80"
+                    style="
+                        font-size:10px;
+                        background:#00c896;
+                        border-radius:4px;
+                        letter-spacing:0.1em;
+                    "
+                >
+                    GUARDAR CAMBIOS
+                </button>
+
+            @endif
 
             <a
                 href="{{ route('pedidos.index') }}"

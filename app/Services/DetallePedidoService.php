@@ -20,15 +20,18 @@ class DetallePedidoService
 
     public function agregar(
         Pedido $pedido,
-        array $data
+        array $data,
+        bool $inventarioReservado = false
     ): DetallePedido {
 
         /*
-         * Buscar el producto junto con su categoría.
+         * Bloqueamos el producto durante la transacción para evitar que
+         * dos compras consuman simultáneamente las mismas existencias.
          */
-
         $producto = Producto::with('categoria')
-            ->findOrFail((int) $data['id_producto']);
+            ->whereKey((int) $data['id_producto'])
+            ->lockForUpdate()
+            ->firstOrFail();
 
         /*
          * El producto debe estar activo.
@@ -78,7 +81,12 @@ class DetallePedidoService
          * Validar que exista suficiente stock.
          */
 
-        if ($cantidadFinal > (int) $producto->stock) {
+        // Si el pedido ya reservó stock, solo necesitamos validar y
+        // descontar la cantidad adicional solicitada. La cantidad previa
+        // ya fue descontada del inventario.
+        $cantidadAReservar = $inventarioReservado ? $cantidad : $cantidadFinal;
+
+        if ($cantidadAReservar > (int) $producto->stock) {
             throw ValidationException::withMessages([
                 'cantidad' =>
                     "No hay suficiente stock. " .
@@ -127,6 +135,14 @@ class DetallePedidoService
         }
 
         /*
+         * En pedidos ya reservados, descontamos solo la cantidad adicional.
+         * Al crear un pedido nuevo, PedidoService descuenta todo al final.
+         */
+        if ($inventarioReservado) {
+            $producto->decrement('stock', $cantidad);
+        }
+
+        /*
          * Actualizar el total del pedido.
          */
 
@@ -159,7 +175,8 @@ class DetallePedidoService
     public function modificar(
         Pedido $pedido,
         int $detalleId,
-        array $data
+        array $data,
+        bool $inventarioReservado = false
     ): DetallePedido {
 
         /*
@@ -188,7 +205,9 @@ class DetallePedidoService
          */
 
         $producto = Producto::with('categoria')
-            ->find($detalle->id_producto);
+            ->whereKey($detalle->id_producto)
+            ->lockForUpdate()
+            ->first();
 
         if (!$producto) {
             throw ValidationException::withMessages([
@@ -201,12 +220,26 @@ class DetallePedidoService
          * Validar stock.
          */
 
-        if ($cantidad > (int) $producto->stock) {
+        $diferencia = $cantidad - (int) $detalle->cantidad;
+
+        // Si el inventario ya estaba reservado, validar únicamente el
+        // incremento. Si la cantidad baja, devolver la diferencia.
+        $cantidadAValidar = $inventarioReservado
+            ? max(0, $diferencia)
+            : $cantidad;
+
+        if ($cantidadAValidar > (int) $producto->stock) {
             throw ValidationException::withMessages([
                 'cantidad' =>
                     "No hay suficiente stock. " .
                     "Stock disponible: {$producto->stock}.",
             ]);
+        }
+
+        if ($inventarioReservado && $diferencia > 0) {
+            $producto->decrement('stock', $diferencia);
+        } elseif ($inventarioReservado && $diferencia < 0) {
+            $producto->increment('stock', abs($diferencia));
         }
 
         /*
@@ -254,7 +287,8 @@ class DetallePedidoService
 
     public function eliminar(
         Pedido $pedido,
-        int $detalleId
+        int $detalleId,
+        bool $inventarioReservado = false
     ): void {
 
         /*
@@ -264,6 +298,19 @@ class DetallePedidoService
         $detalle = $pedido->detalles()
             ->where('id_detalle', $detalleId)
             ->firstOrFail();
+
+        /*
+         * Si el pedido tenía inventario reservado, devolver las unidades
+         * de esta línea antes de eliminarla.
+         */
+        if ($inventarioReservado) {
+            $producto = Producto::query()
+                ->whereKey($detalle->id_producto)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            $producto->increment('stock', (int) $detalle->cantidad);
+        }
 
         /*
          * Eliminar el detalle.

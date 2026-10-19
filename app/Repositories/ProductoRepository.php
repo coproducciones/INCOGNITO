@@ -7,121 +7,76 @@ use Illuminate\Database\Eloquent\Collection;
 
 class ProductoRepository
 {
-    /**
-     * Modelo Producto.
-     */
-    protected Producto $model;
-
-    /**
-     * Constructor.
-     */
-    public function __construct(Producto $model)
+    public function __construct(private Producto $model)
     {
-        $this->model = $model;
     }
 
-    /**
-     * Obtener todos los productos
-     * junto con su categoría.
-     */
+    /** Lista productos con categoría, proveedor y usuario proveedor. */
     public function all(): Collection
     {
-        return $this->model
-            ->with('categoria')
+        return $this->model->with(['categoria', 'proveedor.usuario'])
             ->orderBy('nombre')
             ->get();
     }
 
-    /**
-     * Buscar un producto por ID.
-     */
+    /** Busca un producto sin lanzar error si no existe. */
     public function find(int $id): ?Producto
     {
-        return $this->model
-            ->with('categoria')
-            ->find($id);
+        return $this->model->with(['categoria', 'proveedor.usuario'])->find($id);
     }
 
-    /**
-     * Buscar un producto por ID
-     * o lanzar una excepción si no existe.
-     */
+    /** Busca un producto o lanza ModelNotFoundException. */
     public function findOrFail(int $id): Producto
     {
-        return $this->model
-            ->with('categoria')
-            ->findOrFail($id);
+        return $this->model->with(['categoria', 'proveedor.usuario'])->findOrFail($id);
     }
 
-    /**
-     * Crear un producto.
-     */
     public function create(array $data): Producto
     {
-        return $this->model->create($data);
+        $producto = $this->model->create($data);
+
+        return $producto->load(['categoria', 'proveedor.usuario']);
     }
 
-    /**
-     * Actualizar un producto.
-     */
     public function update(Producto $producto, array $data): Producto
     {
         $producto->update($data);
 
-        return $producto->fresh('categoria');
+        return $producto->fresh(['categoria', 'proveedor.usuario']);
     }
 
-    /**
-     * Eliminar un producto.
-     */
     public function delete(Producto $producto): bool
     {
-        return $producto->delete();
+        return (bool) $producto->delete();
     }
 
-    /**
-     * Obtener productos de una categoría.
-     */
     public function getByCategoria(int $categoriaId): Collection
     {
-        return $this->model
-            ->with('categoria')
+        return $this->model->with(['categoria', 'proveedor.usuario'])
             ->where('categoria_id', $categoriaId)
             ->orderBy('nombre')
             ->get();
     }
 
-    /**
-     * Buscar productos por nombre.
-     */
     public function search(string $termino): Collection
     {
-        return $this->model
-            ->with('categoria')
+        return $this->model->with(['categoria', 'proveedor.usuario'])
             ->where('nombre', 'like', '%' . $termino . '%')
             ->orderBy('nombre')
             ->get();
     }
 
-    /**
-     * Obtener solamente productos activos.
-     */
     public function getActivos(): Collection
     {
-        return $this->model
-            ->with('categoria')
+        return $this->model->with(['categoria', 'proveedor.usuario'])
             ->where('activo', true)
             ->orderBy('nombre')
             ->get();
     }
 
-    /**
-     * Obtener solamente productos inactivos.
-     */
     public function getInactivos(): Collection
     {
-        return $this->model
-            ->with('categoria')
+        return $this->model->with(['categoria', 'proveedor.usuario'])
             ->where('activo', false)
             ->orderBy('nombre')
             ->get();

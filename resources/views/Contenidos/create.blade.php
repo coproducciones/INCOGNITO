@@ -3,74 +3,57 @@
 @section('title', 'Nuevo contenido')
 
 @section('content')
-<div class="max-w-2xl mx-auto py-8">
-    <h1 class="text-2xl font-bold text-white mb-1">Nuevo contenido</h1>
-    <p class="text-gray-400 mb-8">Registra información pública para una sección.</p>
+<div class="mx-auto max-w-3xl space-y-6">
 
-    {{-- Mensaje de éxito --}}
+    <div>
+        <h1 class="text-2xl font-semibold text-white">
+            Nuevo contenido
+        </h1>
+        <p class="mt-1 text-sm text-gray-400">
+            Registra información para asociarla a una sección y sus multimedias.
+        </p>
+    </div>
+
     @if(session('success'))
-        <div class="mb-6 p-4 rounded-lg bg-green-500/20 border border-green-500/40 text-green-400">
+        <div class="rounded-lg border border-green-500/20 bg-green-500/10 px-4 py-3 text-sm text-green-300">
             {{ session('success') }}
         </div>
     @endif
 
-    <form action="{{ route('contenidos.store') }}" method="POST" class="space-y-6">
+    @if($categorias->isEmpty())
+        <div class="rounded-lg border border-yellow-500/20 bg-yellow-500/10 p-4 text-sm text-yellow-200">
+            No hay categorías registradas. Debes crear al menos una categoría antes de registrar contenido.
+        </div>
+    @endif
+
+    <form
+        action="{{ route('contenidos.store') }}"
+        method="POST"
+        class="rounded-xl border border-white/10 bg-[#111111] p-6"
+    >
         @csrf
 
-        {{-- Título --}}
-        <div>
-            <label for="titulo" class="block text-sm font-medium text-gray-300 mb-1">Título</label>
-            <input type="text" 
-                   name="titulo" 
-                   id="titulo" 
-                   value="{{ old('titulo') }}"
-                   class="w-full rounded-lg border border-white/10 bg-[#1a1a1a] px-4 py-2.5 text-white focus:border-[#00c896] focus:outline-none focus:ring-1 focus:ring-[#00c896]"
-                   required>
+        @include('Contenidos._form')
+
+        <div class="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+            <a
+                href="{{ route('contenidos.index') }}"
+                class="rounded-lg border border-white/10 px-4 py-2 text-center text-sm text-gray-300 hover:bg-white/5"
+            >
+                Cancelar
+            </a>
+
+            @if(auth()->check() && auth()->user()->tienePermiso('contenido.crear'))
+                <button
+                    type="submit"
+                    @disabled($categorias->isEmpty())
+                    class="rounded-lg bg-[#00c896] px-5 py-2 text-sm font-semibold text-black transition hover:bg-[#00a87e] disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                    Guardar contenido
+                </button>
+            @endif
         </div>
+    </form>
 
-        {{-- Sección / Categoría --}}
-        <div>
-            <label for="categoria_id" class="block text-sm font-medium text-gray-300 mb-1">Sección / Categoría</label>
-            <select name="categoria_id" 
-                    id="categoria_id" 
-                    class="w-full rounded-lg border border-white/10 bg-[#1a1a1a] px-4 py-2.5 text-white focus:border-[#00c896] focus:outline-none focus:ring-1 focus:ring-[#00c896]"
-                    required>
-                <option value="">Selecciona una sección</option>
-                @foreach($categorias as $categoria)
-                    <option value="{{ $categoria->id }}" {{ old('categoria_id') == $categoria->id ? 'selected' : '' }}>
-                        {{ $categoria->nombre }}
-                    </option>
-                @endforeach
-            </select>
-        </div>
-
-        {{-- Descripción --}}
-        <div>
-            <label for="descripcion" class="block text-sm font-medium text-gray-300 mb-1">Descripción</label>
-            <textarea name="descripcion" 
-                      id="descripcion" 
-                      rows="5"
-                      class="w-full rounded-lg border border-white/10 bg-[#1a1a1a] px-4 py-2.5 text-white focus:border-[#00c896] focus:outline-none focus:ring-1 focus:ring-[#00c896]">{{ old('descripcion') }}</textarea>
-        </div>
-
-{{-- Botones --}}
-<div class="flex justify-between items-center pt-4">
-    {{-- Botón Volver --}}
-    <a href="{{ route('contenidos.index') }}" 
-       class="px-5 py-2.5 rounded-lg border border-white/20 text-gray-300 hover:bg-white/5 transition-colors">
-        ← Volver a contenidos
-    </a>
-
-    <div class="flex gap-3">
-        <a href="{{ url()->previous() }}" 
-           class="px-5 py-2.5 rounded-lg border border-white/20 text-gray-300 hover:bg-white/5 transition-colors">
-            Cancelar
-        </a>
-        <button type="submit" 
-                class="bg-[#00c896] hover:bg-[#00b085] text-white font-medium px-6 py-2.5 rounded-lg transition-colors">
-            Guardar
-        </button>
-    </div>
 </div>
-</form>
 @endsection
