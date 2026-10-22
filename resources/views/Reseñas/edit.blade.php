@@ -10,14 +10,14 @@
 
 @if($modoMiCuenta ?? false)
 
-    <div class="max-w-3xl">
+    <div class="mx-auto max-w-3xl px-4 py-8">
 
         {{-- Encabezado de la página --}}
         <div class="mb-8">
 
             <a
                 href="{{ route('mi-cuenta.resenas') }}"
-                class="font-bold uppercase tracking-widest"
+                class="font-bold uppercase tracking-widest transition hover:text-[#D8C17F]"
                 style="font-size: 9px; color: rgba(255,255,255,.4);"
             >
                 ← MIS RESEÑAS
@@ -30,8 +30,10 @@
                 EDITAR RESEÑA
             </h1>
 
+            <div class="mt-3 h-[3px] w-[60px] rounded-full bg-[#A99045]"></div>
+
             <p
-                class="mt-1 font-bold uppercase tracking-widest"
+                class="mt-3 font-bold uppercase tracking-widest"
                 style="font-size: 10px; color: rgba(255,255,255,.4);"
             >
                 {{ $reseña->producto?->nombre ?? 'PRODUCTO' }}
@@ -43,11 +45,10 @@
         @if($errors->any())
 
             <div
-                class="mb-6 p-4"
+                class="mb-6 rounded-xl p-4"
                 style="
                     background: rgba(248,113,113,.08);
                     border: 1px solid rgba(248,113,113,.25);
-                    border-radius: 4px;
                 "
             >
                 @foreach($errors->all() as $error)
@@ -68,7 +69,7 @@
         <form
             action="{{ route('mi-cuenta.resenas.update', $reseña) }}"
             method="POST"
-            class="space-y-6"
+            class="space-y-6 rounded-2xl border border-[#A99045]/30 bg-[#111111] p-6 shadow-xl shadow-black/30 sm:p-8"
         >
 
             @csrf
@@ -80,7 +81,7 @@
                 <label
                     for="calificacion"
                     class="mb-2 block font-black uppercase tracking-widest"
-                    style="font-size: 10px; color: rgba(255,255,255,.5);"
+                    style="font-size: 10px; color: rgba(255,255,255,.65);"
                 >
                     CALIFICACIÓN
                 </label>
@@ -89,11 +90,10 @@
                     name="calificacion"
                     id="calificacion"
                     required
-                    class="w-full px-4 py-3 text-white outline-none"
+                    class="w-full rounded-lg px-4 py-3 text-white outline-none transition focus:border-[#A99045] focus:ring-1 focus:ring-[#A99045]/40"
                     style="
-                        background: rgba(255,255,255,.04);
+                        background: #1D1D1D;
                         border: 1px solid rgba(255,255,255,.1);
-                        border-radius: 4px;
                         font-size: 12px;
                     "
                 >
@@ -132,7 +132,7 @@
                 <label
                     for="comentario"
                     class="mb-2 block font-black uppercase tracking-widest"
-                    style="font-size: 10px; color: rgba(255,255,255,.5);"
+                    style="font-size: 10px; color: rgba(255,255,255,.65);"
                 >
                     COMENTARIO
                 </label>
@@ -141,11 +141,10 @@
                     name="comentario"
                     id="comentario"
                     rows="6"
-                    class="w-full px-4 py-3 text-white outline-none resize-none"
+                    class="w-full resize-none rounded-lg px-4 py-3 text-white outline-none transition focus:border-[#A99045] focus:ring-1 focus:ring-[#A99045]/40"
                     style="
-                        background: rgba(255,255,255,.04);
+                        background: #1D1D1D;
                         border: 1px solid rgba(255,255,255,.1);
-                        border-radius: 4px;
                         font-size: 12px;
                     "
                     placeholder="CUÉNTANOS TU EXPERIENCIA..."
@@ -168,22 +167,22 @@
             @if($reseña->respuesta)
 
                 <div
-                    class="p-4"
+                    class="rounded-lg p-4"
                     style="
-                        background: rgba(0,200,150,.04);
-                        border-left: 2px solid #00c896;
+                        background: rgba(169,144,69,.06);
+                        border-left: 3px solid #A99045;
                     "
                 >
 
                     <p
                         class="font-black uppercase tracking-widest"
-                        style="font-size: 9px; color: #00c896;"
+                        style="font-size: 9px; color: #D8C17F;"
                     >
                         RESPUESTA DE LA EMPRESA
                     </p>
 
                     <p
-                        class="mt-2 text-gray-300"
+                        class="mt-2 text-white/70"
                         style="font-size: 11px;"
                     >
                         {{ $reseña->respuesta }}
@@ -195,17 +194,15 @@
 
             {{-- Botones de acción --}}
             <div
-                class="flex items-center gap-3 pt-4"
-                style="border-top: 1px solid rgba(255,255,255,.08);"
+                class="flex flex-wrap items-center gap-3 border-t border-white/10 pt-6"
             >
 
                 <button
                     type="submit"
-                    class="px-6 py-3 font-black uppercase tracking-widest text-black"
+                    class="rounded-lg border border-[#D8C17F] px-6 py-3 font-black uppercase tracking-widest text-[#111111] transition hover:bg-[#D8C17F] focus:outline-none focus:ring-2 focus:ring-[#A99045]/50"
                     style="
                         font-size: 10px;
-                        background: #00c896;
-                        border-radius: 4px;
+                        background: #A99045;
                     "
                 >
                     GUARDAR CAMBIOS
@@ -213,12 +210,11 @@
 
                 <a
                     href="{{ route('mi-cuenta.resenas') }}"
-                    class="px-6 py-3 font-black uppercase tracking-widest"
+                    class="rounded-lg px-6 py-3 font-black uppercase tracking-widest transition hover:border-[#A99045] hover:text-[#D8C17F]"
                     style="
                         font-size: 10px;
-                        color: rgba(255,255,255,.5);
+                        color: rgba(255,255,255,.6);
                         border: 1px solid rgba(255,255,255,.1);
-                        border-radius: 4px;
                     "
                 >
                     CANCELAR
@@ -236,14 +232,14 @@
     {{-- EDICIÓN ADMINISTRATIVA                                --}}
     {{-- ===================================================== --}}
 
-    <div class="max-w-3xl">
+    <div class="mx-auto max-w-3xl px-4 py-8">
 
         {{-- Encabezado de la página --}}
         <div class="mb-8">
 
             <a
                 href="{{ route('reseñas.index') }}"
-                class="font-bold uppercase tracking-widest"
+                class="font-bold uppercase tracking-widest transition hover:text-[#D8C17F]"
                 style="font-size: 9px; color: rgba(255,255,255,.4);"
             >
                 ← VOLVER A RESEÑAS
@@ -256,8 +252,10 @@
                 EDITAR RESEÑA
             </h1>
 
+            <div class="mt-3 h-[3px] w-[60px] rounded-full bg-[#A99045]"></div>
+
             <p
-                class="mt-1 font-bold uppercase tracking-widest"
+                class="mt-3 font-bold uppercase tracking-widest"
                 style="font-size: 10px; color: rgba(255,255,255,.4);"
             >
                 ACTUALIZAR INFORMACIÓN DE LA RESEÑA
@@ -269,7 +267,7 @@
         @if($errors->any())
 
             <div
-                class="mb-6 px-4 py-3 rounded border border-red-500/20 bg-red-500/10 text-sm text-red-300"
+                class="mb-6 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300"
             >
 
                 <p class="mb-2 font-bold uppercase tracking-widest">
@@ -294,7 +292,7 @@
         <form
             action="{{ route('reseñas.update', $reseña) }}"
             method="POST"
-            class="space-y-6"
+            class="space-y-6 rounded-2xl border border-[#A99045]/30 bg-[#111111] p-6 shadow-xl shadow-black/30 sm:p-8"
         >
 
             @csrf
@@ -306,7 +304,7 @@
                 <label
                     for="id_usuario"
                     class="mb-2 block font-black uppercase tracking-widest"
-                    style="font-size: 10px; color: rgba(255,255,255,.5);"
+                    style="font-size: 10px; color: rgba(255,255,255,.65);"
                 >
                     USUARIO
                 </label>
@@ -315,11 +313,10 @@
                     name="id_usuario"
                     id="id_usuario"
                     required
-                    class="w-full px-4 py-3 text-white outline-none"
+                    class="w-full rounded-lg px-4 py-3 text-white outline-none transition focus:border-[#A99045] focus:ring-1 focus:ring-[#A99045]/40"
                     style="
-                        background: rgba(255,255,255,.04);
+                        background: #1D1D1D;
                         border: 1px solid rgba(255,255,255,.1);
-                        border-radius: 4px;
                         font-size: 12px;
                     "
                 >
@@ -360,7 +357,7 @@
                 <label
                     for="id_producto"
                     class="mb-2 block font-black uppercase tracking-widest"
-                    style="font-size: 10px; color: rgba(255,255,255,.5);"
+                    style="font-size: 10px; color: rgba(255,255,255,.65);"
                 >
                     PRODUCTO
                 </label>
@@ -369,11 +366,10 @@
                     name="id_producto"
                     id="id_producto"
                     required
-                    class="w-full px-4 py-3 text-white outline-none"
+                    class="w-full rounded-lg px-4 py-3 text-white outline-none transition focus:border-[#A99045] focus:ring-1 focus:ring-[#A99045]/40"
                     style="
-                        background: rgba(255,255,255,.04);
+                        background: #1D1D1D;
                         border: 1px solid rgba(255,255,255,.1);
-                        border-radius: 4px;
                         font-size: 12px;
                     "
                 >
@@ -415,7 +411,7 @@
                 <label
                     for="calificacion"
                     class="mb-2 block font-black uppercase tracking-widest"
-                    style="font-size: 10px; color: rgba(255,255,255,.5);"
+                    style="font-size: 10px; color: rgba(255,255,255,.65);"
                 >
                     CALIFICACIÓN
                 </label>
@@ -424,11 +420,10 @@
                     name="calificacion"
                     id="calificacion"
                     required
-                    class="w-full px-4 py-3 text-white outline-none"
+                    class="w-full rounded-lg px-4 py-3 text-white outline-none transition focus:border-[#A99045] focus:ring-1 focus:ring-[#A99045]/40"
                     style="
-                        background: rgba(255,255,255,.04);
+                        background: #1D1D1D;
                         border: 1px solid rgba(255,255,255,.1);
-                        border-radius: 4px;
                         font-size: 12px;
                     "
                 >
@@ -467,7 +462,7 @@
                 <label
                     for="comentario"
                     class="mb-2 block font-black uppercase tracking-widest"
-                    style="font-size: 10px; color: rgba(255,255,255,.5);"
+                    style="font-size: 10px; color: rgba(255,255,255,.65);"
                 >
                     COMENTARIO
                 </label>
@@ -476,11 +471,10 @@
                     name="comentario"
                     id="comentario"
                     rows="6"
-                    class="w-full px-4 py-3 text-white outline-none resize-none"
+                    class="w-full resize-none rounded-lg px-4 py-3 text-white outline-none transition focus:border-[#A99045] focus:ring-1 focus:ring-[#A99045]/40"
                     style="
-                        background: rgba(255,255,255,.04);
+                        background: #1D1D1D;
                         border: 1px solid rgba(255,255,255,.1);
-                        border-radius: 4px;
                         font-size: 12px;
                     "
                     placeholder="ESCRIBE EL COMENTARIO DEL CLIENTE..."
@@ -505,7 +499,7 @@
                 <label
                     for="respuesta"
                     class="mb-2 block font-black uppercase tracking-widest"
-                    style="font-size: 10px; color: rgba(255,255,255,.5);"
+                    style="font-size: 10px; color: rgba(255,255,255,.65);"
                 >
                     RESPUESTA DE LA EMPRESA
                 </label>
@@ -514,11 +508,10 @@
                     name="respuesta"
                     id="respuesta"
                     rows="4"
-                    class="w-full px-4 py-3 text-white outline-none resize-none"
+                    class="w-full resize-none rounded-lg px-4 py-3 text-white outline-none transition focus:border-[#A99045] focus:ring-1 focus:ring-[#A99045]/40"
                     style="
-                        background: rgba(255,255,255,.04);
+                        background: #1D1D1D;
                         border: 1px solid rgba(255,255,255,.1);
-                        border-radius: 4px;
                         font-size: 12px;
                     "
                     placeholder="ESCRIBE LA RESPUESTA DE LA EMPRESA..."
@@ -539,17 +532,15 @@
 
             {{-- Botones de acción --}}
             <div
-                class="flex items-center gap-3 pt-4"
-                style="border-top: 1px solid rgba(255,255,255,.08);"
+                class="flex flex-wrap items-center gap-3 border-t border-white/10 pt-6"
             >
 
                 <button
                     type="submit"
-                    class="px-6 py-3 font-black uppercase tracking-widest text-black"
+                    class="rounded-lg border border-[#D8C17F] px-6 py-3 font-black uppercase tracking-widest text-[#111111] transition hover:bg-[#D8C17F] focus:outline-none focus:ring-2 focus:ring-[#A99045]/50"
                     style="
                         font-size: 10px;
-                        background: #00c896;
-                        border-radius: 4px;
+                        background: #A99045;
                     "
                 >
                     ACTUALIZAR RESEÑA
@@ -557,12 +548,11 @@
 
                 <a
                     href="{{ route('reseñas.index') }}"
-                    class="px-6 py-3 font-black uppercase tracking-widest"
+                    class="rounded-lg px-6 py-3 font-black uppercase tracking-widest transition hover:border-[#A99045] hover:text-[#D8C17F]"
                     style="
                         font-size: 10px;
-                        color: rgba(255,255,255,.5);
+                        color: rgba(255,255,255,.6);
                         border: 1px solid rgba(255,255,255,.1);
-                        border-radius: 4px;
                     "
                 >
                     CANCELAR

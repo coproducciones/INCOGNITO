@@ -4,33 +4,45 @@
 
 @section('content')
 
-<div class="max-w-2xl">
+<div class="mx-auto max-w-2xl space-y-6">
 
     {{-- ===================================================== --}}
-    {{-- ENCABEZADO                                            --}}
+    {{-- ENCABEZADO --}}
     {{-- ===================================================== --}}
 
-    <h1 class="text-2xl font-semibold mb-2">
-        Seguridad del usuario
-    </h1>
+    <div class="mb-8">
 
-    <p class="text-sm text-gray-400 mb-6">
-        Actualiza el rol y el estado del usuario.
-    </p>
+        <h1 class="text-2xl font-black uppercase tracking-widest text-white"
+            style="letter-spacing: .15em;">
+            Seguridad del usuario
+        </h1>
+
+        <div class="mt-3 h-[3px] w-[60px] rounded-full"
+             style="background-color: #A99045;"></div>
+
+        <p class="mt-3 text-sm text-gray-400">
+            Actualiza el rol y el estado del usuario.
+        </p>
+
+    </div>
+
 
     {{-- ===================================================== --}}
-    {{-- MENSAJE DE ERROR GENERAL                              --}}
+    {{-- MENSAJE DE ERROR GENERAL --}}
     {{-- ===================================================== --}}
 
     @if ($errors->any())
 
-        <div class="mb-6 p-4 rounded-lg bg-red-900/40 border border-red-500/20">
+        <div
+            class="mb-6 rounded-xl border p-4"
+            style="background-color: rgba(127, 29, 29, 0.18); border-color: rgba(248, 113, 113, 0.3);"
+        >
 
-            <p class="font-semibold text-red-300 mb-2">
+            <p class="mb-2 font-bold text-red-300">
                 Se encontraron algunos errores:
             </p>
 
-            <ul class="list-disc list-inside text-sm text-red-300">
+            <ul class="list-inside list-disc space-y-1 text-sm text-red-300">
 
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
@@ -42,182 +54,245 @@
 
     @endif
 
+
     {{-- ===================================================== --}}
-    {{-- FORMULARIO                                            --}}
+    {{-- FORMULARIO --}}
     {{-- ===================================================== --}}
 
     <form
         method="POST"
         action="{{ route('seguridad.usuarios.update', $usuario) }}"
-        class="space-y-4"
+        class="space-y-5"
     >
 
         @csrf
-
         @method('PUT')
 
+
         {{-- ================================================= --}}
-        {{-- NOMBRE                                             --}}
+        {{-- PANEL DE INFORMACIÓN DEL USUARIO --}}
         {{-- ================================================= --}}
 
-        <div>
+        <div
+            class="space-y-5 rounded-2xl border p-6 shadow-lg"
+            style="background-color: #111111; border-color: rgba(169, 144, 69, 0.3);"
+        >
 
-            <label
-                for="nombre"
-                class="block mb-1 text-sm text-gray-300"
-            >
-                Nombre
-            </label>
+            <h2 class="mb-5 text-sm font-black uppercase tracking-widest text-white"
+                style="letter-spacing: .12em;">
+                Información del usuario
+            </h2>
 
-            <input
-                type="text"
-                id="nombre"
-                name="nombre"
-                value="{{ old('nombre', $usuario->nombre) }}"
-                class="w-full rounded-lg bg-black border border-white/10 px-3 py-2 text-white"
-                required
-            >
+
+            {{-- NOMBRE --}}
+            <div>
+
+                <label
+                    for="nombre"
+                    class="mb-2 block text-xs font-bold uppercase tracking-widest"
+                    style="color: #D8C17F;"
+                >
+                    Nombre
+                </label>
+
+                <input
+                    type="text"
+                    id="nombre"
+                    name="nombre"
+                    value="{{ old('nombre', $usuario->nombre) }}"
+                    class="w-full rounded-xl border px-4 py-3 text-sm text-white outline-none transition focus:ring-2"
+                    style="background-color: #1D1D1D; border-color: rgba(255, 255, 255, 0.12); --tw-ring-color: #A99045;"
+                    onfocus="this.style.borderColor='#A99045'"
+                    onblur="this.style.borderColor='rgba(255, 255, 255, 0.12)'"
+                    required
+                >
+
+            </div>
+
+
+            {{-- APELLIDO --}}
+            <div>
+
+                <label
+                    for="apellido"
+                    class="mb-2 block text-xs font-bold uppercase tracking-widest"
+                    style="color: #D8C17F;"
+                >
+                    Apellido
+                </label>
+
+                <input
+                    type="text"
+                    id="apellido"
+                    name="apellido"
+                    value="{{ old('apellido', $usuario->apellido ?? '') }}"
+                    class="w-full rounded-xl border px-4 py-3 text-sm text-white outline-none transition focus:ring-2"
+                    style="background-color: #1D1D1D; border-color: rgba(255, 255, 255, 0.12); --tw-ring-color: #A99045;"
+                    onfocus="this.style.borderColor='#A99045'"
+                    onblur="this.style.borderColor='rgba(255, 255, 255, 0.12)'"
+                >
+
+            </div>
+
+
+            {{-- CORREO --}}
+            <div>
+
+                <label
+                    for="email"
+                    class="mb-2 block text-xs font-bold uppercase tracking-widest"
+                    style="color: #D8C17F;"
+                >
+                    Correo electrónico
+                </label>
+
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value="{{ old('email', $usuario->email) }}"
+                    class="w-full rounded-xl border px-4 py-3 text-sm text-white outline-none transition focus:ring-2"
+                    style="background-color: #1D1D1D; border-color: rgba(255, 255, 255, 0.12); --tw-ring-color: #A99045;"
+                    onfocus="this.style.borderColor='#A99045'"
+                    onblur="this.style.borderColor='rgba(255, 255, 255, 0.12)'"
+                    required
+                >
+
+            </div>
 
         </div>
 
-        {{-- ================================================= --}}
-        {{-- APELLIDO                                           --}}
-        {{-- ================================================= --}}
-
-        <div>
-
-            <label
-                for="apellido"
-                class="block mb-1 text-sm text-gray-300"
-            >
-                Apellido
-            </label>
-
-            <input
-                type="text"
-                id="apellido"
-                name="apellido"
-                value="{{ old('apellido', $usuario->apellido ?? '') }}"
-                class="w-full rounded-lg bg-black border border-white/10 px-3 py-2 text-white"
-            >
-
-        </div>
 
         {{-- ================================================= --}}
-        {{-- CORREO                                             --}}
+        {{-- PANEL DE SEGURIDAD --}}
         {{-- ================================================= --}}
 
-        <div>
+        <div
+            class="space-y-5 rounded-2xl border p-6 shadow-lg"
+            style="background-color: #111111; border-color: rgba(169, 144, 69, 0.3);"
+        >
 
-            <label
-                for="email"
-                class="block mb-1 text-sm text-gray-300"
-            >
-                Correo electrónico
-            </label>
+            <h2 class="mb-5 text-sm font-black uppercase tracking-widest text-white"
+                style="letter-spacing: .12em;">
+                Roles y estados
+            </h2>
 
-            <input
-                type="email"
-                id="email"
-                name="email"
-                value="{{ old('email', $usuario->email) }}"
-                class="w-full rounded-lg bg-black border border-white/10 px-3 py-2 text-white"
-                required
-            >
 
-        </div>
+            {{-- ROL --}}
+            <div>
 
-        {{-- ================================================= --}}
-        {{-- ROL                                                --}}
-        {{-- ================================================= --}}
+                <label
+                    for="id_rol"
+                    class="mb-2 block text-xs font-bold uppercase tracking-widest"
+                    style="color: #D8C17F;"
+                >
+                    Rol
+                </label>
 
-        <div>
+                <select
+                    id="id_rol"
+                    name="id_rol"
+                    class="w-full rounded-xl border px-4 py-3 text-sm text-white outline-none transition focus:ring-2"
+                    style="background-color: #1D1D1D; border-color: rgba(255, 255, 255, 0.12); --tw-ring-color: #A99045;"
+                    onfocus="this.style.borderColor='#A99045'"
+                    onblur="this.style.borderColor='rgba(255, 255, 255, 0.12)'"
+                >
 
-            <label
-                for="id_rol"
-                class="block mb-1 text-sm text-gray-300"
-            >
-                Rol
-            </label>
-
-            <select
-                id="id_rol"
-                name="id_rol"
-                class="w-full rounded-lg bg-black border border-white/10 px-3 py-2 text-white"
-            >
-
-                <option value="">
-                    Sin rol
-                </option>
-
-                @foreach ($roles as $rol)
-
-                    <option
-                        value="{{ $rol->id_rol }}"
-                        @selected(
-                            old('id_rol', $usuario->id_rol) == $rol->id_rol
-                        )
-                    >
-                        {{ $rol->nombre }}
+                    <option value="" style="background-color: #1D1D1D;">
+                        Sin rol
                     </option>
 
-                @endforeach
+                    @foreach ($roles as $rol)
 
-            </select>
+                        <option
+                            value="{{ $rol->id_rol }}"
+                            @selected(
+                                old('id_rol', $usuario->id_rol) == $rol->id_rol
+                            )
+                            style="background-color: #1D1D1D;"
+                        >
+                            {{ $rol->nombre }}
+                        </option>
+
+                    @endforeach
+
+                </select>
+
+            </div>
+
+
+            {{-- ESTADO DEL USUARIO --}}
+            <div>
+
+                <label
+                    for="id_estado"
+                    class="mb-2 block text-xs font-bold uppercase tracking-widest"
+                    style="color: #D8C17F;"
+                >
+                    Estado del usuario
+                </label>
+
+                <select
+                    id="id_estado"
+                    name="id_estado"
+                    class="w-full rounded-xl border px-4 py-3 text-sm text-white outline-none transition focus:ring-2"
+                    style="background-color: #1D1D1D; border-color: rgba(255, 255, 255, 0.12); --tw-ring-color: #A99045;"
+                    onfocus="this.style.borderColor='#A99045'"
+                    onblur="this.style.borderColor='rgba(255, 255, 255, 0.12)'"
+                    required
+                >
+
+                    @forelse ($estados as $estado)
+
+                        <option
+                            value="{{ $estado->id_estado }}"
+                            @selected(
+                                (string) old('id_estado', $usuario->id_estado)
+                                === (string) $estado->id_estado
+                            )
+                            style="background-color: #1D1D1D;"
+                        >
+                            {{ $estado->nombre }}
+                        </option>
+
+                    @empty
+
+                        <option value="" disabled selected>
+                            No hay estados de usuario registrados
+                        </option>
+
+                    @endforelse
+
+                </select>
+
+                @if ($estados->isEmpty())
+
+                    <p
+                        class="mt-3 rounded-lg border p-3 text-sm"
+                        style="background-color: rgba(169, 144, 69, 0.1); border-color: rgba(169, 144, 69, 0.3); color: #D8C17F;"
+                    >
+                        Debes registrar los estados Activo e Inactivo
+                        para el tipo USUARIO.
+                    </p>
+
+                @endif
+
+            </div>
 
         </div>
 
-{{-- ESTADO DEL USUARIO --}}
-
-<div>
-    <label
-        for="id_estado"
-        class="block mb-1 text-sm text-gray-300"
-    >
-        Estado del usuario
-    </label>
-
-    <select
-        id="id_estado"
-        name="id_estado"
-        class="w-full rounded-lg bg-black border border-white/10 px-3 py-2 text-white"
-        required
-    >
-        @forelse ($estados as $estado)
-            <option
-                value="{{ $estado->id_estado }}"
-                @selected(
-                    (string) old('id_estado', $usuario->id_estado)
-                    === (string) $estado->id_estado
-                )
-            >
-                {{ $estado->nombre }}
-            </option>
-        @empty
-            <option value="" disabled selected>
-                No hay estados de usuario registrados
-            </option>
-        @endforelse
-    </select>
-
-    @if ($estados->isEmpty())
-        <p class="mt-2 text-sm text-amber-400">
-            Debes registrar los estados Activo e Inactivo
-            para el tipo USUARIO.
-        </p>
-    @endif
-</div>
 
         {{-- ================================================= --}}
-        {{-- BOTONES                                            --}}
+        {{-- BOTONES --}}
         {{-- ================================================= --}}
 
-        <div class="flex gap-3 pt-4">
+        <div class="flex flex-wrap gap-3 pt-2">
 
             {{-- Guardar --}}
             <button
                 type="submit"
-                class="px-4 py-2 rounded-lg bg-emerald-600 text-white font-semibold hover:bg-emerald-500"
+                class="rounded-xl px-6 py-3 text-sm font-black uppercase tracking-widest transition hover:brightness-110"
+                style="background-color: #A99045; color: #111111; letter-spacing: .08em;"
             >
                 Guardar cambios
             </button>
@@ -225,7 +300,8 @@
             {{-- Cancelar --}}
             <a
                 href="{{ route('seguridad.usuarios.index') }}"
-                class="px-4 py-2 rounded-lg border border-white/10 text-gray-300 hover:bg-white/5"
+                class="rounded-xl border px-6 py-3 text-sm font-semibold text-gray-300 transition hover:bg-white/5"
+                style="border-color: rgba(255, 255, 255, 0.15);"
             >
                 Cancelar
             </a>
@@ -237,4 +313,3 @@
 </div>
 
 @endsection
-

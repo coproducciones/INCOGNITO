@@ -32,6 +32,16 @@
             MODIFICAR INFORMACIÓN DEL PEDIDO #{{ $pedido->id_pedido }}
         </p>
 
+        <div
+            class="mt-4"
+            style="
+                width:60px;
+                height:3px;
+                background:#A99045;
+                border-radius:2px;
+            "
+        ></div>
+
     </div>
 
 
@@ -45,10 +55,10 @@
             class="mb-6 px-4 py-3 font-bold uppercase tracking-widest"
             style="
                 font-size:10px;
-                background:rgba(0,200,150,0.1);
-                border:1px solid rgba(0,200,150,0.3);
+                background:rgba(169,144,69,0.10);
+                border:1px solid rgba(169,144,69,0.35);
                 border-radius:4px;
-                color:#00c896;
+                color:#D8C17F;
             "
         >
             {{ session('success') }}
@@ -112,7 +122,13 @@
     <form
         action="{{ route('pedidos.update', ['pedido' => $pedido->id_pedido]) }}"
         method="POST"
-        class="space-y-6"
+        class="space-y-6 p-6 md:p-8"
+        style="
+            background:#111111;
+            border:1px solid rgba(169,144,69,0.25);
+            border-radius:6px;
+            box-shadow:0 10px 30px rgba(0,0,0,0.20);
+        "
     >
 
         @csrf
@@ -128,7 +144,10 @@
             <label
                 for="id_usuario"
                 class="block font-black uppercase tracking-widest text-white mb-2"
-                style="font-size:10px;"
+                style="
+                    font-size:10px;
+                    letter-spacing:0.12em;
+                "
             >
                 USUARIO
             </label>
@@ -136,19 +155,22 @@
             <select
                 name="id_usuario"
                 id="id_usuario"
-                class="w-full px-4 py-3 text-white"
+                class="w-full px-4 py-3 text-white outline-none transition-all"
                 style="
-                    background:rgba(255,255,255,0.05);
+                    background:#1D1D1D;
                     border:1px solid rgba(255,255,255,0.12);
                     border-radius:4px;
                     font-size:12px;
+                    color-scheme:dark;
                 "
+                onfocus="this.style.borderColor='#A99045'"
+                onblur="this.style.borderColor='rgba(255,255,255,0.12)'"
                 required
             >
 
                 <option
                     value=""
-                    style="background:#111;"
+                    style="background:#111111;"
                 >
                     SELECCIONA UN USUARIO
                 </option>
@@ -157,7 +179,7 @@
 
                     <option
                         value="{{ $usuario->id }}"
-                        style="background:#111;"
+                        style="background:#111111;"
                         {{ old('id_usuario', $pedido->id_usuario) == $usuario->id ? 'selected' : '' }}
                     >
                         {{ $usuario->nombre }}
@@ -193,7 +215,10 @@
             <label
                 for="id_estado"
                 class="block font-black uppercase tracking-widest text-white mb-2"
-                style="font-size:10px;"
+                style="
+                    font-size:10px;
+                    letter-spacing:0.12em;
+                "
             >
                 ESTADO
             </label>
@@ -201,19 +226,22 @@
             <select
                 name="id_estado"
                 id="id_estado"
-                class="w-full px-4 py-3 text-white"
+                class="w-full px-4 py-3 text-white outline-none transition-all"
                 style="
-                    background:rgba(255,255,255,0.05);
+                    background:#1D1D1D;
                     border:1px solid rgba(255,255,255,0.12);
                     border-radius:4px;
                     font-size:12px;
+                    color-scheme:dark;
                 "
+                onfocus="this.style.borderColor='#A99045'"
+                onblur="this.style.borderColor='rgba(255,255,255,0.12)'"
                 required
             >
 
                 <option
                     value=""
-                    style="background:#111;"
+                    style="background:#111111;"
                 >
                     SELECCIONA UN ESTADO
                 </option>
@@ -222,7 +250,7 @@
 
                     <option
                         value="{{ $estado->id_estado }}"
-                        style="background:#111;"
+                        style="background:#111111;"
                         {{ old('id_estado', $pedido->id_estado) == $estado->id_estado ? 'selected' : '' }}
                     >
                         {{ $estado->nombre }}
@@ -258,7 +286,10 @@
             <label
                 for="fecha_pedido"
                 class="block font-black uppercase tracking-widest text-white mb-2"
-                style="font-size:10px;"
+                style="
+                    font-size:10px;
+                    letter-spacing:0.12em;
+                "
             >
                 FECHA DEL PEDIDO
             </label>
@@ -268,13 +299,16 @@
                 name="fecha_pedido"
                 id="fecha_pedido"
                 value="{{ old('fecha_pedido', $pedido->fecha_pedido?->format('Y-m-d\TH:i')) }}"
-                class="w-full px-4 py-3 text-white"
+                class="w-full px-4 py-3 text-white outline-none transition-all"
                 style="
-                    background:rgba(255,255,255,0.05);
+                    background:#1D1D1D;
                     border:1px solid rgba(255,255,255,0.12);
                     border-radius:4px;
                     font-size:12px;
+                    color-scheme:dark;
                 "
+                onfocus="this.style.borderColor='#A99045'"
+                onblur="this.style.borderColor='rgba(255,255,255,0.12)'"
                 required
             >
 
@@ -303,7 +337,10 @@
 
             <label
                 class="block font-black uppercase tracking-widest text-white mb-2"
-                style="font-size:10px;"
+                style="
+                    font-size:10px;
+                    letter-spacing:0.12em;
+                "
             >
                 TOTAL DEL PEDIDO
             </label>
@@ -311,11 +348,11 @@
             <div
                 class="w-full px-4 py-3 font-black"
                 style="
-                    background:rgba(255,255,255,0.03);
-                    border:1px solid rgba(255,255,255,0.08);
+                    background:#1D1D1D;
+                    border:1px solid rgba(169,144,69,0.30);
                     border-radius:4px;
-                    font-size:12px;
-                    color:#00c896;
+                    font-size:16px;
+                    color:#D8C17F;
                 "
             >
                 ${{ number_format((float) $pedido->total, 0, ',', '.') }}
@@ -328,16 +365,23 @@
         {{-- BOTONES --}}
         {{-- ===================================================== --}}
 
-        <div class="flex items-center gap-3">
+        <div
+            class="flex flex-wrap items-center gap-3 pt-5"
+            style="
+                border-top:1px solid rgba(255,255,255,0.08);
+            "
+        >
 
             @if(auth()->check() && auth()->user()->tienePermiso('pedidos.editar'))
 
                 <button
                     type="submit"
-                    class="inline-flex items-center justify-center font-black uppercase tracking-widest px-5 py-3 text-black transition-all hover:opacity-80"
+                    class="inline-flex items-center justify-center font-black uppercase tracking-widest px-5 py-3 transition-all hover:opacity-80"
                     style="
                         font-size:10px;
-                        background:#00c896;
+                        background:#A99045;
+                        color:#111111;
+                        border:1px solid #A99045;
                         border-radius:4px;
                         letter-spacing:0.1em;
                     "
@@ -352,7 +396,8 @@
                 class="inline-flex items-center justify-center font-black uppercase tracking-widest px-5 py-3 transition-all hover:bg-white/10"
                 style="
                     font-size:10px;
-                    color:rgba(255,255,255,0.6);
+                    color:rgba(255,255,255,0.65);
+                    background:#1D1D1D;
                     border:1px solid rgba(255,255,255,0.12);
                     border-radius:4px;
                     letter-spacing:0.1em;

@@ -7,7 +7,7 @@
 
     {{-- ENCABEZADO --}}
     <div class="flex items-center gap-4">
-        <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-blue-500/10 text-blue-400 ring-1 ring-blue-500/20">
+        <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#A99045]/10 text-[#D8C17F] ring-1 ring-[#A99045]/25">
             <svg xmlns="http://www.w3.org/2000/svg"
                  class="h-7 w-7"
                  fill="none"
@@ -27,7 +27,7 @@
             <h1 class="text-2xl font-bold tracking-tight text-white sm:text-3xl">
                 Editar estado
             </h1>
-            <p class="mt-1 text-sm text-gray-400">
+            <p class="mt-1 text-sm text-white/50">
                 Actualiza la información del estado seleccionado.
             </p>
         </div>
@@ -35,27 +35,27 @@
 
 
     {{-- INFORMACIÓN ACTUAL --}}
-    <div class="flex items-center gap-4 rounded-2xl border border-white/10 bg-gray-900/50 p-5">
+    <div class="flex items-center gap-4 rounded-2xl border border-white/[0.08] bg-[#1D1D1D] p-5">
 
-        <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/10 text-lg font-bold text-emerald-300 ring-1 ring-emerald-500/10">
+        <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#A99045]/15 text-lg font-bold text-[#D8C17F] ring-1 ring-[#A99045]/20">
             {{ \Illuminate\Support\Str::upper(
                 \Illuminate\Support\Str::substr($estado->nombre, 0, 1)
             ) }}
         </div>
 
         <div class="min-w-0 flex-1">
-            <p class="text-xs font-medium uppercase tracking-wider text-gray-500">
+            <p class="text-xs font-medium uppercase tracking-wider text-white/40">
                 Registro seleccionado
             </p>
             <p class="mt-1 truncate font-semibold text-white">
                 {{ $estado->nombre }}
             </p>
-            <p class="mt-1 text-sm text-gray-400">
+            <p class="mt-1 text-sm text-white/50">
                 Tipo: {{ $estado->tipo }}
             </p>
         </div>
 
-        <span class="inline-flex shrink-0 items-center gap-2 rounded-full border border-blue-400/20 bg-blue-400/10 px-3 py-1.5 text-xs font-semibold text-blue-300">
+        <span class="inline-flex shrink-0 items-center gap-2 rounded-full border border-[#A99045]/30 bg-[#A99045]/10 px-3 py-1.5 text-xs font-semibold text-[#D8C17F]">
             <svg xmlns="http://www.w3.org/2000/svg"
                  class="h-4 w-4"
                  fill="none"
@@ -72,13 +72,13 @@
 
 
     {{-- FORMULARIO --}}
-    <div class="overflow-hidden rounded-2xl border border-white/10 bg-gray-900/70 shadow-xl shadow-black/10">
+    <div class="overflow-hidden rounded-2xl border border-white/[0.08] bg-[#1D1D1D] shadow-xl shadow-black/20">
 
-        <div class="border-b border-white/10 px-6 py-5 sm:px-8">
+        <div class="border-b border-white/[0.08] px-6 py-5 sm:px-8">
             <h2 class="text-lg font-semibold text-white">
                 Modificar información
             </h2>
-            <p class="mt-1 text-sm text-gray-400">
+            <p class="mt-1 text-sm text-white/50">
                 Cambia los campos necesarios y guarda las modificaciones.
             </p>
         </div>
@@ -109,7 +109,7 @@
             {{-- TIPO --}}
             <div>
                 <label for="tipo"
-                       class="mb-2 block text-sm font-semibold text-gray-200">
+                       class="mb-2 block text-sm font-semibold text-white/80">
                     Tipo de estado
                     <span class="text-red-400">*</span>
                 </label>
@@ -122,7 +122,7 @@
                     placeholder="Ingrese el tipo de estado"
                     autocomplete="off"
                     required
-                    class="w-full rounded-xl border border-white/10 bg-gray-950 px-4 py-3 text-sm text-white placeholder-gray-500 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 @error('tipo') border-red-500 @enderror"
+                    class="w-full rounded-xl border border-white/10 bg-[#111111] px-4 py-3 text-sm text-white placeholder-white/30 outline-none transition focus:border-[#A99045] focus:ring-2 focus:ring-[#A99045]/20 @error('tipo') border-red-500 @enderror"
                 >
 
                 @error('tipo')
@@ -134,7 +134,7 @@
             {{-- NOMBRE --}}
             <div>
                 <label for="nombre"
-                       class="mb-2 block text-sm font-semibold text-gray-200">
+                       class="mb-2 block text-sm font-semibold text-white/80">
                     Nombre del estado
                     <span class="text-red-400">*</span>
                 </label>
@@ -147,7 +147,7 @@
                     placeholder="Ingrese el nombre del estado"
                     autocomplete="off"
                     required
-                    class="w-full rounded-xl border border-white/10 bg-gray-950 px-4 py-3 text-sm text-white placeholder-gray-500 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 @error('nombre') border-red-500 @enderror"
+                    class="w-full rounded-xl border border-white/10 bg-[#111111] px-4 py-3 text-sm text-white placeholder-white/30 outline-none transition focus:border-[#A99045] focus:ring-2 focus:ring-[#A99045]/20 @error('nombre') border-red-500 @enderror"
                 >
 
                 @error('nombre')
@@ -157,9 +157,9 @@
 
 
             {{-- AVISO --}}
-            <div class="flex items-start gap-3 rounded-xl border border-blue-400/10 bg-blue-400/5 p-4">
+            <div class="flex items-start gap-3 rounded-xl border border-[#A99045]/20 bg-[#A99045]/[0.06] p-4">
                 <svg xmlns="http://www.w3.org/2000/svg"
-                     class="mt-0.5 h-5 w-5 shrink-0 text-blue-400"
+                     class="mt-0.5 h-5 w-5 shrink-0 text-[#D8C17F]"
                      fill="none"
                      viewBox="0 0 24 24"
                      stroke="currentColor"
@@ -169,7 +169,7 @@
                           d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.852l.041-.02M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-5.25h.008v.008H12V6.75z"/>
                 </svg>
 
-                <p class="text-sm leading-6 text-gray-400">
+                <p class="text-sm leading-6 text-white/60">
                     Los cambios se aplicarán al guardar el formulario.
                     Revisa la información antes de confirmar la actualización.
                 </p>
@@ -177,10 +177,10 @@
 
 
             {{-- BOTONES --}}
-            <div class="flex flex-col-reverse gap-3 border-t border-white/10 pt-6 sm:flex-row sm:justify-end">
+            <div class="flex flex-col-reverse gap-3 border-t border-white/[0.08] pt-6 sm:flex-row sm:justify-end">
 
                 <a href="{{ route('estados.index') }}"
-                   class="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-5 py-3 text-sm font-semibold text-gray-300 transition hover:bg-white/5 hover:text-white focus:outline-none focus:ring-2 focus:ring-gray-500">
+                   class="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-5 py-3 text-sm font-semibold text-white/70 transition hover:border-white/20 hover:bg-white/5 hover:text-white focus:outline-none focus:ring-2 focus:ring-[#A99045]/50">
 
                     <svg xmlns="http://www.w3.org/2000/svg"
                          class="h-4 w-4"
@@ -197,7 +197,7 @@
                 </a>
 
                 <button type="submit"
-                        class="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-950/20 transition hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-900">
+                        class="inline-flex items-center justify-center gap-2 rounded-xl bg-[#A99045] px-6 py-3 text-sm font-semibold text-black shadow-lg shadow-black/20 transition hover:bg-[#D8C17F] focus:outline-none focus:ring-2 focus:ring-[#D8C17F] focus:ring-offset-2 focus:ring-offset-[#1D1D1D]">
 
                     <svg xmlns="http://www.w3.org/2000/svg"
                          class="h-5 w-5"
@@ -217,7 +217,7 @@
         </form>
     </div>
 
-    <p class="text-center text-xs text-gray-500">
+    <p class="text-center text-xs text-white/30">
         Gestión de estados generales
     </p>
 

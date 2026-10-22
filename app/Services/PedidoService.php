@@ -19,7 +19,6 @@ class PedidoService
         private PedidoRepository $pedidos,
         private PedidoEventoRepository $eventos,
         private DetallePedidoService $detalles,
-        private WhatsAppCloudService $whatsapp,
     ) {}
 
     /**
@@ -69,36 +68,6 @@ class PedidoService
 
             return $this->pedidos->recalculateTotal($pedido);
         });
-
-        // Se ejecuta después de guardar definitivamente el pedido.
-        try {
-            $envios = $this->whatsapp->notificarProveedores($pedido->id_pedido);
-
-            foreach ($envios as $envio) {
-                $this->eventos->create([
-                    'id_pedido' => $pedido->id_pedido,
-                    'id_estado' => $pedido->id_estado,
-                    'tipo_evento' => $envio['enviado']
-                        ? 'WHATSAPP_ENVIADO'
-                        : 'WHATSAPP_PENDIENTE',
-                    'comentario' => $envio['mensaje'],
-                    'fecha' => now(),
-                ]);
-            }
-        } catch (\Throwable $exception) {
-            Log::error('No se pudo notificar el pedido por WhatsApp.', [
-                'pedido_id' => $pedido->id_pedido,
-                'error' => $exception->getMessage(),
-            ]);
-
-            $this->eventos->create([
-                'id_pedido' => $pedido->id_pedido,
-                'id_estado' => $pedido->id_estado,
-                'tipo_evento' => 'WHATSAPP_PENDIENTE',
-                'comentario' => 'Pedido guardado, pero el envío por WhatsApp falló. Revisa la configuración y el log de Laravel.',
-                'fecha' => now(),
-            ]);
-        }
 
         return $this->recargar($pedido);
     }

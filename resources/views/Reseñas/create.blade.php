@@ -15,14 +15,14 @@
 
 @if($modoMiCuenta ?? false)
 
-    <div class="max-w-3xl">
+    <div class="mx-auto max-w-3xl px-4 py-8">
 
         {{-- Encabezado de la página --}}
         <div class="mb-8">
 
             <a
                 href="{{ route('mi-cuenta.resenas') }}"
-                class="font-bold uppercase tracking-widest"
+                class="font-bold uppercase tracking-widest transition hover:text-[#D8C17F]"
                 style="font-size: 9px; color: rgba(255,255,255,.4);"
             >
                 ← MIS RESEÑAS
@@ -35,8 +35,10 @@
                 ESCRIBIR RESEÑA
             </h1>
 
+            <div class="mt-3 h-[3px] w-[60px] rounded-full bg-[#A99045]"></div>
+
             <p
-                class="mt-1 font-bold uppercase tracking-widest"
+                class="mt-3 font-bold uppercase tracking-widest"
                 style="font-size: 10px; color: rgba(255,255,255,.4);"
             >
                 COMPARTE TU EXPERIENCIA CON UN PRODUCTO COMPRADO
@@ -48,11 +50,10 @@
         @if($errors->any())
 
             <div
-                class="mb-6 p-4"
+                class="mb-6 rounded-xl p-4"
                 style="
                     background: rgba(248,113,113,.08);
                     border: 1px solid rgba(248,113,113,.25);
-                    border-radius: 4px;
                 "
             >
 
@@ -88,11 +89,10 @@
         )
 
             <div
-                class="p-6"
+                class="rounded-2xl p-6 sm:p-8"
                 style="
-                    background: rgba(255,255,255,.03);
-                    border: 1px solid rgba(255,255,255,.08);
-                    border-radius: 6px;
+                    background: #111111;
+                    border: 1px solid rgba(169,144,69,.3);
                 "
             >
 
@@ -103,8 +103,10 @@
                     NO HAY PRODUCTOS DISPONIBLES PARA RESEÑAR
                 </p>
 
+                <div class="mt-3 h-[2px] w-10 rounded-full bg-[#A99045]"></div>
+
                 <p
-                    class="mt-3 text-gray-400"
+                    class="mt-4 text-white/60"
                     style="font-size: 11px; line-height: 1.8;"
                 >
                     Aquí aparecerán los productos de tus pedidos
@@ -112,7 +114,7 @@
                 </p>
 
                 <p
-                    class="mt-2 text-gray-500"
+                    class="mt-2 text-white/40"
                     style="font-size: 10px; line-height: 1.8;"
                 >
                     Si tienes un pedido completado y no aparece
@@ -122,16 +124,15 @@
                 </p>
 
                 {{-- Acciones de navegación --}}
-                <div class="flex flex-wrap items-center gap-3 mt-6">
+                <div class="mt-6 flex flex-wrap items-center gap-3">
 
                     <a
                         href="{{ route('mi-cuenta.resenas') }}"
-                        class="inline-flex items-center justify-center px-5 py-3 font-black uppercase tracking-widest"
+                        class="inline-flex items-center justify-center rounded-lg px-5 py-3 font-black uppercase tracking-widest transition hover:border-[#A99045] hover:text-[#D8C17F]"
                         style="
                             font-size: 10px;
                             color: rgba(255,255,255,.6);
                             border: 1px solid rgba(255,255,255,.1);
-                            border-radius: 4px;
                         "
                     >
                         VOLVER A MIS RESEÑAS
@@ -150,7 +151,7 @@
             <form
                 action="{{ route('mi-cuenta.resenas.store') }}"
                 method="POST"
-                class="space-y-6"
+                class="space-y-6 rounded-2xl border border-[#A99045]/30 bg-[#111111] p-6 shadow-xl shadow-black/30 sm:p-8"
             >
 
                 @csrf
@@ -161,7 +162,7 @@
                     <label
                         for="id_producto"
                         class="mb-2 block font-black uppercase tracking-widest"
-                        style="font-size: 10px; color: rgba(255,255,255,.5);"
+                        style="font-size: 10px; color: rgba(255,255,255,.65);"
                     >
                         PRODUCTO
                     </label>
@@ -170,11 +171,10 @@
                         name="id_producto"
                         id="id_producto"
                         required
-                        class="w-full px-4 py-3 text-white outline-none"
+                        class="w-full rounded-lg px-4 py-3 text-white outline-none transition focus:border-[#A99045] focus:ring-1 focus:ring-[#A99045]/40"
                         style="
-                            background: rgba(255,255,255,.04);
+                            background: #1D1D1D;
                             border: 1px solid rgba(255,255,255,.1);
-                            border-radius: 4px;
                             font-size: 12px;
                         "
                     >
@@ -219,7 +219,7 @@
                     <label
                         for="calificacion"
                         class="mb-2 block font-black uppercase tracking-widest"
-                        style="font-size: 10px; color: rgba(255,255,255,.5);"
+                        style="font-size: 10px; color: rgba(255,255,255,.65);"
                     >
                         CALIFICACIÓN
                     </label>
@@ -228,11 +228,10 @@
                         name="calificacion"
                         id="calificacion"
                         required
-                        class="w-full px-4 py-3 text-white outline-none"
+                        class="w-full rounded-lg px-4 py-3 text-white outline-none transition focus:border-[#A99045] focus:ring-1 focus:ring-[#A99045]/40"
                         style="
-                            background: rgba(255,255,255,.04);
+                            background: #1D1D1D;
                             border: 1px solid rgba(255,255,255,.1);
-                            border-radius: 4px;
                             font-size: 12px;
                         "
                     >
@@ -278,7 +277,7 @@
                     <label
                         for="comentario"
                         class="mb-2 block font-black uppercase tracking-widest"
-                        style="font-size: 10px; color: rgba(255,255,255,.5);"
+                        style="font-size: 10px; color: rgba(255,255,255,.65);"
                     >
                         COMENTARIO
                     </label>
@@ -287,11 +286,10 @@
                         name="comentario"
                         id="comentario"
                         rows="6"
-                        class="w-full px-4 py-3 text-white outline-none resize-none"
+                        class="w-full resize-none rounded-lg px-4 py-3 text-white outline-none transition focus:border-[#A99045] focus:ring-1 focus:ring-[#A99045]/40"
                         style="
-                            background: rgba(255,255,255,.04);
+                            background: #1D1D1D;
                             border: 1px solid rgba(255,255,255,.1);
-                            border-radius: 4px;
                             font-size: 12px;
                         "
                         placeholder="CUÉNTANOS TU EXPERIENCIA..."
@@ -312,17 +310,15 @@
 
                 {{-- Botones del formulario --}}
                 <div
-                    class="flex flex-wrap items-center gap-3 pt-4"
-                    style="border-top: 1px solid rgba(255,255,255,.08);"
+                    class="flex flex-wrap items-center gap-3 border-t border-white/10 pt-6"
                 >
 
                     <button
                         type="submit"
-                        class="px-6 py-3 font-black uppercase tracking-widest text-black"
+                        class="rounded-lg border border-[#D8C17F] px-6 py-3 font-black uppercase tracking-widest text-[#111111] transition hover:bg-[#D8C17F] focus:outline-none focus:ring-2 focus:ring-[#A99045]/50"
                         style="
                             font-size: 10px;
-                            background: #00c896;
-                            border-radius: 4px;
+                            background: #A99045;
                         "
                     >
                         PUBLICAR RESEÑA
@@ -330,12 +326,11 @@
 
                     <a
                         href="{{ route('mi-cuenta.resenas') }}"
-                        class="px-6 py-3 font-black uppercase tracking-widest"
+                        class="rounded-lg px-6 py-3 font-black uppercase tracking-widest transition hover:border-[#A99045] hover:text-[#D8C17F]"
                         style="
                             font-size: 10px;
-                            color: rgba(255,255,255,.5);
+                            color: rgba(255,255,255,.6);
                             border: 1px solid rgba(255,255,255,.1);
-                            border-radius: 4px;
                         "
                     >
                         CANCELAR
@@ -355,14 +350,14 @@
 
 @else
 
-    <div class="max-w-3xl">
+    <div class="mx-auto max-w-3xl px-4 py-8">
 
         {{-- Encabezado --}}
         <div class="mb-8">
 
             <a
                 href="{{ route('reseñas.index') }}"
-                class="font-bold uppercase tracking-widest"
+                class="font-bold uppercase tracking-widest transition hover:text-[#D8C17F]"
                 style="font-size: 9px; color: rgba(255,255,255,.4);"
             >
                 ← VOLVER A RESEÑAS
@@ -375,8 +370,10 @@
                 NUEVA RESEÑA
             </h1>
 
+            <div class="mt-3 h-[3px] w-[60px] rounded-full bg-[#A99045]"></div>
+
             <p
-                class="mt-1 font-bold uppercase tracking-widest"
+                class="mt-3 font-bold uppercase tracking-widest"
                 style="font-size: 10px; color: rgba(255,255,255,.4);"
             >
                 REGISTRAR UNA NUEVA RESEÑA
@@ -388,11 +385,10 @@
         @if($errors->any())
 
             <div
-                class="mb-6 p-4"
+                class="mb-6 rounded-xl p-4"
                 style="
                     background: rgba(248,113,113,.08);
                     border: 1px solid rgba(248,113,113,.25);
-                    border-radius: 4px;
                 "
             >
 
@@ -426,7 +422,7 @@
         <form
             action="{{ route('reseñas.store') }}"
             method="POST"
-            class="space-y-6"
+            class="space-y-6 rounded-2xl border border-[#A99045]/30 bg-[#111111] p-6 shadow-xl shadow-black/30 sm:p-8"
         >
 
             @csrf
@@ -437,7 +433,7 @@
                 <label
                     for="id_usuario"
                     class="mb-2 block font-black uppercase tracking-widest"
-                    style="font-size: 10px; color: rgba(255,255,255,.5);"
+                    style="font-size: 10px; color: rgba(255,255,255,.65);"
                 >
                     USUARIO
                 </label>
@@ -446,11 +442,10 @@
                     name="id_usuario"
                     id="id_usuario"
                     required
-                    class="w-full px-4 py-3 text-white outline-none"
+                    class="w-full rounded-lg px-4 py-3 text-white outline-none transition focus:border-[#A99045] focus:ring-1 focus:ring-[#A99045]/40"
                     style="
-                        background: rgba(255,255,255,.04);
+                        background: #1D1D1D;
                         border: 1px solid rgba(255,255,255,.1);
-                        border-radius: 4px;
                         font-size: 12px;
                     "
                 >
@@ -498,7 +493,7 @@
                 <label
                     for="id_producto_admin"
                     class="mb-2 block font-black uppercase tracking-widest"
-                    style="font-size: 10px; color: rgba(255,255,255,.5);"
+                    style="font-size: 10px; color: rgba(255,255,255,.65);"
                 >
                     PRODUCTO
                 </label>
@@ -507,11 +502,10 @@
                     name="id_producto"
                     id="id_producto_admin"
                     required
-                    class="w-full px-4 py-3 text-white outline-none"
+                    class="w-full rounded-lg px-4 py-3 text-white outline-none transition focus:border-[#A99045] focus:ring-1 focus:ring-[#A99045]/40"
                     style="
-                        background: rgba(255,255,255,.04);
+                        background: #1D1D1D;
                         border: 1px solid rgba(255,255,255,.1);
-                        border-radius: 4px;
                         font-size: 12px;
                     "
                 >
@@ -556,7 +550,7 @@
                 <label
                     for="calificacion_admin"
                     class="mb-2 block font-black uppercase tracking-widest"
-                    style="font-size: 10px; color: rgba(255,255,255,.5);"
+                    style="font-size: 10px; color: rgba(255,255,255,.65);"
                 >
                     CALIFICACIÓN
                 </label>
@@ -565,11 +559,10 @@
                     name="calificacion"
                     id="calificacion_admin"
                     required
-                    class="w-full px-4 py-3 text-white outline-none"
+                    class="w-full rounded-lg px-4 py-3 text-white outline-none transition focus:border-[#A99045] focus:ring-1 focus:ring-[#A99045]/40"
                     style="
-                        background: rgba(255,255,255,.04);
+                        background: #1D1D1D;
                         border: 1px solid rgba(255,255,255,.1);
-                        border-radius: 4px;
                         font-size: 12px;
                     "
                 >
@@ -615,7 +608,7 @@
                 <label
                     for="comentario_admin"
                     class="mb-2 block font-black uppercase tracking-widest"
-                    style="font-size: 10px; color: rgba(255,255,255,.5);"
+                    style="font-size: 10px; color: rgba(255,255,255,.65);"
                 >
                     COMENTARIO
                 </label>
@@ -624,11 +617,10 @@
                     name="comentario"
                     id="comentario_admin"
                     rows="6"
-                    class="w-full px-4 py-3 text-white outline-none resize-none"
+                    class="w-full resize-none rounded-lg px-4 py-3 text-white outline-none transition focus:border-[#A99045] focus:ring-1 focus:ring-[#A99045]/40"
                     style="
-                        background: rgba(255,255,255,.04);
+                        background: #1D1D1D;
                         border: 1px solid rgba(255,255,255,.1);
-                        border-radius: 4px;
                         font-size: 12px;
                     "
                     placeholder="ESCRIBE EL COMENTARIO DEL CLIENTE..."
@@ -653,7 +645,7 @@
                 <label
                     for="respuesta"
                     class="mb-2 block font-black uppercase tracking-widest"
-                    style="font-size: 10px; color: rgba(255,255,255,.5);"
+                    style="font-size: 10px; color: rgba(255,255,255,.65);"
                 >
                     RESPUESTA DE LA EMPRESA
                 </label>
@@ -662,11 +654,10 @@
                     name="respuesta"
                     id="respuesta"
                     rows="4"
-                    class="w-full px-4 py-3 text-white outline-none resize-none"
+                    class="w-full resize-none rounded-lg px-4 py-3 text-white outline-none transition focus:border-[#A99045] focus:ring-1 focus:ring-[#A99045]/40"
                     style="
-                        background: rgba(255,255,255,.04);
+                        background: #1D1D1D;
                         border: 1px solid rgba(255,255,255,.1);
-                        border-radius: 4px;
                         font-size: 12px;
                     "
                     placeholder="RESPUESTA OPCIONAL DE LA EMPRESA..."
@@ -687,17 +678,15 @@
 
             {{-- Botones --}}
             <div
-                class="flex flex-wrap items-center gap-3 pt-4"
-                style="border-top: 1px solid rgba(255,255,255,.08);"
+                class="flex flex-wrap items-center gap-3 border-t border-white/10 pt-6"
             >
 
                 <button
                     type="submit"
-                    class="px-6 py-3 font-black uppercase tracking-widest text-black"
+                    class="rounded-lg border border-[#D8C17F] px-6 py-3 font-black uppercase tracking-widest text-[#111111] transition hover:bg-[#D8C17F] focus:outline-none focus:ring-2 focus:ring-[#A99045]/50"
                     style="
                         font-size: 10px;
-                        background: #00c896;
-                        border-radius: 4px;
+                        background: #A99045;
                     "
                 >
                     GUARDAR RESEÑA
@@ -705,12 +694,11 @@
 
                 <a
                     href="{{ route('reseñas.index') }}"
-                    class="px-6 py-3 font-black uppercase tracking-widest"
+                    class="rounded-lg px-6 py-3 font-black uppercase tracking-widest transition hover:border-[#A99045] hover:text-[#D8C17F]"
                     style="
                         font-size: 10px;
-                        color: rgba(255,255,255,.5);
+                        color: rgba(255,255,255,.6);
                         border: 1px solid rgba(255,255,255,.1);
-                        border-radius: 4px;
                     "
                 >
                     CANCELAR

@@ -4,7 +4,8 @@
 
 @section('content')
 
-<div class="flex items-center justify-between mb-8">
+{{-- ENCABEZADO --}}
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
 
     <div>
         <h1
@@ -22,15 +23,16 @@
         </p>
     </div>
 
-
     {{-- NUEVO CLIENTE --}}
     @if(auth()->check() && auth()->user()->tienePermiso('clientes.crear'))
         <a
             href="{{ route('clientes.create') }}"
-            class="font-black uppercase tracking-widest px-5 py-2 text-black"
+            class="inline-flex items-center justify-center font-black uppercase tracking-widest px-5 py-3 transition-all duration-300 hover:opacity-90"
             style="
                 font-size:11px;
-                background:#00c896;
+                color:#111111;
+                background:#A99045;
+                border:1px solid #A99045;
                 border-radius:4px;
                 letter-spacing:0.1em;
             "
@@ -59,55 +61,67 @@
 @endif
 
 
-{{-- TABLA --}}
+{{-- TABLA DE CLIENTES --}}
 <div
     class="overflow-x-auto"
     style="
-        background:rgba(255,255,255,0.03);
+        background:#1D1D1D;
         border:1px solid rgba(255,255,255,0.08);
         border-radius:6px;
     "
 >
-
-    <table class="w-full">
+    <table class="w-full" style="min-width:850px;">
 
         {{-- ENCABEZADO --}}
         <thead>
+            <tr style="
+                background:#151515;
+                border-bottom:1px solid rgba(169,144,69,0.3);
+            ">
 
-            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);">
-
-                <th class="px-6 py-4 text-left font-black uppercase tracking-widest"
-                    style="font-size:10px; color:rgba(255,255,255,0.4);">
+                <th
+                    class="px-6 py-4 text-left font-black uppercase tracking-widest"
+                    style="font-size:10px; color:#D8C17F;"
+                >
                     ID
                 </th>
 
-                <th class="px-6 py-4 text-left font-black uppercase tracking-widest"
-                    style="font-size:10px; color:rgba(255,255,255,0.4);">
+                <th
+                    class="px-6 py-4 text-left font-black uppercase tracking-widest"
+                    style="font-size:10px; color:#D8C17F;"
+                >
                     NOMBRE
                 </th>
 
-                <th class="px-6 py-4 text-left font-black uppercase tracking-widest"
-                    style="font-size:10px; color:rgba(255,255,255,0.4);">
+                <th
+                    class="px-6 py-4 text-left font-black uppercase tracking-widest"
+                    style="font-size:10px; color:#D8C17F;"
+                >
                     EMPRESA
                 </th>
 
-                <th class="px-6 py-4 text-left font-black uppercase tracking-widest"
-                    style="font-size:10px; color:rgba(255,255,255,0.4);">
+                <th
+                    class="px-6 py-4 text-left font-black uppercase tracking-widest"
+                    style="font-size:10px; color:#D8C17F;"
+                >
                     LOGO
                 </th>
 
-                <th class="px-6 py-4 text-left font-black uppercase tracking-widest"
-                    style="font-size:10px; color:rgba(255,255,255,0.4);">
+                <th
+                    class="px-6 py-4 text-left font-black uppercase tracking-widest"
+                    style="font-size:10px; color:#D8C17F;"
+                >
                     ESTADO
                 </th>
 
-                <th class="px-6 py-4 text-left font-black uppercase tracking-widest"
-                    style="font-size:10px; color:rgba(255,255,255,0.4);">
+                <th
+                    class="px-6 py-4 text-left font-black uppercase tracking-widest"
+                    style="font-size:10px; color:#D8C17F;"
+                >
                     ACCIONES
                 </th>
 
             </tr>
-
         </thead>
 
 
@@ -116,15 +130,22 @@
 
             @forelse($clientes as $cliente)
 
-                <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                <tr
+                    class="transition-colors duration-200 hover:bg-white/[0.02]"
+                    style="border-bottom:1px solid rgba(255,255,255,0.05);"
+                >
 
+                    {{-- ID --}}
                     <td
                         class="px-6 py-4 font-bold text-white"
                         style="font-size:12px;"
                     >
-                        {{ $cliente->id }}
+                        <span style="color:#D8C17F;">
+                            #{{ $cliente->id }}
+                        </span>
                     </td>
 
+                    {{-- NOMBRE --}}
                     <td
                         class="px-6 py-4 font-bold text-white"
                         style="font-size:12px;"
@@ -132,13 +153,15 @@
                         {{ $cliente->nombre }}
                     </td>
 
+                    {{-- EMPRESA --}}
                     <td
                         class="px-6 py-4 font-bold"
-                        style="font-size:12px; color:#00c896;"
+                        style="font-size:12px; color:#D8C17F;"
                     >
                         {{ $cliente->empresa }}
                     </td>
 
+                    {{-- LOGO --}}
                     <td
                         class="px-6 py-4 font-bold text-white"
                         style="font-size:12px;"
@@ -149,15 +172,24 @@
                                 href="{{ $cliente->logo_url }}"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                class="hover:text-emerald-400 transition-colors"
-                                style="color:#00c896;"
+                                class="inline-flex items-center font-black uppercase tracking-widest transition-colors duration-200 hover:opacity-80"
+                                style="
+                                    font-size:10px;
+                                    color:#D8C17F;
+                                "
                             >
                                 VER LOGO
                             </a>
 
                         @else
 
-                            <span style="color:rgba(255,255,255,0.3);">
+                            <span
+                                class="font-bold uppercase tracking-widest"
+                                style="
+                                    font-size:9px;
+                                    color:rgba(255,255,255,0.3);
+                                "
+                            >
                                 SIN LOGO
                             </span>
 
@@ -171,11 +203,12 @@
                         @if($cliente->activo)
 
                             <span
-                                class="font-black uppercase tracking-widest px-3 py-1"
+                                class="inline-flex font-black uppercase tracking-widest px-3 py-1"
                                 style="
                                     font-size:9px;
-                                    background:rgba(0,200,150,0.15);
+                                    background:rgba(0,200,150,0.12);
                                     color:#00c896;
+                                    border:1px solid rgba(0,200,150,0.2);
                                     border-radius:3px;
                                 "
                             >
@@ -185,11 +218,12 @@
                         @else
 
                             <span
-                                class="font-black uppercase tracking-widest px-3 py-1"
+                                class="inline-flex font-black uppercase tracking-widest px-3 py-1"
                                 style="
                                     font-size:9px;
-                                    background:rgba(248,113,113,0.15);
+                                    background:rgba(248,113,113,0.12);
                                     color:#f87171;
+                                    border:1px solid rgba(248,113,113,0.2);
                                     border-radius:3px;
                                 "
                             >
@@ -210,11 +244,11 @@
                             @if(auth()->check() && auth()->user()->tienePermiso('clientes.ver'))
                                 <a
                                     href="{{ route('clientes.show', $cliente) }}"
-                                    class="inline-flex items-center justify-center px-3 py-2 font-black uppercase tracking-widest transition-all hover:bg-white/10"
+                                    class="inline-flex items-center justify-center px-3 py-2 font-black uppercase tracking-widest transition-all duration-200 hover:bg-white/[0.08]"
                                     style="
                                         min-width:60px;
                                         font-size:9px;
-                                        color:rgba(255,255,255,0.6);
+                                        color:rgba(255,255,255,0.7);
                                         border:1px solid rgba(255,255,255,0.12);
                                         border-radius:4px;
                                     "
@@ -228,12 +262,12 @@
                             @if(auth()->check() && auth()->user()->tienePermiso('clientes.editar'))
                                 <a
                                     href="{{ route('clientes.edit', $cliente) }}"
-                                    class="inline-flex items-center justify-center px-3 py-2 font-black uppercase tracking-widest transition-all hover:bg-emerald-500/10"
+                                    class="inline-flex items-center justify-center px-3 py-2 font-black uppercase tracking-widest transition-all duration-200 hover:bg-[#A99045]/10"
                                     style="
                                         min-width:60px;
                                         font-size:9px;
-                                        color:#00c896;
-                                        border:1px solid rgba(0,200,150,0.25);
+                                        color:#D8C17F;
+                                        border:1px solid rgba(169,144,69,0.4);
                                         border-radius:4px;
                                     "
                                 >
@@ -254,7 +288,7 @@
 
                                     <button
                                         type="submit"
-                                        class="inline-flex items-center justify-center px-3 py-2 font-black uppercase tracking-widest"
+                                        class="inline-flex items-center justify-center px-3 py-2 font-black uppercase tracking-widest transition-all duration-200 hover:bg-red-500/10"
                                         style="
                                             min-width:75px;
                                             font-size:9px;
@@ -296,7 +330,6 @@
         </tbody>
 
     </table>
-
 </div>
 
 @endsection

@@ -1,4 +1,3 @@
-
 @extends('layouts.app')
 
 @section('title', 'Editar disponibilidad')
@@ -12,15 +11,15 @@
 
     {{-- ENCABEZADO --}}
     <div>
-        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[#00c896]">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[#D8C17F]">
             Incógnito | Grupo de Diseño
         </p>
 
-        <h1 class="mt-2 text-2xl font-bold text-white">
+        <h1 class="mt-2 text-2xl font-bold tracking-tight text-white">
             {{ $esPersonal ? 'Editar mi disponibilidad' : 'Editar disponibilidad' }}
         </h1>
 
-        <p class="mt-2 text-sm text-gray-400">
+        <p class="mt-2 text-sm text-white/50">
             Modifica la fecha y el estado de disponibilidad registrados.
         </p>
     </div>
@@ -41,18 +40,46 @@
     @endif
 
     {{-- INFORMACIÓN --}}
-    <div class="rounded-xl border border-white/10 bg-[#111111] p-5">
-        <p class="text-xs uppercase tracking-wider text-gray-500">
-            Proveedor asociado
-        </p>
+    <div class="rounded-2xl border border-white/[0.08] bg-[#1D1D1D] p-5 sm:p-6">
+        <div class="mb-4 flex items-center gap-3">
+            <div class="flex h-10 w-10 items-center justify-center rounded-xl border border-[#A99045]/30 bg-[#A99045]/10">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-5 w-5 text-[#D8C17F]"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M12 21s8-4 8-11V5l-8-3-8 3v5c0 7 8 11 8 11Z"
+                    />
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="m9 12 2 2 4-4"
+                    />
+                </svg>
+            </div>
 
-        <p class="mt-2 font-semibold text-white">
-            {{ $proveedor->especialidad }}
-        </p>
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.15em] text-white/40">
+                    Proveedor asociado
+                </p>
 
-        <p class="mt-1 text-sm text-gray-400">
+                <p class="mt-1 font-semibold text-white">
+                    {{ $proveedor->especialidad }}
+                </p>
+            </div>
+        </div>
+
+        <p class="text-sm text-white/50">
             Fecha registrada:
-            {{ $disponibilidad->fecha->format('d/m/Y') }}
+            <span class="font-medium text-[#D8C17F]">
+                {{ $disponibilidad->fecha->format('d/m/Y') }}
+            </span>
         </p>
     </div>
 
@@ -62,13 +89,13 @@
         action="{{ $esPersonal
             ? route('mi-disponibilidad.update', $disponibilidad)
             : route('proveedores.disponibilidades.update', [$proveedor, $disponibilidad]) }}"
-        class="space-y-6 rounded-xl border border-white/10 bg-[#111111] p-6"
+        class="space-y-6 rounded-2xl border border-white/[0.08] bg-[#1D1D1D] p-5 sm:p-7"
     >
         @csrf
         @method('PUT')
 
         <div>
-            <label for="fecha" class="mb-2 block text-sm font-medium text-gray-300">
+            <label for="fecha" class="mb-2 block text-sm font-medium text-white/80">
                 Fecha de disponibilidad
             </label>
 
@@ -78,7 +105,7 @@
                 name="fecha"
                 value="{{ old('fecha', $disponibilidad->fecha->format('Y-m-d')) }}"
                 required
-                class="w-full rounded-lg border border-white/10 bg-[#1a1a1a] px-4 py-3 text-sm text-white outline-none transition focus:border-[#00c896]"
+                class="w-full rounded-xl border border-white/[0.10] bg-[#151515] px-4 py-3 text-sm text-white outline-none transition focus:border-[#A99045] focus:ring-1 focus:ring-[#A99045]/30"
             >
 
             @error('fecha')
@@ -87,7 +114,7 @@
         </div>
 
         <div>
-            <label for="disponible" class="mb-2 block text-sm font-medium text-gray-300">
+            <label for="disponible" class="mb-2 block text-sm font-medium text-white/80">
                 ¿Estarás disponible?
             </label>
 
@@ -95,7 +122,7 @@
                 id="disponible"
                 name="disponible"
                 required
-                class="w-full rounded-lg border border-white/10 bg-[#1a1a1a] px-4 py-3 text-sm text-white outline-none transition focus:border-[#00c896]"
+                class="w-full rounded-xl border border-white/[0.10] bg-[#151515] px-4 py-3 text-sm text-white outline-none transition focus:border-[#A99045] focus:ring-1 focus:ring-[#A99045]/30"
             >
                 <option
                     value="1"
@@ -118,20 +145,20 @@
         </div>
 
         {{-- BOTONES --}}
-        <div class="flex flex-wrap justify-end gap-3 border-t border-white/10 pt-5">
+        <div class="flex flex-wrap justify-end gap-3 border-t border-white/[0.08] pt-5">
 
             <a
                 href="{{ $esPersonal
                     ? route('mi-disponibilidad.index')
                     : route('proveedores.disponibilidades.index', $proveedor) }}"
-                class="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-gray-300 transition hover:bg-white/5"
+                class="inline-flex items-center justify-center rounded-xl border border-white/[0.12] px-5 py-2.5 text-sm font-medium text-white/70 transition hover:border-white/20 hover:bg-white/[0.05] hover:text-white"
             >
                 Cancelar
             </a>
 
             <button
                 type="submit"
-                class="rounded-lg bg-[#00c896] px-5 py-2 text-sm font-semibold text-black transition hover:opacity-90"
+                class="inline-flex items-center justify-center rounded-xl bg-[#A99045] px-5 py-2.5 text-sm font-semibold text-black transition hover:bg-[#D8C17F] focus:outline-none focus:ring-2 focus:ring-[#D8C17F]/50 focus:ring-offset-2 focus:ring-offset-[#1D1D1D]"
             >
                 Guardar cambios
             </button>

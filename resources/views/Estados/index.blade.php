@@ -3,13 +3,14 @@
 @section('title', 'Estados generales')
 
 @section('content')
+
 <div class="min-h-screen space-y-8 pb-10">
 
     {{-- ENCABEZADO --}}
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 
         <div class="flex items-center gap-4">
-            <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/20">
+            <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#A99045]/10 text-[#D8C17F] ring-1 ring-[#A99045]/25">
                 <svg xmlns="http://www.w3.org/2000/svg"
                      class="h-7 w-7"
                      fill="none"
@@ -27,14 +28,14 @@
                     Estados generales
                 </h1>
 
-                <p class="mt-1 text-sm text-gray-400">
+                <p class="mt-1 text-sm text-white/50">
                     Administra y organiza los estados del sistema.
                 </p>
             </div>
         </div>
 
         <a href="{{ route('estados.create') }}"
-           class="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-500 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-950/20 transition duration-200 hover:bg-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 focus:ring-offset-gray-950">
+           class="inline-flex items-center justify-center gap-2 rounded-xl bg-[#A99045] px-5 py-3 text-sm font-semibold text-black shadow-lg shadow-black/20 transition duration-200 hover:bg-[#D8C17F] focus:outline-none focus:ring-2 focus:ring-[#D8C17F] focus:ring-offset-2 focus:ring-offset-[#111111]">
 
             <svg xmlns="http://www.w3.org/2000/svg"
                  class="h-5 w-5"
@@ -105,10 +106,10 @@
     {{-- RESUMEN --}}
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
 
-        <div class="rounded-2xl border border-white/10 bg-gray-900/70 p-5 shadow-sm">
+        <div class="rounded-2xl border border-white/[0.08] bg-[#1D1D1D] p-5 shadow-sm">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-400">
+                    <p class="text-sm font-medium text-white/50">
                         Total de estados
                     </p>
 
@@ -116,12 +117,12 @@
                         {{ $estados->count() }}
                     </p>
 
-                    <p class="mt-1 text-xs text-gray-500">
+                    <p class="mt-1 text-xs text-white/30">
                         Registros cargados en esta vista
                     </p>
                 </div>
 
-                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/10 text-blue-400">
+                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-[#A99045]/10 text-[#D8C17F]">
                     <svg xmlns="http://www.w3.org/2000/svg"
                          class="h-6 w-6"
                          fill="none"
@@ -136,10 +137,10 @@
             </div>
         </div>
 
-        <div class="rounded-2xl border border-white/10 bg-gray-900/70 p-5 shadow-sm">
+        <div class="rounded-2xl border border-white/[0.08] bg-[#1D1D1D] p-5 shadow-sm">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-400">
+                    <p class="text-sm font-medium text-white/50">
                         Estado del módulo
                     </p>
 
@@ -147,14 +148,14 @@
                         {{ $estados->isEmpty() ? 'Sin registros' : 'Disponible' }}
                     </p>
 
-                    <p class="mt-1 text-xs text-gray-500">
+                    <p class="mt-1 text-xs text-white/30">
                         {{ $estados->isEmpty()
                             ? 'Puedes comenzar creando un estado.'
                             : 'Puedes administrar tus registros.' }}
                     </p>
                 </div>
 
-                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400">
+                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-[#A99045]/10 text-[#D8C17F]">
                     <svg xmlns="http://www.w3.org/2000/svg"
                          class="h-6 w-6"
                          fill="none"
@@ -172,22 +173,22 @@
 
 
     {{-- TABLA --}}
-    <div class="overflow-hidden rounded-2xl border border-white/10 bg-gray-900/70 shadow-xl shadow-black/10">
+    <div class="overflow-hidden rounded-2xl border border-white/[0.08] bg-[#1D1D1D] shadow-xl shadow-black/20">
 
         {{-- CABECERA DE LA TABLA --}}
-        <div class="flex flex-col gap-2 border-b border-white/10 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex flex-col gap-2 border-b border-white/[0.08] px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
             <div>
                 <h2 class="text-lg font-semibold text-white">
                     Listado de estados
                 </h2>
 
-                <p class="mt-1 text-sm text-gray-400">
+                <p class="mt-1 text-sm text-white/50">
                     Consulta, modifica o elimina los estados registrados.
                 </p>
             </div>
 
-            <span class="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-gray-300">
-                <span class="h-2 w-2 rounded-full {{ $estados->isEmpty() ? 'bg-gray-500' : 'bg-emerald-400' }}"></span>
+            <span class="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-white/70">
+                <span class="h-2 w-2 rounded-full {{ $estados->isEmpty() ? 'bg-gray-500' : 'bg-[#A99045]' }}"></span>
                 {{ $estados->count() }} {{ $estados->count() === 1 ? 'registro' : 'registros' }}
             </span>
         </div>
@@ -198,29 +199,29 @@
 
             <table class="w-full min-w-[600px] text-left">
 
-                <thead class="bg-white/[0.03]">
-                    <tr class="border-b border-white/10">
+                <thead class="bg-white/[0.02]">
+                    <tr class="border-b border-white/[0.08]">
 
-                        <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-gray-400">
+                        <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-white/40">
                             #
                         </th>
 
-                        <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-gray-400">
+                        <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-white/40">
                             Tipo
                         </th>
 
-                        <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-gray-400">
+                        <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-white/40">
                             Nombre del estado
                         </th>
 
-                        <th class="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wider text-gray-400">
+                        <th class="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wider text-white/40">
                             Acciones
                         </th>
 
                     </tr>
                 </thead>
 
-                <tbody class="divide-y divide-white/5">
+                <tbody class="divide-y divide-white/[0.06]">
 
                     @forelse ($estados as $estado)
 
@@ -228,14 +229,14 @@
 
                             {{-- IDENTIFICADOR VISUAL --}}
                             <td class="whitespace-nowrap px-6 py-4">
-                                <span class="text-sm font-medium text-gray-500">
+                                <span class="text-sm font-medium text-white/40">
                                     {{ $loop->iteration }}
                                 </span>
                             </td>
 
                             {{-- TIPO --}}
                             <td class="whitespace-nowrap px-6 py-4">
-                                <span class="inline-flex items-center rounded-lg border border-blue-400/20 bg-blue-400/10 px-3 py-1.5 text-xs font-semibold text-blue-300">
+                                <span class="inline-flex items-center rounded-lg border border-[#A99045]/25 bg-[#A99045]/10 px-3 py-1.5 text-xs font-semibold text-[#D8C17F]">
                                     {{ $estado->tipo }}
                                 </span>
                             </td>
@@ -244,7 +245,7 @@
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-3">
 
-                                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/10 text-sm font-bold text-emerald-300 ring-1 ring-emerald-500/10">
+                                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#A99045]/15 text-sm font-bold text-[#D8C17F] ring-1 ring-[#A99045]/20">
                                         {{ \Illuminate\Support\Str::upper(
                                             \Illuminate\Support\Str::substr(
                                                 $estado->nombre, 0, 1
@@ -253,11 +254,11 @@
                                     </div>
 
                                     <div>
-                                        <p class="font-medium text-gray-100">
+                                        <p class="font-medium text-white">
                                             {{ $estado->nombre }}
                                         </p>
 
-                                        <p class="mt-0.5 text-xs text-gray-500">
+                                        <p class="mt-0.5 text-xs text-white/30">
                                             Estado general
                                         </p>
                                     </div>
@@ -274,7 +275,7 @@
                                         href="{{ route('estados.edit', $estado) }}"
                                         title="Editar estado"
                                         aria-label="Editar estado {{ $estado->nombre }}"
-                                        class="inline-flex items-center gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-3 py-2 text-xs font-semibold text-emerald-300 transition hover:border-emerald-500/40 hover:bg-emerald-500/20 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                        class="inline-flex items-center gap-2 rounded-lg border border-[#A99045]/25 bg-[#A99045]/10 px-3 py-2 text-xs font-semibold text-[#D8C17F] transition hover:border-[#A99045]/50 hover:bg-[#A99045]/20 focus:outline-none focus:ring-2 focus:ring-[#A99045]"
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg"
                                              class="h-4 w-4"
@@ -335,7 +336,7 @@
                         <tr>
                             <td colspan="4" class="px-6 py-16 text-center">
 
-                                <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.03] text-gray-500">
+                                <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-white/[0.08] bg-white/[0.02] text-[#D8C17F]/60">
                                     <svg xmlns="http://www.w3.org/2000/svg"
                                          class="h-8 w-8"
                                          fill="none"
@@ -352,13 +353,13 @@
                                     No hay estados registrados
                                 </h3>
 
-                                <p class="mx-auto mt-2 max-w-sm text-sm leading-6 text-gray-400">
+                                <p class="mx-auto mt-2 max-w-sm text-sm leading-6 text-white/50">
                                     Todavía no tienes estados generales. Crea el primero para comenzar a organizar tus registros.
                                 </p>
 
                                 <a
                                     href="{{ route('estados.create') }}"
-                                    class="mt-6 inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                                    class="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#A99045] px-5 py-3 text-sm font-semibold text-black transition hover:bg-[#D8C17F] focus:outline-none focus:ring-2 focus:ring-[#D8C17F]"
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg"
                                          class="h-5 w-5"
@@ -383,9 +384,10 @@
             </table>
         </div>
 
+
         {{-- PIE DE TABLA --}}
         @if ($estados->isNotEmpty())
-            <div class="flex flex-col gap-2 border-t border-white/10 bg-white/[0.02] px-6 py-4 text-xs text-gray-500 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex flex-col gap-2 border-t border-white/[0.08] bg-white/[0.02] px-6 py-4 text-xs text-white/40 sm:flex-row sm:items-center sm:justify-between">
                 <p>
                     Mostrando {{ $estados->count() }}
                     {{ $estados->count() === 1 ? 'estado' : 'estados' }}

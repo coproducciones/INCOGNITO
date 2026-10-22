@@ -4,7 +4,7 @@
 
 @section('content')
 
-<div class="max-w-4xl">
+<div class="w-full max-w-4xl">
 
     {{-- ========================================================= --}}
     {{-- ENCABEZADO --}}
@@ -14,53 +14,40 @@
 
         <a
             href="{{ route('reseñas.index') }}"
-            class="font-bold uppercase tracking-widest"
-            style="
-                font-size:9px;
-                color:rgba(255,255,255,0.4);
-            "
+            class="font-bold uppercase tracking-widest transition-colors hover:text-white"
+            style="font-size:9px;color:rgba(255,255,255,.4);"
         >
             ← VOLVER A RESEÑAS
         </a>
 
-
-        <div class="flex items-start justify-between mt-5">
+        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-5 mt-5">
 
             <div>
 
                 <h1
                     class="font-black uppercase tracking-widest text-white"
-                    style="
-                        font-size:22px;
-                        letter-spacing:0.15em;
-                    "
+                    style="font-size:22px;letter-spacing:.15em;"
                 >
                     RESEÑA #{{ $reseña->id_reseña }}
                 </h1>
 
+                <div class="mt-3 h-[3px] w-[60px]" style="background:#A99045;"></div>
+
                 <p
-                    class="mt-1 font-bold uppercase tracking-widest"
-                    style="
-                        font-size:10px;
-                        color:rgba(255,255,255,0.4);
-                    "
+                    class="mt-3 font-bold uppercase tracking-widest"
+                    style="font-size:10px;color:rgba(255,255,255,.4);"
                 >
                     DETALLE DE LA RESEÑA
                 </p>
 
             </div>
 
-
             {{-- EDITAR --}}
 
             <a
                 href="{{ route('reseñas.edit', $reseña) }}"
-                class="font-black uppercase tracking-widest px-5 py-2 text-black"
-                style="
-                    font-size:10px;
-                    background:#00c896;
-                    border-radius:4px;
-                "
+                class="inline-flex items-center justify-center font-black uppercase tracking-widest px-5 py-3 transition-all hover:opacity-90"
+                style="font-size:10px;background:#A99045;color:#111111;border:1px solid #D8C17F;border-radius:4px;"
             >
                 EDITAR
             </a>
@@ -68,7 +55,6 @@
         </div>
 
     </div>
-
 
     {{-- ========================================================= --}}
     {{-- MENSAJE DE ÉXITO --}}
@@ -78,19 +64,12 @@
 
         <div
             class="mb-6 px-4 py-3 font-bold uppercase tracking-widest"
-            style="
-                font-size:10px;
-                background:rgba(0,200,150,0.1);
-                border:1px solid rgba(0,200,150,0.3);
-                border-radius:4px;
-                color:#00c896;
-            "
+            style="font-size:10px;background:rgba(169,144,69,.10);border:1px solid rgba(169,144,69,.35);border-radius:4px;color:#D8C17F;"
         >
             {{ session('success') }}
         </div>
 
     @endif
-
 
     {{-- ========================================================= --}}
     {{-- INFORMACIÓN --}}
@@ -98,28 +77,19 @@
 
     <div
         class="overflow-hidden"
-        style="
-            background:rgba(255,255,255,0.03);
-            border:1px solid rgba(255,255,255,0.08);
-            border-radius:6px;
-        "
+        style="background:#1D1D1D;border:1px solid rgba(169,144,69,.25);border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,.15);"
     >
 
         {{-- USUARIO --}}
 
         <div
             class="px-6 py-5"
-            style="
-                border-bottom:1px solid rgba(255,255,255,0.06);
-            "
+            style="border-bottom:1px solid rgba(169,144,69,.15);"
         >
 
             <span
                 class="block font-black uppercase tracking-widest mb-2"
-                style="
-                    font-size:9px;
-                    color:rgba(255,255,255,0.4);
-                "
+                style="font-size:9px;color:rgba(255,255,255,.4);"
             >
                 USUARIO
             </span>
@@ -133,54 +103,39 @@
 
         </div>
 
-
         {{-- PRODUCTO --}}
 
         <div
             class="px-6 py-5"
-            style="
-                border-bottom:1px solid rgba(255,255,255,0.06);
-            "
+            style="border-bottom:1px solid rgba(169,144,69,.15);"
         >
 
             <span
                 class="block font-black uppercase tracking-widest mb-2"
-                style="
-                    font-size:9px;
-                    color:rgba(255,255,255,0.4);
-                "
+                style="font-size:9px;color:rgba(255,255,255,.4);"
             >
                 PRODUCTO
             </span>
 
             <p
                 class="font-bold"
-                style="
-                    font-size:13px;
-                    color:#00c896;
-                "
+                style="font-size:13px;color:#D8C17F;"
             >
                 {{ $reseña->producto?->nombre ?? 'SIN PRODUCTO' }}
             </p>
 
         </div>
 
-
         {{-- CLIENTE --}}
 
         <div
             class="px-6 py-5"
-            style="
-                border-bottom:1px solid rgba(255,255,255,0.06);
-            "
+            style="border-bottom:1px solid rgba(169,144,69,.15);"
         >
 
             <span
                 class="block font-black uppercase tracking-widest mb-2"
-                style="
-                    font-size:9px;
-                    color:rgba(255,255,255,0.4);
-                "
+                style="font-size:9px;color:rgba(255,255,255,.4);"
             >
                 CLIENTE
             </span>
@@ -194,22 +149,16 @@
 
         </div>
 
-
         {{-- CALIFICACIÓN --}}
 
         <div
             class="px-6 py-5"
-            style="
-                border-bottom:1px solid rgba(255,255,255,0.06);
-            "
+            style="border-bottom:1px solid rgba(169,144,69,.15);"
         >
 
             <span
                 class="block font-black uppercase tracking-widest mb-2"
-                style="
-                    font-size:9px;
-                    color:rgba(255,255,255,0.4);
-                "
+                style="font-size:9px;color:rgba(255,255,255,.4);"
             >
                 CALIFICACIÓN
             </span>
@@ -218,19 +167,13 @@
 
                 <span
                     class="font-black"
-                    style="
-                        font-size:20px;
-                        color:#00c896;
-                    "
+                    style="font-size:20px;color:#D8C17F;"
                 >
                     {{ $reseña->calificacion }}/5
                 </span>
 
                 <span
-                    style="
-                        font-size:14px;
-                        color:#00c896;
-                    "
+                    style="font-size:14px;color:#D8C17F;"
                 >
                     @for($i = 1; $i <= 5; $i++)
 
@@ -243,22 +186,16 @@
 
         </div>
 
-
         {{-- FECHA --}}
 
         <div
             class="px-6 py-5"
-            style="
-                border-bottom:1px solid rgba(255,255,255,0.06);
-            "
+            style="border-bottom:1px solid rgba(169,144,69,.15);"
         >
 
             <span
                 class="block font-black uppercase tracking-widest mb-2"
-                style="
-                    font-size:9px;
-                    color:rgba(255,255,255,0.4);
-                "
+                style="font-size:9px;color:rgba(255,255,255,.4);"
             >
                 FECHA
             </span>
@@ -272,22 +209,16 @@
 
         </div>
 
-
         {{-- COMENTARIO --}}
 
         <div
             class="px-6 py-5"
-            style="
-                border-bottom:1px solid rgba(255,255,255,0.06);
-            "
+            style="border-bottom:1px solid rgba(169,144,69,.15);"
         >
 
             <span
                 class="block font-black uppercase tracking-widest mb-3"
-                style="
-                    font-size:9px;
-                    color:rgba(255,255,255,0.4);
-                "
+                style="font-size:9px;color:rgba(255,255,255,.4);"
             >
                 COMENTARIO
             </span>
@@ -295,8 +226,8 @@
             @if($reseña->comentario)
 
                 <p
-                    class="text-white leading-relaxed"
-                    style="font-size:13px;"
+                    class="leading-relaxed"
+                    style="font-size:13px;color:rgba(255,255,255,.8);"
                 >
                     {{ $reseña->comentario }}
                 </p>
@@ -304,10 +235,7 @@
             @else
 
                 <p
-                    style="
-                        font-size:12px;
-                        color:rgba(255,255,255,0.3);
-                    "
+                    style="font-size:12px;color:rgba(255,255,255,.3);"
                 >
                     SIN COMENTARIO
                 </p>
@@ -316,37 +244,35 @@
 
         </div>
 
-
         {{-- RESPUESTA --}}
 
         <div class="px-6 py-5">
 
             <span
                 class="block font-black uppercase tracking-widest mb-3"
-                style="
-                    font-size:9px;
-                    color:rgba(255,255,255,0.4);
-                "
+                style="font-size:9px;color:#D8C17F;"
             >
                 RESPUESTA
             </span>
 
             @if($reseña->respuesta)
 
-                <p
-                    class="text-white leading-relaxed"
-                    style="font-size:13px;"
+                <div
+                    class="p-4"
+                    style="background:rgba(169,144,69,.06);border-left:2px solid #A99045;border-radius:0 4px 4px 0;"
                 >
-                    {{ $reseña->respuesta }}
-                </p>
+                    <p
+                        class="leading-relaxed"
+                        style="font-size:13px;color:rgba(255,255,255,.8);"
+                    >
+                        {{ $reseña->respuesta }}
+                    </p>
+                </div>
 
             @else
 
                 <p
-                    style="
-                        font-size:12px;
-                        color:rgba(255,255,255,0.3);
-                    "
+                    style="font-size:12px;color:rgba(255,255,255,.3);"
                 >
                     SIN RESPUESTA
                 </p>
@@ -360,4 +286,3 @@
 </div>
 
 @endsection
-

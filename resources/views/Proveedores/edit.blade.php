@@ -4,25 +4,27 @@
 
 @section('content')
 
-<div class="max-w-3xl mx-auto px-4 py-6">
+<div class="mx-auto max-w-3xl px-4 py-6">
 
     {{-- ENCABEZADO --}}
-    <div class="mb-6">
-        <h1 class="text-2xl font-bold text-white">
+    <div class="mb-8">
+        <h1 class="text-xl font-black uppercase tracking-widest text-white">
             Registrar proveedor
         </h1>
 
-        <p class="mt-1 text-sm text-gray-400">
+        <p class="mt-1 text-xs font-bold uppercase tracking-widest text-white/40">
             Registra la información principal del proveedor.
         </p>
+
+        <div class="mt-3 h-[3px] w-[60px] rounded-full bg-[#A99045]"></div>
     </div>
 
 
     {{-- MENSAJES DE VALIDACIÓN --}}
     @if ($errors->any())
-        <div class="mb-6 rounded-xl border border-red-500/20 bg-red-500/10 p-4">
+        <div class="mb-6 rounded-xl border border-red-400/30 bg-red-400/10 p-4">
 
-            <p class="mb-2 font-semibold text-red-300">
+            <p class="mb-2 font-bold text-red-300">
                 Se encontraron los siguientes errores:
             </p>
 
@@ -42,7 +44,7 @@
         <form
             method="POST"
             action="{{ route('proveedores.store') }}"
-            class="space-y-6 rounded-xl border border-white/10 bg-[#111111] p-6"
+            class="space-y-6 rounded-xl border border-[#A99045]/25 bg-[#111111] p-5 shadow-xl shadow-black/20 sm:p-8"
         >
 
             @csrf
@@ -52,7 +54,7 @@
             <div>
                 <label
                     for="id_usuario"
-                    class="mb-2 block text-sm font-medium text-gray-300"
+                    class="mb-2 block text-xs font-bold uppercase tracking-wider text-[#D8C17F]"
                 >
                     Usuario
                 </label>
@@ -61,9 +63,9 @@
                     id="id_usuario"
                     name="id_usuario"
                     required
-                    class="w-full rounded-lg border border-white/10 bg-[#1a1a1a] px-4 py-3 text-sm text-white outline-none transition focus:border-[#00c896]"
+                    class="w-full rounded-lg border border-white/10 bg-[#1D1D1D] px-4 py-3 text-sm text-white outline-none transition focus:border-[#A99045] focus:ring-1 focus:ring-[#A99045]"
                 >
-                    <option value="">
+                    <option value="" class="bg-[#1D1D1D] text-white/60">
                         Selecciona un usuario
                     </option>
 
@@ -71,6 +73,7 @@
                         <option
                             value="{{ $usuario->id }}"
                             @selected(old('id_usuario') == $usuario->id)
+                            class="bg-[#1D1D1D] text-white"
                         >
                             {{ $usuario->nombre }}
                             —
@@ -80,7 +83,7 @@
                 </select>
 
                 @error('id_usuario')
-                    <p class="mt-1 text-sm text-red-400">
+                    <p class="mt-2 text-xs text-red-400">
                         {{ $message }}
                     </p>
                 @enderror
@@ -91,7 +94,7 @@
             <div>
                 <label
                     for="especialidad"
-                    class="mb-2 block text-sm font-medium text-gray-300"
+                    class="mb-2 block text-xs font-bold uppercase tracking-wider text-[#D8C17F]"
                 >
                     Especialidad
                 </label>
@@ -104,11 +107,11 @@
                     required
                     maxlength="100"
                     placeholder="Ej. Diseño gráfico, fotografía, producción..."
-                    class="w-full rounded-lg border border-white/10 bg-[#1a1a1a] px-4 py-3 text-sm text-white placeholder-gray-500 outline-none transition focus:border-[#00c896]"
+                    class="w-full rounded-lg border border-white/10 bg-[#1D1D1D] px-4 py-3 text-sm text-white placeholder:text-white/30 outline-none transition focus:border-[#A99045] focus:ring-1 focus:ring-[#A99045]"
                 >
 
                 @error('especialidad')
-                    <p class="mt-1 text-sm text-red-400">
+                    <p class="mt-2 text-xs text-red-400">
                         {{ $message }}
                     </p>
                 @enderror
@@ -119,7 +122,7 @@
             <div>
                 <label
                     for="telefono"
-                    class="mb-2 block text-sm font-medium text-gray-300"
+                    class="mb-2 block text-xs font-bold uppercase tracking-wider text-[#D8C17F]"
                 >
                     Teléfono
                 </label>
@@ -132,11 +135,11 @@
                     required
                     maxlength="20"
                     placeholder="Ej. 3001234567"
-                    class="w-full rounded-lg border border-white/10 bg-[#1a1a1a] px-4 py-3 text-sm text-white placeholder-gray-500 outline-none transition focus:border-[#00c896]"
+                    class="w-full rounded-lg border border-white/10 bg-[#1D1D1D] px-4 py-3 text-sm text-white placeholder:text-white/30 outline-none transition focus:border-[#A99045] focus:ring-1 focus:ring-[#A99045]"
                 >
 
                 @error('telefono')
-                    <p class="mt-1 text-sm text-red-400">
+                    <p class="mt-2 text-xs text-red-400">
                         {{ $message }}
                     </p>
                 @enderror
@@ -147,7 +150,7 @@
             <div>
                 <label
                     for="whatsapp"
-                    class="mb-2 block text-sm font-medium text-gray-300"
+                    class="mb-2 block text-xs font-bold uppercase tracking-wider text-[#D8C17F]"
                 >
                     WhatsApp
                 </label>
@@ -159,11 +162,11 @@
                     value="{{ old('whatsapp') }}"
                     maxlength="20"
                     placeholder="Ej. 3001234567"
-                    class="w-full rounded-lg border border-white/10 bg-[#1a1a1a] px-4 py-3 text-sm text-white placeholder-gray-500 outline-none transition focus:border-[#00c896]"
+                    class="w-full rounded-lg border border-white/10 bg-[#1D1D1D] px-4 py-3 text-sm text-white placeholder:text-white/30 outline-none transition focus:border-[#A99045] focus:ring-1 focus:ring-[#A99045]"
                 >
 
                 @error('whatsapp')
-                    <p class="mt-1 text-sm text-red-400">
+                    <p class="mt-2 text-xs text-red-400">
                         {{ $message }}
                     </p>
                 @enderror
@@ -171,18 +174,18 @@
 
 
             {{-- BOTONES --}}
-            <div class="flex flex-wrap justify-end gap-3 border-t border-white/10 pt-5">
+            <div class="flex flex-wrap justify-end gap-3 border-t border-white/10 pt-6">
 
                 <a
                     href="{{ route('proveedores.index') }}"
-                    class="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-gray-300 transition hover:bg-white/5"
+                    class="rounded-lg border border-white/15 bg-[#1D1D1D] px-5 py-3 text-xs font-bold uppercase tracking-widest text-white/70 transition hover:border-[#A99045]/50 hover:text-[#D8C17F]"
                 >
                     Cancelar
                 </a>
 
                 <button
                     type="submit"
-                    class="rounded-lg bg-[#00c896] px-5 py-2 text-sm font-semibold text-black transition hover:opacity-90"
+                    class="rounded-lg bg-[#A99045] px-6 py-3 text-xs font-black uppercase tracking-widest text-[#111111] transition hover:bg-[#D8C17F]"
                 >
                     Guardar proveedor
                 </button>
@@ -193,14 +196,14 @@
 
     @else
 
-        <div class="rounded-xl border border-red-500/20 bg-red-500/10 p-6 text-center">
+        <div class="rounded-xl border border-red-400/30 bg-red-400/10 p-6 text-center">
             <p class="font-semibold text-red-300">
                 No tienes permiso para registrar proveedores.
             </p>
 
             <a
                 href="{{ route('proveedores.index') }}"
-                class="mt-4 inline-block rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-gray-300 transition hover:bg-white/5"
+                class="mt-4 inline-block rounded-lg border border-white/15 bg-[#1D1D1D] px-5 py-3 text-xs font-bold uppercase tracking-wider text-white/70 transition hover:border-[#A99045]/50 hover:text-[#D8C17F]"
             >
                 Volver a proveedores
             </a>

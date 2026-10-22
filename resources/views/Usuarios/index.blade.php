@@ -6,18 +6,21 @@
 
 @section('content')
 
-<div class="container mx-auto px-4 py-6">
+<div class="container mx-auto px-4 py-8">
 
     {{-- Encabezado --}}
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+    <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 
         <div>
 
-            <h1 class="text-3xl font-bold text-white drop-shadow">
+            <h1 class="text-2xl font-black uppercase tracking-widest text-white">
                 Usuarios
             </h1>
 
-            <p class="text-gray-600 mt-1">
+            <div class="mt-3 h-[3px] w-[60px] rounded-full"
+                 style="background-color: #A99045;"></div>
+
+            <p class="mt-3 text-sm text-gray-400">
                 Administración de usuarios del sistema
             </p>
 
@@ -27,7 +30,8 @@
         @if(auth()->check() && auth()->user()->tienePermiso('usuarios.crear'))
 
             <a href="{{ route('usuarios.create') }}"
-                class="bg-blue-600 hover:bg-blue-700 text-black font-semibold px-5 py-2 rounded-lg shadow transition">
+               class="inline-flex items-center justify-center rounded-lg px-5 py-3 text-sm font-black transition hover:brightness-110"
+               style="background-color: #A99045; color: #111111;">
                 + Nuevo usuario
             </a>
 
@@ -38,7 +42,8 @@
     {{-- Mensaje de éxito --}}
     @if(session('success'))
 
-        <div class="mb-5 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg">
+        <div class="mb-6 rounded-xl border px-5 py-4 text-sm font-medium"
+             style="background-color: #14251C; border-color: #286343; color: #86EFAC;">
             {{ session('success') }}
         </div>
 
@@ -47,14 +52,13 @@
     {{-- Mensajes de error --}}
     @if($errors->any())
 
-        <div class="mb-5 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
+        <div class="mb-6 rounded-xl border px-5 py-4"
+             style="background-color: #2A1717; border-color: #7F3030; color: #FCA5A5;">
 
-            <ul class="list-disc list-inside">
-
+            <ul class="list-disc list-inside space-y-1 text-sm">
                 @foreach($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
-
             </ul>
 
         </div>
@@ -62,37 +66,45 @@
     @endif
 
     {{-- Tabla --}}
-    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+    <div class="overflow-hidden rounded-2xl border shadow-xl"
+         style="background-color: #111111; border-color: rgba(169, 144, 69, 0.35);">
 
         <div class="overflow-x-auto">
 
-            <table class="w-full">
+            <table class="w-full min-w-[900px] text-left">
 
-                <thead class="bg-gray-100">
+                <thead style="background-color: #1D1D1D;">
 
-                    <tr>
+                    <tr class="border-b"
+                        style="border-color: rgba(169, 144, 69, 0.35);">
 
-                        <th class="px-6 py-3 text-left text-sm font-bold text-black">
+                        <th class="px-6 py-4 text-xs font-black uppercase tracking-widest"
+                            style="color: #D8C17F;">
                             ID
                         </th>
 
-                        <th class="px-6 py-3 text-left text-sm font-bold text-black">
+                        <th class="px-6 py-4 text-xs font-black uppercase tracking-widest"
+                            style="color: #D8C17F;">
                             Nombre
                         </th>
 
-                        <th class="px-6 py-3 text-left text-sm font-bold text-black">
+                        <th class="px-6 py-4 text-xs font-black uppercase tracking-widest"
+                            style="color: #D8C17F;">
                             Email
                         </th>
 
-                        <th class="px-6 py-3 text-left text-sm font-bold text-black">
+                        <th class="px-6 py-4 text-xs font-black uppercase tracking-widest"
+                            style="color: #D8C17F;">
                             Teléfono
                         </th>
 
-                        <th class="px-6 py-3 text-left text-sm font-bold text-black">
+                        <th class="px-6 py-4 text-xs font-black uppercase tracking-widest"
+                            style="color: #D8C17F;">
                             Fecha de registro
                         </th>
 
-                        <th class="px-6 py-3 text-center text-sm font-bold text-black">
+                        <th class="px-6 py-4 text-center text-xs font-black uppercase tracking-widest"
+                            style="color: #D8C17F;">
                             Acciones
                         </th>
 
@@ -100,41 +112,43 @@
 
                 </thead>
 
-                <tbody class="divide-y divide-gray-200">
+                <tbody class="divide-y"
+                       style="color: #E5E5E5; border-color: rgba(255, 255, 255, 0.08);">
 
                     @forelse($usuarios as $usuario)
 
-                        <tr class="hover:bg-gray-50">
+                        <tr class="transition-colors hover:bg-white/[0.03]">
 
-                            <td class="px-6 py-4 text-gray-700">
+                            <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-400">
                                 {{ $usuario->id }}
                             </td>
 
-                            <td class="px-6 py-4 font-semibold text-black">
+                            <td class="whitespace-nowrap px-6 py-4 text-sm font-bold text-white">
                                 {{ $usuario->nombre }}
                             </td>
 
-                            <td class="px-6 py-4 text-gray-700">
+                            <td class="px-6 py-4 text-sm text-gray-300">
                                 {{ $usuario->email }}
                             </td>
 
-                            <td class="px-6 py-4 text-gray-700">
+                            <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-300">
                                 {{ $usuario->telefono ?? 'No registrado' }}
                             </td>
 
-                            <td class="px-6 py-4 text-gray-700">
+                            <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-400">
                                 {{ $usuario->created_at?->format('d/m/Y H:i') }}
                             </td>
 
                             <td class="px-6 py-4">
 
-                                <div class="flex justify-center gap-2">
+                                <div class="flex flex-wrap justify-center gap-2">
 
                                     {{-- Ver --}}
                                     @if(auth()->check() && auth()->user()->tienePermiso('usuarios.ver'))
 
                                         <a href="{{ route('usuarios.show', $usuario->id) }}"
-                                            class="bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 rounded-lg text-sm shadow">
+                                           class="rounded-lg border px-3 py-2 text-sm font-bold transition hover:brightness-125"
+                                           style="background-color: #252525; border-color: #444444; color: #E5E5E5;">
                                             Ver
                                         </a>
 
@@ -144,7 +158,8 @@
                                     @if(auth()->check() && auth()->user()->tienePermiso('usuarios.editar'))
 
                                         <a href="{{ route('usuarios.edit', $usuario->id) }}"
-                                            class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-2 rounded-lg text-sm shadow">
+                                           class="rounded-lg px-3 py-2 text-sm font-bold transition hover:brightness-110"
+                                           style="background-color: #A99045; color: #111111;">
                                             Editar
                                         </a>
 
@@ -154,14 +169,15 @@
                                     @if(auth()->check() && auth()->user()->tienePermiso('usuarios.eliminar'))
 
                                         <form action="{{ route('usuarios.destroy', $usuario->id) }}"
-                                            method="POST"
-                                            onsubmit="return confirm('¿Está seguro de eliminar este usuario?');">
+                                              method="POST"
+                                              onsubmit="return confirm('¿Está seguro de eliminar este usuario?');">
 
                                             @csrf
                                             @method('DELETE')
 
                                             <button type="submit"
-                                                class="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg text-sm shadow">
+                                                    class="rounded-lg border px-3 py-2 text-sm font-bold transition hover:brightness-125"
+                                                    style="background-color: #3A1919; border-color: #7F3030; color: #FCA5A5;">
                                                 Eliminar
                                             </button>
 
@@ -180,7 +196,7 @@
                         <tr>
 
                             <td colspan="6"
-                                class="px-6 py-8 text-center text-gray-500">
+                                class="px-6 py-10 text-center text-sm text-gray-400">
                                 No hay usuarios registrados.
                             </td>
 

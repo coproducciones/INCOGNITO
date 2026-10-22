@@ -4,7 +4,7 @@
 
 @section('content')
 
-<div class="max-w-5xl">
+<div class="w-full max-w-5xl">
 
     {{-- ========================================================= --}}
     {{-- ENCABEZADO --}}
@@ -17,7 +17,7 @@
             class="font-bold uppercase tracking-widest transition-opacity hover:opacity-70"
             style="
                 font-size:9px;
-                color:rgba(255,255,255,0.4);
+                color:#D8C17F;
             "
         >
             ← VOLVER A PEDIDOS
@@ -42,6 +42,16 @@
         >
             CREAR UN NUEVO PEDIDO
         </p>
+
+        <div
+            class="mt-4"
+            style="
+                width:60px;
+                height:3px;
+                background:#A99045;
+                border-radius:2px;
+            "
+        ></div>
 
     </div>
 
@@ -79,7 +89,7 @@
                         class="font-bold"
                         style="
                             font-size:10px;
-                            color:rgba(255,255,255,0.6);
+                            color:rgba(255,255,255,0.7);
                         "
                     >
                         • {{ $error }}
@@ -101,8 +111,9 @@
     <div
         class="mb-6 px-5 py-4"
         style="
-            background:rgba(0,200,150,0.05);
-            border:1px solid rgba(0,200,150,0.15);
+            background:rgba(169,144,69,0.07);
+            border:1px solid rgba(169,144,69,0.25);
+            border-left:3px solid #A99045;
             border-radius:5px;
         "
     >
@@ -111,7 +122,7 @@
             class="font-black uppercase tracking-widest"
             style="
                 font-size:10px;
-                color:#00c896;
+                color:#D8C17F;
             "
         >
             INFORMACIÓN DEL PEDIDO
@@ -121,12 +132,12 @@
             class="mt-2"
             style="
                 font-size:11px;
-                color:rgba(255,255,255,0.5);
+                color:rgba(255,255,255,0.6);
                 line-height:1.7;
             "
         >
             El pedido será creado automáticamente con estado
-            <strong style="color:#fbbf24;">
+            <strong style="color:#D8C17F;">
                 PENDIENTE
             </strong>.
             Puedes seleccionar los productos y cantidades antes de guardar.
@@ -142,8 +153,14 @@
     <form
         action="{{ route('pedidos.store') }}"
         method="POST"
-        class="space-y-6"
+        class="space-y-6 p-5 md:p-8"
         id="pedidoForm"
+        style="
+            background:#111111;
+            border:1px solid rgba(169,144,69,0.25);
+            border-radius:6px;
+            box-shadow:0 10px 30px rgba(0,0,0,0.20);
+        "
     >
 
         @csrf
@@ -160,7 +177,8 @@
                 class="mb-2 block font-black uppercase tracking-widest"
                 style="
                     font-size:10px;
-                    color:rgba(255,255,255,0.5);
+                    color:rgba(255,255,255,0.75);
+                    letter-spacing:0.12em;
                 "
             >
                 USUARIO
@@ -170,18 +188,21 @@
                 name="id_usuario"
                 id="id_usuario"
                 required
-                class="w-full px-4 py-3 text-white outline-none"
+                class="w-full px-4 py-3 text-white outline-none transition-all"
                 style="
-                    background:rgba(255,255,255,0.04);
-                    border:1px solid rgba(255,255,255,0.1);
+                    background:#1D1D1D;
+                    border:1px solid rgba(255,255,255,0.12);
                     border-radius:4px;
                     font-size:12px;
+                    color-scheme:dark;
                 "
+                onfocus="this.style.borderColor='#A99045'"
+                onblur="this.style.borderColor='rgba(255,255,255,0.12)'"
             >
 
                 <option
                     value=""
-                    style="background:#111;"
+                    style="background:#111111;"
                 >
                     SELECCIONAR USUARIO
                 </option>
@@ -190,7 +211,7 @@
 
                     <option
                         value="{{ $usuario->id }}"
-                        style="background:#111;"
+                        style="background:#111111;"
                         {{ old('id_usuario') == $usuario->id ? 'selected' : '' }}
                     >
                         {{ $usuario->nombre }}
@@ -202,7 +223,7 @@
                     <option
                         value=""
                         disabled
-                        style="background:#111;"
+                        style="background:#111111;"
                     >
                         NO HAY USUARIOS DISPONIBLES
                     </option>
@@ -239,8 +260,8 @@
             <div
                 class="px-4 py-4"
                 style="
-                    background:rgba(255,255,255,0.03);
-                    border:1px solid rgba(255,255,255,0.08);
+                    background:#1D1D1D;
+                    border:1px solid rgba(169,144,69,0.25);
                     border-radius:4px;
                 "
             >
@@ -249,7 +270,7 @@
                     class="font-black uppercase tracking-widest"
                     style="
                         font-size:9px;
-                        color:rgba(255,255,255,0.35);
+                        color:rgba(255,255,255,0.4);
                     "
                 >
                     ESTADO INICIAL
@@ -259,7 +280,7 @@
                     class="mt-2 font-black uppercase"
                     style="
                         font-size:12px;
-                        color:#fbbf24;
+                        color:#D8C17F;
                     "
                 >
                     PENDIENTE
@@ -273,8 +294,8 @@
             <div
                 class="px-4 py-4"
                 style="
-                    background:rgba(255,255,255,0.03);
-                    border:1px solid rgba(255,255,255,0.08);
+                    background:#1D1D1D;
+                    border:1px solid rgba(169,144,69,0.25);
                     border-radius:4px;
                 "
             >
@@ -283,7 +304,7 @@
                     class="font-black uppercase tracking-widest"
                     style="
                         font-size:9px;
-                        color:rgba(255,255,255,0.35);
+                        color:rgba(255,255,255,0.4);
                     "
                 >
                     TOTAL DEL PEDIDO
@@ -293,8 +314,8 @@
                     id="totalPedido"
                     class="mt-2 font-black"
                     style="
-                        font-size:12px;
-                        color:#00c896;
+                        font-size:16px;
+                        color:#D8C17F;
                     "
                 >
                     $0.00
@@ -308,8 +329,8 @@
             <div
                 class="px-4 py-4"
                 style="
-                    background:rgba(255,255,255,0.03);
-                    border:1px solid rgba(255,255,255,0.08);
+                    background:#1D1D1D;
+                    border:1px solid rgba(169,144,69,0.25);
                     border-radius:4px;
                 "
             >
@@ -318,7 +339,7 @@
                     class="font-black uppercase tracking-widest"
                     style="
                         font-size:9px;
-                        color:rgba(255,255,255,0.35);
+                        color:rgba(255,255,255,0.4);
                     "
                 >
                     FECHA
@@ -341,21 +362,26 @@
         {{-- ===================================================== --}}
 
         <div
-            class="px-5 py-5"
+            class="px-4 py-5 md:px-5"
             style="
-                background:rgba(255,255,255,0.03);
-                border:1px solid rgba(255,255,255,0.08);
+                background:#161616;
+                border:1px solid rgba(169,144,69,0.25);
                 border-radius:5px;
             "
         >
 
-            <div class="mb-5">
+            <div
+                class="mb-5 pb-4"
+                style="
+                    border-bottom:1px solid rgba(255,255,255,0.08);
+                "
+            >
 
                 <p
                     class="font-black uppercase tracking-widest"
                     style="
                         font-size:11px;
-                        color:#00c896;
+                        color:#D8C17F;
                     "
                 >
                     PRODUCTOS DEL PEDIDO
@@ -365,7 +391,7 @@
                     class="mt-1"
                     style="
                         font-size:10px;
-                        color:rgba(255,255,255,0.4);
+                        color:rgba(255,255,255,0.45);
                     "
                 >
                     Selecciona los productos y la cantidad que deseas agregar.
@@ -380,7 +406,12 @@
             >
 
                 <div
-                    class="producto-row grid grid-cols-1 md:grid-cols-12 gap-3 items-end"
+                    class="producto-row grid grid-cols-1 md:grid-cols-12 gap-3 items-end p-4"
+                    style="
+                        background:#1D1D1D;
+                        border:1px solid rgba(255,255,255,0.07);
+                        border-radius:5px;
+                    "
                 >
 
                     <div class="md:col-span-6">
@@ -389,7 +420,7 @@
                             class="mb-2 block font-black uppercase tracking-widest"
                             style="
                                 font-size:9px;
-                                color:rgba(255,255,255,0.4);
+                                color:rgba(255,255,255,0.55);
                             "
                         >
                             PRODUCTO
@@ -397,20 +428,23 @@
 
                         <select
                             name="productos[0][id_producto]"
-                            class="producto-select w-full px-4 py-3 text-white outline-none"
+                            class="producto-select w-full px-4 py-3 text-white outline-none transition-all"
                             required
                             style="
-                                background:#111;
-                                border:1px solid rgba(255,255,255,0.1);
+                                background:#111111;
+                                border:1px solid rgba(255,255,255,0.12);
                                 border-radius:4px;
                                 font-size:11px;
+                                color-scheme:dark;
                             "
+                            onfocus="this.style.borderColor='#A99045'"
+                            onblur="this.style.borderColor='rgba(255,255,255,0.12)'"
                         >
 
                             <option
                                 value=""
                                 data-precio="0"
-                                style="background:#111;"
+                                style="background:#111111;"
                             >
                                 SELECCIONAR PRODUCTO
                             </option>
@@ -421,7 +455,7 @@
                                     value="{{ $producto->id }}"
                                     data-precio="{{ $producto->precio }}"
                                     data-stock="{{ $producto->stock }}"
-                                    style="background:#111;"
+                                    style="background:#111111;"
                                     {{ old('productos.0.id_producto') == $producto->id ? 'selected' : '' }}
                                 >
                                     {{ $producto->nombre }}
@@ -444,7 +478,7 @@
                             class="mb-2 block font-black uppercase tracking-widest"
                             style="
                                 font-size:9px;
-                                color:rgba(255,255,255,0.4);
+                                color:rgba(255,255,255,0.55);
                             "
                         >
                             CANTIDAD
@@ -455,14 +489,16 @@
                             name="productos[0][cantidad]"
                             value="{{ old('productos.0.cantidad', 1) }}"
                             min="1"
-                            class="cantidad-input w-full px-4 py-3 text-white outline-none"
+                            class="cantidad-input w-full px-4 py-3 text-white outline-none transition-all"
                             required
                             style="
-                                background:rgba(255,255,255,0.04);
-                                border:1px solid rgba(255,255,255,0.1);
+                                background:#111111;
+                                border:1px solid rgba(255,255,255,0.12);
                                 border-radius:4px;
                                 font-size:11px;
                             "
+                            onfocus="this.style.borderColor='#A99045'"
+                            onblur="this.style.borderColor='rgba(255,255,255,0.12)'"
                         >
 
                     </div>
@@ -474,7 +510,7 @@
                             class="mb-2 block font-black uppercase tracking-widest"
                             style="
                                 font-size:9px;
-                                color:rgba(255,255,255,0.4);
+                                color:rgba(255,255,255,0.55);
                             "
                         >
                             SUBTOTAL
@@ -483,11 +519,11 @@
                         <div
                             class="subtotal-producto px-4 py-3 font-black"
                             style="
-                                background:rgba(0,200,150,0.05);
-                                border:1px solid rgba(0,200,150,0.15);
+                                background:rgba(169,144,69,0.08);
+                                border:1px solid rgba(169,144,69,0.25);
                                 border-radius:4px;
                                 font-size:11px;
-                                color:#00c896;
+                                color:#D8C17F;
                             "
                         >
                             $0.00
@@ -500,10 +536,10 @@
 
                         <button
                             type="button"
-                            class="remove-producto w-full px-3 py-3 font-black transition-opacity hover:opacity-70"
+                            class="remove-producto w-full px-3 py-3 font-black transition-all hover:opacity-70"
                             style="
                                 background:rgba(248,113,113,0.08);
-                                border:1px solid rgba(248,113,113,0.2);
+                                border:1px solid rgba(248,113,113,0.25);
                                 border-radius:4px;
                                 font-size:10px;
                                 color:#f87171;
@@ -524,13 +560,13 @@
                 <button
                     type="button"
                     id="addProducto"
-                    class="font-black uppercase tracking-widest px-5 py-3 transition-opacity hover:opacity-80"
+                    class="font-black uppercase tracking-widest px-5 py-3 transition-all hover:opacity-80"
                     style="
-                        background:rgba(0,200,150,0.08);
-                        border:1px solid rgba(0,200,150,0.2);
+                        background:rgba(169,144,69,0.10);
+                        border:1px solid rgba(169,144,69,0.35);
                         border-radius:4px;
                         font-size:9px;
-                        color:#00c896;
+                        color:#D8C17F;
                     "
                 >
                     + AGREGAR PRODUCTO
@@ -546,7 +582,7 @@
         {{-- ===================================================== --}}
 
         <div
-            class="flex items-center gap-3 pt-4"
+            class="flex flex-wrap items-center gap-3 pt-5"
             style="
                 border-top:1px solid rgba(255,255,255,0.08);
             "
@@ -556,11 +592,14 @@
 
                 <button
                     type="submit"
-                    class="font-black uppercase tracking-widest px-6 py-3 text-black transition-all hover:opacity-80"
+                    class="font-black uppercase tracking-widest px-6 py-3 transition-all hover:opacity-80"
                     style="
                         font-size:10px;
-                        background:#00c896;
+                        background:#A99045;
+                        color:#111111;
+                        border:1px solid #A99045;
                         border-radius:4px;
+                        letter-spacing:0.1em;
                     "
                 >
                     CREAR PEDIDO
@@ -570,12 +609,14 @@
 
             <a
                 href="{{ route('pedidos.index') }}"
-                class="font-black uppercase tracking-widest px-6 py-3 transition-opacity hover:opacity-70"
+                class="font-black uppercase tracking-widest px-6 py-3 transition-all hover:bg-white/10"
                 style="
                     font-size:10px;
-                    color:rgba(255,255,255,0.5);
-                    border:1px solid rgba(255,255,255,0.1);
+                    color:rgba(255,255,255,0.65);
+                    background:#1D1D1D;
+                    border:1px solid rgba(255,255,255,0.12);
                     border-radius:4px;
+                    letter-spacing:0.1em;
                 "
             >
                 CANCELAR

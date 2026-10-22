@@ -1,5 +1,7 @@
-
 <?php
+
+use App\Models\producto;
+use App\Models\categoria;
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CategoriaController;
@@ -20,7 +22,9 @@ use App\Http\Controllers\RolController;
 use App\Http\Controllers\SeguridadUsuarioController;
 use App\Http\Controllers\CarritoController;
 use App\Http\Controllers\RegistroController;
+
 use Illuminate\Support\Facades\Route;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -39,6 +43,59 @@ Route::get('/nuestra-historia', function () {
     return view('nuestra-historia');
 })->name('nuestra.historia');
 
+
+/*
+|--------------------------------------------------------------------------
+| SERVICIOS - CATÁLOGO PÚBLICO
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/servicios', function () {
+    $categoriaId = request()->query('categoria');
+
+    $categorias = Categoria::withCount([
+        'productos' => function ($query) {
+            $query->where('activo', true);
+        },
+    ])
+        ->orderBy('nombre')
+        ->get();
+
+    $productos = Producto::with('categoria')
+        ->where('activo', true)
+        ->when(
+            $categoriaId !== null && $categoriaId !== '',
+            function ($query) use ($categoriaId) {
+                $query->where('categoria_id', $categoriaId);
+            }
+        )
+        ->orderBy('nombre')
+        ->paginate(12)
+        ->withQueryString();
+
+    return view('servicios', compact(
+        'categorias',
+        'productos',
+        'categoriaId'
+    ));
+})->name('servicios');
+
+
+/*
+|--------------------------------------------------------------------------
+| DETALLE PÚBLICO DE PRODUCTO
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/servicios/producto/{producto}', function (Producto $producto) {
+    abort_unless($producto->activo, 404);
+
+    $producto->load('categoria');
+
+    return view('servicios-detalle', compact('producto'));
+})->name('servicios.detalle');
+
+
 /*
 |--------------------------------------------------------------------------
 | CATEGORÍAS
@@ -52,6 +109,7 @@ Route::resource('categorias', CategoriaController::class)
     ->middlewareFor('update', 'permiso:categorias.editar')
     ->middlewareFor('destroy', 'permiso:categorias.eliminar');
 
+
 /*
 |--------------------------------------------------------------------------
 | PRODUCTOS
@@ -64,6 +122,7 @@ Route::resource('productos', ProductoController::class)
     ->middlewareFor('edit', 'permiso:productos.editar')
     ->middlewareFor('update', 'permiso:productos.editar')
     ->middlewareFor('destroy', 'permiso:productos.eliminar');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -83,6 +142,7 @@ Route::resource('usuarios', UsuarioController::class)
     ->middlewareFor('update', 'permiso:usuarios.editar')
     ->middlewareFor('destroy', 'permiso:usuarios.eliminar');
 
+
 /*
 |--------------------------------------------------------------------------
 | CONTENIDO
@@ -97,6 +157,7 @@ Route::resource('contenidos', ContenidoController::class)
     ->middlewareFor('edit', 'permiso:contenido.editar')
     ->middlewareFor('update', 'permiso:contenido.editar')
     ->middlewareFor('destroy', 'permiso:contenido.eliminar');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -116,6 +177,7 @@ Route::resource('multimedias', MultimediaController::class)
     ->middlewareFor('update', 'permiso:multimedia.editar')
     ->middlewareFor('destroy', 'permiso:multimedia.eliminar');
 
+
 /*
 |--------------------------------------------------------------------------
 | CLIENTES
@@ -130,6 +192,7 @@ Route::resource('clientes', ClienteController::class)
     ->middlewareFor('edit', 'permiso:clientes.editar')
     ->middlewareFor('update', 'permiso:clientes.editar')
     ->middlewareFor('destroy', 'permiso:clientes.eliminar');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -146,6 +209,7 @@ Route::resource('reseñas', ReseñaController::class)
     ->middlewareFor('update', 'permiso:resenas.editar')
     ->middlewareFor('destroy', 'permiso:resenas.eliminar');
 
+
 /*
 |--------------------------------------------------------------------------
 | DASHBOARD
@@ -155,6 +219,7 @@ Route::resource('reseñas', ReseñaController::class)
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware('auth')
     ->name('dashboard');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -215,6 +280,7 @@ Route::post(
     ->middleware('permiso:pedidos.editar')
     ->name('pedidos.eventos.store');
 
+
 /*
 |--------------------------------------------------------------------------
 | WHATSAPP DEL PROVEEDOR
@@ -225,8 +291,9 @@ Route::get(
     'pedidos/{pedido}/whatsapp/{proveedor}',
     [PedidoController::class, 'whatsappProveedor']
 )
-    ->middleware('permiso:pedidos.ver')
+    ->middleware('auth')
     ->name('pedidos.whatsapp.proveedor');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -246,9 +313,10 @@ Route::resource('proveedores', ProveedorController::class)
     ->middlewareFor('update', 'permiso:proveedores.editar')
     ->middlewareFor('destroy', 'permiso:proveedores.eliminar');
 
+
 /*
 |--------------------------------------------------------------------------
-| PERFIL VOLUNTARIO DEL PROVEEDOR
+| PERFIL DEL PROVEEDOR
 |--------------------------------------------------------------------------
 */
 
@@ -261,6 +329,7 @@ Route::post(
     '/mi-perfil-proveedor',
     [ProveedorController::class, 'guardarMiPerfil']
 )->name('proveedores.mi-perfil.store');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -311,6 +380,7 @@ Route::middleware('auth')->group(function () {
         ->middleware('permiso:disponibilidad.eliminar')
         ->name('mi-disponibilidad.destroy');
 });
+
 
 /*
 |--------------------------------------------------------------------------
@@ -364,6 +434,7 @@ Route::prefix('proveedores/{proveedor}')
             ->name('disponibilidades.destroy');
     });
 
+
 /*
 |--------------------------------------------------------------------------
 | SEGURIDAD DE USUARIOS
@@ -399,6 +470,7 @@ Route::prefix('seguridad')
             ->name('seguridad.usuarios.update');
     });
 
+
 /*
 |--------------------------------------------------------------------------
 | ROLES
@@ -431,6 +503,7 @@ Route::put(
     ->middleware('permiso:roles.editar')
     ->name('roles.permisos.sync');
 
+
 /*
 |--------------------------------------------------------------------------
 | PERMISOS
@@ -446,6 +519,7 @@ Route::resource('permisos', PermisoController::class)
     ->middlewareFor('update', 'permiso:permisos.editar')
     ->middlewareFor('destroy', 'permiso:permisos.eliminar');
 
+
 /*
 |--------------------------------------------------------------------------
 | ESTADOS GENERALES
@@ -454,6 +528,7 @@ Route::resource('permisos', PermisoController::class)
 
 Route::resource('estados', EstadoGeneralController::class)
     ->except('show');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -471,6 +546,18 @@ Route::middleware('guest')->group(function () {
         '/login',
         [UsuarioController::class, 'login']
     )->name('login.authenticate');
+
+    Route::get(
+        '/registro',
+        [RegistroController::class, 'create']
+    )->name('registro');
+
+    Route::post(
+        '/registro',
+        [RegistroController::class, 'store']
+    )
+        ->middleware('throttle:6,1')
+        ->name('registro.store');
 });
 
 Route::post(
@@ -479,6 +566,7 @@ Route::post(
 )
     ->middleware('auth')
     ->name('logout');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -565,6 +653,7 @@ Route::middleware('auth')
         )->name('mi-cuenta.resenas.destroy');
     });
 
+
 /*
 |--------------------------------------------------------------------------
 | CARRITO DE COMPRAS
@@ -603,6 +692,7 @@ Route::middleware('auth')->group(function () {
     )->name('carrito.clear');
 });
 
+
 /*
 |--------------------------------------------------------------------------
 | PANEL DE GESTIÓN
@@ -612,21 +702,3 @@ Route::middleware('auth')->group(function () {
 Route::view('/panel', 'dashboard.gestion')
     ->middleware('auth')
     ->name('dashboard.gestion');
-
-/*
-|--------------------------------------------------------------------------
-| Registro de cuentas publicas (clientes o proveedores)
-|--------------------------------------------------------------------------
-*/
-
-Route::get('/registro', [RegistroController::class, 'create'])
-    ->name('registro');
-
-Route::post('/registro', [RegistroController::class, 'store'])
-    ->middleware('throttle:6,1')
-    ->name('registro.store');
-
-Route::middleware('guest')->group(function () {
-    // Aquí van las rutas existentes de login...
-    // Añadir dentro de ese mismo grupo las dos rutas de registro.
-});
