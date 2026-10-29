@@ -56,4 +56,12 @@ class Proveedor extends Model
                 ->where('disponible', true);
         });
     }
+    public function contenidos(): \Illuminate\Database\Eloquent\Relations\HasMany
+{
+    return $this->hasMany(
+        \App\Models\Contenido::class,
+        'id_proveedor',
+        'id_proveedor'
+    );
+}
 }

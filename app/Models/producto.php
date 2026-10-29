@@ -46,6 +46,12 @@ class Producto extends Model
         );
     }
 
+    /** Archivos multimedia asociados al producto. */
+    public function media(): HasMany
+    {
+        return $this->hasMany(Multimedia::class, 'id_producto', 'id');
+    }
+
     /** Un producto puede aparecer en varios detalles de pedido. */
     public function detallesPedido(): HasMany
     {

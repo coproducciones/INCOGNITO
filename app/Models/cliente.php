@@ -12,18 +12,38 @@ class Cliente extends Model
     use HasFactory;
 
     protected $table = 'clientes';
+
     protected $primaryKey = 'id_cliente';
+
     public $timestamps = false;
 
-    protected $fillable = ['id_usuario', 'nombre', 'empresa', 'logo_url'];
+    protected $fillable = [
+        'id_usuario',
+        'nombre',
+        'empresa',
+        'logo_url',
+        'activo',
+    ];
+
+    protected $casts = [
+        'activo' => 'boolean',
+    ];
 
     public function usuario(): BelongsTo
     {
-        return $this->belongsTo(Usuario::class, 'id_usuario', 'id');
+        return $this->belongsTo(
+            Usuario::class,
+            'id_usuario',
+            'id'
+        );
     }
 
     public function resenas(): HasMany
     {
-        return $this->hasMany(Reseña::class, 'id_cliente', 'id_cliente');
+        return $this->hasMany(
+            Reseña::class,
+            'id_cliente',
+            'id_cliente'
+        );
     }
 }

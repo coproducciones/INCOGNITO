@@ -7,13 +7,16 @@ use Illuminate\Database\Seeder;
 
 class RolSeeder extends Seeder
 {
+    /**
+     * Registra los roles principales de la aplicación.
+     */
     public function run(): void
     {
         $roles = [
-            'Visitante',
+            'Administrador',
             'Cliente',
             'Proveedor',
-            'Administrador',
+            'Visitante',
             'Usuario autorizado',
         ];
 

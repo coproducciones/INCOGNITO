@@ -3,7 +3,6 @@
 @section('title', 'Gestión de multimedia')
 
 @section('content')
-
 <div class="space-y-6">
 
     {{-- ENCABEZADO --}}
@@ -18,12 +17,14 @@
             </p>
         </div>
 
-        @if(auth()->check() && auth()->user()->tienePermiso('multimedia.crear'))
-            <a href="{{ route('multimedias.create') }}"
-               class="inline-flex items-center justify-center rounded-lg border border-[#A99045] bg-[#A99045] px-4 py-2.5 text-sm font-semibold text-black transition duration-200 hover:border-[#D8C17F] hover:bg-[#D8C17F]">
-                + Nuevo recurso
-            </a>
-        @endif
+        @auth
+            @if(auth()->user()->tienePermiso('multimedia.crear'))
+                <a href="{{ route('multimedias.create') }}"
+                   class="inline-flex items-center justify-center rounded-lg border border-[#A99045] bg-[#A99045] px-4 py-2.5 text-sm font-semibold text-black transition hover:border-[#D8C17F] hover:bg-[#D8C17F]">
+                    + Nuevo recurso
+                </a>
+            @endif
+        @endauth
     </div>
 
     {{-- MENSAJES --}}
@@ -52,31 +53,22 @@
     {{-- RESUMEN --}}
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
 
-        <div class="rounded-xl border border-white/[0.08] bg-[#1D1D1D] p-5 transition duration-200 hover:border-[#A99045]/40">
-            <p class="text-sm text-white/50">
-                Recursos registrados
-            </p>
-
+        <div class="rounded-xl border border-white/[0.08] bg-[#1D1D1D] p-5 transition hover:border-[#A99045]/40">
+            <p class="text-sm text-white/50">Recursos registrados</p>
             <p class="mt-2 text-3xl font-semibold text-white">
                 {{ $medias->count() }}
             </p>
         </div>
 
-        <div class="rounded-xl border border-white/[0.08] bg-[#1D1D1D] p-5 transition duration-200 hover:border-[#A99045]/40">
-            <p class="text-sm text-white/50">
-                Imágenes
-            </p>
-
+        <div class="rounded-xl border border-white/[0.08] bg-[#1D1D1D] p-5 transition hover:border-[#A99045]/40">
+            <p class="text-sm text-white/50">Imágenes</p>
             <p class="mt-2 text-3xl font-semibold text-white">
-                {{ $medias->filter(fn ($media) => in_array(strtolower($media->tipo), ['imagen', 'image', 'img']))->count() }}
+                {{ $medias->filter(fn ($media) => in_array(strtolower($media->tipo ?? ''), ['imagen', 'image', 'img']))->count() }}
             </p>
         </div>
 
-        <div class="rounded-xl border border-white/[0.08] bg-[#1D1D1D] p-5 transition duration-200 hover:border-[#A99045]/40">
-            <p class="text-sm text-white/50">
-                Destacados
-            </p>
-
+        <div class="rounded-xl border border-white/[0.08] bg-[#1D1D1D] p-5 transition hover:border-[#A99045]/40">
+            <p class="text-sm text-white/50">Destacados</p>
             <p class="mt-2 text-3xl font-semibold text-[#D8C17F]">
                 {{ $medias->where('destacado', true)->count() }}
             </p>
@@ -93,7 +85,7 @@
             </h2>
 
             <p class="mt-1 text-xs text-white/40">
-                Selecciona un recurso para consultar su información.
+                Consulta las vistas previas y las asociaciones de cada recurso.
             </p>
         </div>
 
@@ -113,14 +105,39 @@
                 <tbody class="divide-y divide-white/[0.06]">
 
                     @forelse($medias as $media)
+
                         @php
                             $tipo = strtolower(trim($media->tipo ?? ''));
+
                             $esImagen = in_array($tipo, ['imagen', 'image', 'img']);
                             $esVideo = in_array($tipo, ['video', 'mp4', 'webm', 'ogg']);
                             $esDocumento = in_array($tipo, ['documento', 'document', 'pdf', 'archivo', 'documento pdf']);
+
+                            /*
+                             * Admite:
+                             * 1. Una URL externa antigua.
+                             * 2. Una ruta relativa guardada en storage/app/public.
+                             */
+                            $ruta = trim((string) $media->url);
+
+                            if (filter_var($ruta, FILTER_VALIDATE_URL)) {
+                                $urlRecurso = $ruta;
+                            } else {
+                                $ruta = ltrim($ruta, '/');
+
+                                if (str_starts_with($ruta, 'storage/')) {
+                                    $ruta = substr($ruta, strlen('storage/'));
+                                }
+
+                                if (str_starts_with($ruta, 'public/')) {
+                                    $ruta = substr($ruta, strlen('public/'));
+                                }
+
+                                $urlRecurso = \Illuminate\Support\Facades\Storage::disk('public')->url($ruta);
+                            }
                         @endphp
 
-                        <tr class="align-top transition duration-200 hover:bg-white/[0.02]">
+                        <tr class="align-top transition hover:bg-white/[0.02]">
 
                             {{-- VISTA PREVIA --}}
                             <td class="px-5 py-4">
@@ -129,48 +146,54 @@
                                     <div class="flex h-24 w-32 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-white/[0.08] bg-[#151515]">
 
                                         @if($esImagen)
-                                            <a href="{{ $media->url }}"
+
+                                            <a href="{{ $urlRecurso }}"
                                                target="_blank"
                                                rel="noopener noreferrer"
-                                               title="Abrir imagen">
+                                               title="Abrir imagen"
+                                               class="block h-full w-full">
 
-                                                <img src="{{ $media->url }}"
+                                                <img src="{{ $urlRecurso }}"
                                                      alt="Multimedia {{ $media->id }}"
                                                      loading="lazy"
                                                      class="h-24 w-32 object-cover"
                                                      onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
 
                                                 <span style="display:none"
-                                                      class="h-24 w-32 items-center justify-center text-xs text-white/40">
+                                                      class="h-24 w-32 items-center justify-center text-center text-xs text-white/40">
                                                     Imagen no disponible
                                                 </span>
                                             </a>
 
                                         @elseif($esVideo)
-                                            <video controls preload="metadata" class="h-24 w-32 object-contain">
-                                                <source src="{{ $media->url }}">
+
+                                            <video controls
+                                                   preload="metadata"
+                                                   class="h-24 w-32 object-contain">
+                                                <source src="{{ $urlRecurso }}">
                                                 Tu navegador no puede reproducir este video.
                                             </video>
 
                                         @elseif($esDocumento)
-                                            <a href="{{ $media->url }}"
+
+                                            <a href="{{ $urlRecurso }}"
                                                target="_blank"
                                                rel="noopener noreferrer"
                                                class="flex h-full w-full flex-col items-center justify-center gap-2 text-[#D8C17F] transition hover:bg-white/[0.04]">
-
                                                 <span class="text-2xl">▤</span>
                                                 <span class="text-xs">Abrir documento</span>
                                             </a>
 
                                         @else
-                                            <a href="{{ $media->url }}"
+
+                                            <a href="{{ $urlRecurso }}"
                                                target="_blank"
                                                rel="noopener noreferrer"
                                                class="flex h-full w-full flex-col items-center justify-center gap-2 text-white/50 transition hover:bg-white/[0.04]">
-
                                                 <span class="text-2xl">↗</span>
                                                 <span class="text-xs">Abrir recurso</span>
                                             </a>
+
                                         @endif
 
                                     </div>
@@ -180,7 +203,7 @@
                                             Recurso #{{ $media->id }}
                                         </p>
 
-                                        <a href="{{ $media->url }}"
+                                        <a href="{{ $urlRecurso }}"
                                            target="_blank"
                                            rel="noopener noreferrer"
                                            class="mt-2 block max-w-xs break-all text-xs text-white/40 transition hover:text-[#D8C17F]">
@@ -202,27 +225,19 @@
                             <td class="px-5 py-4">
 
                                 @if($media->producto)
-                                    <p class="text-xs text-[#D8C17F]">
-                                        Producto
-                                    </p>
-
+                                    <p class="text-xs text-[#D8C17F]">Producto</p>
                                     <p class="mt-1 font-medium text-white">
                                         {{ $media->producto->nombre }}
                                     </p>
-
                                     <p class="mt-1 text-xs text-white/40">
                                         ID: {{ $media->producto->id }}
                                     </p>
 
                                 @elseif($media->contenido)
-                                    <p class="text-xs text-[#D8C17F]">
-                                        Contenido
-                                    </p>
-
+                                    <p class="text-xs text-[#D8C17F]">Contenido</p>
                                     <p class="mt-1 font-medium text-white">
                                         {{ $media->contenido->titulo }}
                                     </p>
-
                                     <p class="mt-1 text-xs text-white/40">
                                         ID: {{ $media->contenido->id_contenido }}
                                     </p>
@@ -235,9 +250,8 @@
 
                             </td>
 
-                            {{-- DESTACADO --}}
+                            {{-- ESTADO --}}
                             <td class="whitespace-nowrap px-5 py-4">
-
                                 @if($media->destacado)
                                     <span class="rounded-full border border-[#A99045]/30 bg-[#A99045]/10 px-3 py-1 text-xs font-medium text-[#D8C17F]">
                                         Destacado
@@ -247,41 +261,41 @@
                                         Normal
                                     </span>
                                 @endif
-
                             </td>
 
                             {{-- ACCIONES --}}
                             <td class="whitespace-nowrap px-5 py-4 text-right">
                                 <div class="flex justify-end gap-3">
 
-                                    @if(auth()->check() && auth()->user()->tienePermiso('multimedia.ver'))
-                                        <a href="{{ route('multimedias.show', ['media' => $media->id]) }}"
-                                           class="text-white/60 transition hover:text-[#D8C17F]">
-                                            Ver
-                                        </a>
-                                    @endif
+                                    @auth
+                                        @if(auth()->user()->tienePermiso('multimedia.ver'))
+                                            <a href="{{ route('multimedias.show', ['media' => $media->id]) }}"
+                                               class="text-white/60 transition hover:text-[#D8C17F]">
+                                                Ver
+                                            </a>
+                                        @endif
 
-                                    @if(auth()->check() && auth()->user()->tienePermiso('multimedia.editar'))
-                                        <a href="{{ route('multimedias.edit', ['media' => $media->id]) }}"
-                                           class="text-[#D8C17F] transition hover:text-white">
-                                            Editar
-                                        </a>
-                                    @endif
+                                        @if(auth()->user()->tienePermiso('multimedia.editar'))
+                                            <a href="{{ route('multimedias.edit', ['media' => $media->id]) }}"
+                                               class="text-[#D8C17F] transition hover:text-white">
+                                                Editar
+                                            </a>
+                                        @endif
 
-                                    @if(auth()->check() && auth()->user()->tienePermiso('multimedia.eliminar'))
-                                        <form method="POST"
-                                              action="{{ route('multimedias.destroy', ['media' => $media->id]) }}"
-                                              onsubmit="return confirm('¿Seguro que deseas eliminar este recurso?');">
+                                        @if(auth()->user()->tienePermiso('multimedia.eliminar'))
+                                            <form method="POST"
+                                                  action="{{ route('multimedias.destroy', ['media' => $media->id]) }}"
+                                                  onsubmit="return confirm('¿Seguro que deseas eliminar este recurso?');">
+                                                @csrf
+                                                @method('DELETE')
 
-                                            @csrf
-                                            @method('DELETE')
-
-                                            <button type="submit"
-                                                    class="text-red-400 transition hover:text-red-300">
-                                                Eliminar
-                                            </button>
-                                        </form>
-                                    @endif
+                                                <button type="submit"
+                                                        class="text-red-400 transition hover:text-red-300">
+                                                    Eliminar
+                                                </button>
+                                            </form>
+                                        @endif
+                                    @endauth
 
                                 </div>
                             </td>
@@ -291,7 +305,6 @@
                     @empty
                         <tr>
                             <td colspan="5" class="px-5 py-12 text-center">
-
                                 <p class="font-medium text-white/70">
                                     No hay recursos multimedia registrados.
                                 </p>
@@ -299,7 +312,6 @@
                                 <p class="mt-2 text-sm text-white/40">
                                     Cuando registres una imagen, video o documento, aparecerá aquí.
                                 </p>
-
                             </td>
                         </tr>
                     @endforelse
@@ -310,5 +322,4 @@
     </div>
 
 </div>
-
 @endsection

@@ -14,7 +14,7 @@
                 class="font-black uppercase tracking-widest text-white"
                 style="font-size:22px; letter-spacing:0.15em;"
             >
-                CLIENTE #{{ $cliente->id }}
+                CLIENTE #{{ $cliente->id_cliente }}
             </h1>
 
             <p

@@ -3,115 +3,89 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 
 class MultimediaStoreRequest extends FormRequest
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Autorización
-    |--------------------------------------------------------------------------
-    */
-
     public function authorize(): bool
     {
-        return true;
+        return auth()->check()
+            && auth()->user()->tienePermiso('multimedia.crear');
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Reglas de validación
-    |--------------------------------------------------------------------------
-    */
 
     public function rules(): array
     {
         return [
-
-            'url' => [
+            'archivo' => [
                 'required',
-                'url',
-                'max:255',
+                'file',
+                'mimes:jpg,jpeg,png,webp,gif,mp4,webm,pdf',
+                'max:10240',
             ],
-
             'tipo' => [
                 'required',
-                'string',
-                'max:20',
+                Rule::in(['imagen', 'video', 'documento']),
             ],
-
-            'destacado' => [
-                'nullable',
-                'boolean',
-            ],
-
-            /*
-             * El producto debe existir en productos.id
-             */
             'id_producto' => [
                 'nullable',
                 'integer',
                 'exists:productos,id',
             ],
-
-            /*
-             * El contenido debe existir en contenido.id_contenido
-             */
             'id_contenido' => [
                 'nullable',
                 'integer',
                 'exists:contenido,id_contenido',
             ],
+            'destacado' => ['nullable', 'boolean'],
         ];
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Validación de asociación
-    |--------------------------------------------------------------------------
-    |
-    | Una multimedia debe estar asociada exactamente a:
-    |
-    | - un producto
-    | O
-    | - un contenido
-    |
-    | No puede tener ambos.
-    |
-    */
-
-    public function withValidator($validator): void
+    public function withValidator(Validator $validator): void
     {
-        $validator->after(function (Validator $validator) {
+        $validator->after(function (Validator $validator): void {
+            $producto = $this->filled('id_producto');
+            $contenido = $this->filled('id_contenido');
 
-            $idProducto = $this->input('id_producto');
-            $idContenido = $this->input('id_contenido');
-
-            $tieneProducto =
-                !is_null($idProducto) &&
-                $idProducto !== '';
-
-            $tieneContenido =
-                !is_null($idContenido) &&
-                $idContenido !== '';
-
-            $cantidad = 0;
-
-            if ($tieneProducto) {
-                $cantidad++;
-            }
-
-            if ($tieneContenido) {
-                $cantidad++;
-            }
-
-            if ($cantidad !== 1) {
-
+            if ($producto === $contenido) {
                 $validator->errors()->add(
                     'destino',
-                    'La media debe estar asociada exactamente a un producto o a un contenido.'
+                    'Debes seleccionar exactamente un producto o un contenido.'
                 );
             }
+
+            $archivo = $this->file('archivo');
+            $tipo = $this->input('tipo');
+
+            if ($archivo && $tipo) {
+                $mime = $archivo->getMimeType() ?? '';
+
+                $tipoValido = match ($tipo) {
+                    'imagen' => str_starts_with($mime, 'image/'),
+                    'video' => str_starts_with($mime, 'video/'),
+                    'documento' => $mime === 'application/pdf',
+                    default => false,
+                };
+
+                if (!$tipoValido) {
+                    $validator->errors()->add(
+                        'tipo',
+                        'El tipo seleccionado no coincide con el archivo que subiste.'
+                    );
+                }
+            }
         });
+    }
+
+    public function messages(): array
+    {
+        return [
+            'archivo.required' => 'Selecciona un archivo de tu dispositivo.',
+            'archivo.mimes' => 'El archivo debe ser JPG, PNG, WEBP, GIF, MP4, WEBM o PDF.',
+            'archivo.max' => 'El archivo no puede superar los 10 MB.',
+            'tipo.in' => 'Selecciona un tipo de recurso válido.',
+            'id_producto.exists' => 'El producto seleccionado no existe.',
+            'id_contenido.exists' => 'El contenido seleccionado no existe.',
+        ];
     }
 }

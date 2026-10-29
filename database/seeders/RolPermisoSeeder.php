@@ -8,107 +8,96 @@ use Illuminate\Database\Seeder;
 
 class RolPermisoSeeder extends Seeder
 {
+    /**
+     * Asigna los permisos correspondientes a cada rol.
+     */
     public function run(): void
     {
-        /*
-        |--------------------------------------------------------------------------
-        | VISITANTE
-        |--------------------------------------------------------------------------
-        |
-        | No recibe permisos administrativos.
-        |
-        */
-        $visitante = Rol::where('nombre', 'Visitante')->first();
+        $roles = Rol::query()
+            ->get()
+            ->keyBy('nombre');
 
-        if ($visitante) {
-            $visitante->permisos()->sync([]);
+        $permisos = Permiso::query()
+            ->where('modulo', '!=', 'pagos')
+            ->where('nombre', 'not like', 'pagos.%')
+            ->get()
+            ->keyBy('nombre');
+
+        /*
+         * ADMINISTRADOR
+         *
+         * Recibe todos los permisos vigentes.
+         */
+        if ($roles->has('Administrador')) {
+            $roles->get('Administrador')
+                ->permisos()
+                ->sync($permisos->pluck('id_permiso')->all());
         }
 
         /*
-        |--------------------------------------------------------------------------
-        | CLIENTE
-        |--------------------------------------------------------------------------
-        */
-        $cliente = Rol::where('nombre', 'Cliente')->first();
+         * CLIENTE
+         *
+         * Conserva los permisos conocidos del rol,
+         * sin incluir permisos de pagos.
+         */
+        $permisosCliente = [
+            'productos.ver',
+            'categorias.ver',
+            'pedidos.ver',
+            'pedidos.crear',
+            'resenas.ver',
+            'resenas.crear',
+        ];
 
-        if ($cliente) {
-            $permisosCliente = [
-                'productos.ver',
-                'categorias.ver',
+        if ($roles->has('Cliente')) {
+            $idsCliente = $permisos
+                ->only($permisosCliente)
+                ->pluck('id_permiso')
+                ->all();
 
-                'pedidos.ver',
-                'pedidos.crear',
-
-                'pagos.ver',
-                'pagos.crear',
-
-                'resenas.ver',
-                'resenas.crear',
-            ];
-
-            $cliente->permisos()->sync(
-                Permiso::whereIn('nombre', $permisosCliente)
-                    ->pluck('id_permiso')
-            );
+            $roles->get('Cliente')
+                ->permisos()
+                ->sync($idsCliente);
         }
 
         /*
-        |--------------------------------------------------------------------------
-        | PROVEEDOR
-        |--------------------------------------------------------------------------
-        */
-        $proveedor = Rol::where('nombre', 'Proveedor')->first();
+         * PROVEEDOR
+         *
+         * Se conservan permisos de productos y disponibilidad.
+         * No se incluyen permisos de pagos.
+         */
+        $permisosProveedor = [
+            'productos.ver',
+            'productos.crear',
+            'productos.editar',
+            'disponibilidad.ver',
+            'disponibilidad.crear',
+            'disponibilidad.editar',
+        ];
 
-        if ($proveedor) {
-            $permisosProveedor = [
-                'productos.ver',
-                'productos.crear',
-                'productos.editar',
+        if ($roles->has('Proveedor')) {
+            $idsProveedor = $permisos
+                ->only($permisosProveedor)
+                ->pluck('id_permiso')
+                ->all();
 
-                'disponibilidad.ver',
-                'disponibilidad.crear',
-                'disponibilidad.editar',
-            ];
-
-            $proveedor->permisos()->sync(
-                Permiso::whereIn('nombre', $permisosProveedor)
-                    ->pluck('id_permiso')
-            );
+            $roles->get('Proveedor')
+                ->permisos()
+                ->sync($idsProveedor);
         }
 
         /*
-        |--------------------------------------------------------------------------
-        | ADMINISTRADOR
-        |--------------------------------------------------------------------------
-        |
-        | El administrador tiene todos los permisos existentes.
-        |
-        */
-        $administrador = Rol::where('nombre', 'Administrador')->first();
-
-        if ($administrador) {
-            $administrador->permisos()->sync(
-                Permiso::pluck('id_permiso')
-            );
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | USUARIO AUTORIZADO
-        |--------------------------------------------------------------------------
-        |
-        | Empieza sin permisos de rol.
-        | Sus permisos pueden asignarse individualmente
-        | mediante usuario_permiso.
-        |
-        */
-        $usuarioAutorizado = Rol::where(
-            'nombre',
-            'Usuario autorizado'
-        )->first();
-
-        if ($usuarioAutorizado) {
-            $usuarioAutorizado->permisos()->sync([]);
+         * VISITANTE Y USUARIO AUTORIZADO
+         *
+         * Se mantienen sin permisos asignados por este seeder,
+         * tal como estaba definido en la configuración revisada.
+         */
+        foreach (['Visitante', 'Usuario autorizado'] as $nombreRol) {
+            if ($roles->has($nombreRol)) {
+                $roles->get($nombreRol)
+                    ->permisos()
+                    ->sync([]);
+            }
         }
     }
 }

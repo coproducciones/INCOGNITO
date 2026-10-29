@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ClienteStoreRequest;
 use App\Http\Requests\ClienteUpdateRequest;
 use App\Models\Cliente;
+use App\Models\Usuario;
 use App\Services\ClienteService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -24,9 +25,15 @@ class ClienteController extends Controller
      */
     public function index(): View
     {
-        $clientes = $this->service->getAll();
+        // La identidad principal de cada cuenta está en usuarios.
+        // Las relaciones cliente/proveedor solo agregan información de perfil;
+        // no se hace UNION ni se duplican cuentas.
+        $usuarios = Usuario::query()
+            ->with(['rol', 'estado', 'cliente', 'proveedor'])
+            ->orderBy('nombre')
+            ->paginate(20);
 
-        return view('Clientes.index', compact('clientes'));
+        return view('Clientes.index', compact('usuarios'));
     }
 
     /**

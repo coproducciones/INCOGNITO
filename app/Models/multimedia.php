@@ -4,49 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class Multimedia extends Model
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Configuración de la tabla
-    |--------------------------------------------------------------------------
-    */
-
     protected $table = 'multimedia';
-
-    /*
-    |--------------------------------------------------------------------------
-    | Clave primaria
-    |--------------------------------------------------------------------------
-    |
-    | IMPORTANTE:
-    | La migración creó la columna:
-    |
-    |     $table->id('id');
-    |
-    | Por eso la clave primaria real es "id".
-    |
-    */
 
     protected $primaryKey = 'id';
 
-    /*
-    |--------------------------------------------------------------------------
-    | Timestamps
-    |--------------------------------------------------------------------------
-    |
-    | La tabla multimedia no tiene created_at ni updated_at.
-    |
-    */
-
     public $timestamps = false;
-
-    /*
-    |--------------------------------------------------------------------------
-    | Asignación masiva
-    |--------------------------------------------------------------------------
-    */
 
     protected $fillable = [
         'url',
@@ -56,36 +23,14 @@ class Multimedia extends Model
         'id_contenido',
     ];
 
-    /*
-    |--------------------------------------------------------------------------
-    | Conversión de tipos
-    |--------------------------------------------------------------------------
-    */
-
     protected $casts = [
         'destacado' => 'boolean',
     ];
 
-    /*
-    |--------------------------------------------------------------------------
-    | Relación con Producto
-    |--------------------------------------------------------------------------
-    */
-
     public function producto(): BelongsTo
     {
-        return $this->belongsTo(
-            Producto::class,
-            'id_producto',
-            'id'
-        );
+        return $this->belongsTo(Producto::class, 'id_producto', 'id');
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Relación con Contenido
-    |--------------------------------------------------------------------------
-    */
 
     public function contenido(): BelongsTo
     {
@@ -94,5 +39,16 @@ class Multimedia extends Model
             'id_contenido',
             'id_contenido'
         );
+    }
+
+    public function getUrlPublicaAttribute(): string
+    {
+        $ruta = (string) $this->url;
+
+        if (Str::startsWith($ruta, ['http://', 'https://', '//'])) {
+            return $ruta;
+        }
+
+        return Storage::disk('public')->url($ruta);
     }
 }

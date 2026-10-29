@@ -1,7 +1,7 @@
 <?php
 
-use App\Models\producto;
-use App\Models\categoria;
+use App\Models\Producto;
+use App\Models\Categoria;
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CategoriaController;
@@ -61,7 +61,11 @@ Route::get('/servicios', function () {
         ->orderBy('nombre')
         ->get();
 
-    $productos = Producto::with('categoria')
+    $productos = Producto::with(['categoria', 'media' => function ($query) {
+        $query->whereNotNull('url')
+            ->orderByDesc('destacado')
+            ->orderByDesc('id');
+    }])
         ->where('activo', true)
         ->when(
             $categoriaId !== null && $categoriaId !== '',
@@ -90,11 +94,17 @@ Route::get('/servicios', function () {
 Route::get('/servicios/producto/{producto}', function (Producto $producto) {
     abort_unless($producto->activo, 404);
 
-    $producto->load('categoria');
+    $producto->load([
+        'categoria',
+        'media' => function ($query) {
+            $query->whereNotNull('url')
+                ->orderByDesc('destacado')
+                ->orderByDesc('id');
+        },
+    ]);
 
     return view('servicios-detalle', compact('producto'));
 })->name('servicios.detalle');
-
 
 /*
 |--------------------------------------------------------------------------
@@ -185,7 +195,7 @@ Route::resource('multimedias', MultimediaController::class)
 */
 
 Route::resource('clientes', ClienteController::class)
-    ->middlewareFor('index', 'permiso:clientes.ver')
+    ->middlewareFor('index', 'permiso:usuarios.ver')
     ->middlewareFor('create', 'permiso:clientes.crear')
     ->middlewareFor('store', 'permiso:clientes.crear')
     ->middlewareFor('show', 'permiso:clientes.ver')

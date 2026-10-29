@@ -1118,21 +1118,52 @@
 
                         >
 
-                            {{-- FONDO DE LA TARJETA --}}
+                            
+                        
+{{-- FONDO DINÁMICO DE LA TARJETA --}}
+<div class="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
 
-                            <div class="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+    @php
+        $tipo = strtolower(
+            (string) ($categoria->tipo_portada ?? 'imagen')
+        );
 
-                                <div class="absolute inset-0 bg-gradient-to-br from-[#A99045]/[0.12] via-[#20201E] to-[#151515]"></div>
+        $esVideo = in_array($tipo, [
+            'video', 'mp4', 'webm', 'mov', 'video/mp4',
+        ], true);
+    @endphp
 
-                                <div class="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[#A99045]/[0.12] blur-[90px] transition duration-700 group-hover:bg-[#A99045]/[0.22]"></div>
+    @if ($esVideo && $categoria->multimedia_portada)
+        <video
+            class="absolute inset-0 h-full w-full object-cover opacity-50 transition duration-700 group-hover:scale-105 group-hover:opacity-70"
+            src="{{ $categoria->multimedia_portada }}"
+            autoplay
+            muted
+            loop
+            playsinline
+            preload="metadata"
+            aria-hidden="true"
+        ></video>
+    @elseif ($categoria->multimedia_portada)
+        <img
+            src="{{ $categoria->multimedia_portada }}"
+            alt=""
+            loading="lazy"
+            class="absolute inset-0 h-full w-full object-cover opacity-50 transition duration-700 group-hover:scale-105 group-hover:opacity-70"
+        >
+    @else
+        <div class="absolute inset-0 bg-gradient-to-br from-[#A99045]/20 via-[#20201E] to-[#151515]"></div>
+    @endif
 
-                                <div class="absolute -bottom-24 -left-20 h-64 w-64 rounded-full bg-[#9E2428]/[0.06] blur-[90px] transition duration-700 group-hover:bg-[#9E2428]/[0.12]"></div>
+    <div class="absolute inset-0 bg-gradient-to-t from-[#151515] via-[#151515]/65 to-[#151515]/20"></div>
 
-                                <div class="studio-card-grid absolute inset-0 opacity-[0.06]"></div>
+    <div class="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[#A99045]/10 blur-[90px] transition duration-700 group-hover:bg-[#A99045]/20"></div>
 
-                                <div class="absolute inset-0 bg-gradient-to-t from-[#151515] via-[#151515]/55 to-transparent"></div>
+    <div class="absolute -bottom-24 -left-20 h-64 w-64 rounded-full bg-[#9E2428]/[0.06] blur-[90px]"></div>
 
-                            </div>
+    <div class="studio-card-grid absolute inset-0 opacity-[0.06]"></div>
+
+</div>
 
                             {{-- BORDE SUPERIOR --}}
 
@@ -1261,9 +1292,7 @@
         </section>
 
         {{-- =========================================================
-
              NUESTROS TRABAJOS
-
         ========================================================== --}}
 
         <section id="trabajos" class="studio-section-black py-24 lg:py-32">
@@ -1275,199 +1304,273 @@
                 <div class="mb-14 text-center sm:mb-16">
 
                     <span class="inline-flex items-center gap-3 rounded-lg border border-[#A99045]/25 bg-[#A99045]/[0.06] px-4 py-2 text-[9px] font-bold uppercase tracking-[0.25em] text-[#D8C17F] sm:text-[10px]">
-
                         <span class="h-1.5 w-1.5 rounded-full bg-[#A99045]"></span>
-
                         Creatividad sin límites
-
                     </span>
 
                     <h2 class="mt-7 text-4xl font-black uppercase leading-tight tracking-[-0.055em] text-[#F5F3ED] sm:text-6xl lg:text-7xl">
-
                         Nuestros
-
-                        <span class="block text-[#D8C17F] sm:inline">
-
+                        <span class="text-[#D8C17F]">
                             trabajos<span class="text-[#A99045]">.</span>
-
                         </span>
-
                     </h2>
 
                     <div class="mx-auto mt-6 h-px w-24 bg-gradient-to-r from-transparent via-[#A99045] to-transparent"></div>
 
                 </div>
 
-                {{-- CUADRÍCULA DE PRODUCTOS --}}
+                {{-- CUADRÍCULA DE PROYECTOS --}}
 
                 <div class="grid grid-cols-1 items-stretch gap-5 sm:grid-cols-2 lg:grid-cols-4">
 
                     @forelse($productos as $producto)
 
-                        <article class="studio-product-card group">
+                        @php
+                            /*
+                             * Obtenemos el archivo multimedia asociado
+                             * al producto. La relación media debe estar
+                             * definida en el modelo Producto.
+                             */
+                            $multimediaProyecto = $producto->media
+                                ->sortByDesc('destacado')
+                                ->sortByDesc('id')
+                                ->first();
 
-                            {{-- FONDO --}}
+                            $urlMultimedia = $multimediaProyecto
+                                ? $multimediaProyecto->url_publica
+                                : null;
 
-                            <div class="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+                            $tipoMultimedia = strtolower(
+                                (string) ($multimediaProyecto->tipo ?? '')
+                            );
 
-                                <div class="absolute inset-0 bg-gradient-to-br from-[#A99045]/[0.10] via-[#20201E] to-[#151515]"></div>
+                            $esVideoProyecto = in_array($tipoMultimedia, [
+                                'video',
+                                'mp4',
+                                'webm',
+                                'mov',
+                                'video/mp4',
+                                'video/webm',
+                                'video/quicktime',
+                            ], true);
 
-                                <div class="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[#A99045]/[0.12] blur-[90px] transition duration-700 group-hover:bg-[#A99045]/[0.22]"></div>
+                            $nombreCategoria = $producto->categoria->nombre
+                                ?? 'Proyecto';
 
-                                <div class="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-[#9E2428]/[0.06] blur-[90px] transition duration-700 group-hover:bg-[#9E2428]/[0.12]"></div>
+                            $precioProyecto = number_format(
+                                (float) $producto->precio,
+                                0,
+                                ',',
+                                '.'
+                            );
+                        @endphp
 
-                                <div class="studio-card-grid absolute inset-0 opacity-[0.06]"></div>
+                        <article
+                            class="studio-product-card group flex flex-col"
+                        >
 
-                                <div class="absolute inset-0 bg-gradient-to-t from-[#151515] via-[#151515]/65 to-[#151515]/10"></div>
+                            {{-- DETALLE SUPERIOR --}}
 
-                            </div>
+                            <div class="pointer-events-none absolute left-0 top-0 z-20 h-[2px] w-0 bg-gradient-to-r from-[#A99045] to-[#D8C17F] transition-all duration-700 group-hover:w-full"></div>
 
-                            {{-- BORDE ILUMINADO --}}
+                            {{-- IMAGEN O VIDEO DEL PROYECTO --}}
 
-                            <div class="absolute left-0 top-0 z-20 h-[2px] w-0 bg-gradient-to-r from-[#A99045] to-[#D8C17F] transition-all duration-700 group-hover:w-full"></div>
+                            <div class="relative h-48 shrink-0 overflow-hidden border-b border-[#F5F3ED]/[0.08] bg-[#20201E] sm:h-52">
 
-                            {{-- CATEGORÍA --}}
+                                {{-- FONDO DECORATIVO --}}
 
-                            <div class="absolute inset-x-0 top-0 z-10 flex items-center justify-between gap-3 p-5">
+                                <div class="absolute inset-0 bg-gradient-to-br from-[#A99045]/15 via-[#20201E] to-[#151515]"></div>
 
-                                <span class="max-w-[75%] truncate rounded-lg border border-[#F5F3ED]/10 bg-[#151515]/50 px-3 py-2 text-[9px] font-bold uppercase tracking-[0.15em] text-[#F5F3ED]/60 backdrop-blur-md transition group-hover:border-[#A99045]/35 group-hover:text-[#D8C17F]">
+                                <div class="studio-card-grid absolute inset-0 opacity-[0.08]"></div>
 
-                                    {{ $producto->categoria->nombre ?? 'Producto' }}
+                                @if ($urlMultimedia && $esVideoProyecto)
 
-                                </span>
+                                    <video
+                                        class="absolute inset-0 h-full w-full object-cover opacity-75 transition duration-700 group-hover:scale-105 group-hover:opacity-100"
+                                        src="{{ $urlMultimedia }}"
+                                        muted
+                                        loop
+                                        autoplay
+                                        playsinline
+                                        preload="metadata"
+                                        aria-label="Video del proyecto {{ $producto->nombre }}"
+                                    ></video>
 
-                                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#F5F3ED]/10 bg-[#151515]/40 text-[#F5F3ED]/60 transition duration-300 group-hover:border-[#A99045]/50 group-hover:bg-[#A99045] group-hover:text-[#151515]">
+                                @elseif ($urlMultimedia)
 
-                                    <svg
-
-                                        class="h-4 w-4 transition-transform duration-500 group-hover:rotate-45"
-
-                                        viewBox="0 0 24 24"
-
-                                        fill="none"
-
-                                        stroke="currentColor"
-
-                                        stroke-width="1.8"
-
-                                        aria-hidden="true"
-
+                                    <img
+                                        src="{{ $urlMultimedia }}"
+                                        alt="{{ $producto->nombre }}"
+                                        loading="lazy"
+                                        class="absolute inset-0 h-full w-full object-cover opacity-75 transition duration-700 group-hover:scale-105 group-hover:opacity-100"
                                     >
 
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M7 17 17 7M8 7h9v9"/>
+                                @else
 
-                                    </svg>
+                                    {{-- MARCADOR VISUAL CUANDO NO HAY MULTIMEDIA --}}
 
-                                </span>
+                                    <div class="absolute inset-0 flex items-center justify-center">
 
-                            </div>
+                                        <div class="absolute h-24 w-24 rotate-45 border border-[#F5F3ED]/10 transition duration-700 group-hover:rotate-90 group-hover:scale-110 group-hover:border-[#A99045]/50"></div>
 
-                            {{-- DETALLE DECORATIVO --}}
-
-                            <div class="pointer-events-none absolute right-8 top-24 h-14 w-14 rotate-45 border border-[#F5F3ED]/[0.08] transition duration-700 group-hover:rotate-90 group-hover:scale-110 group-hover:border-[#A99045]/35"></div>
-
-                            {{-- INFORMACIÓN DEL PRODUCTO --}}
-
-                            <div class="absolute inset-x-0 bottom-0 z-10 p-5 sm:p-6">
-
-                                <div class="mb-4 h-px w-10 bg-gradient-to-r from-[#A99045] to-[#D8C17F] transition-all duration-500 group-hover:w-20"></div>
-
-                                <h3 class="break-words text-2xl font-bold uppercase leading-tight tracking-[-0.035em] text-[#F5F3ED] transition-colors duration-300 group-hover:text-[#D8C17F] sm:text-3xl">
-
-                                    {{ $producto->nombre }}
-
-                                </h3>
-
-                                @if($producto->descripcion)
-
-                                    <p class="mt-3 line-clamp-3 break-words text-xs leading-6 text-[#F5F3ED]/50 transition-colors group-hover:text-[#F5F3ED]/75">
-
-                                        {{ $producto->descripcion }}
-
-                                    </p>
-
-                                @endif
-
-                                {{-- PRECIO Y ETIQUETA --}}
-
-                                <div class="mt-6 flex items-end justify-between gap-3 border-t border-[#F5F3ED]/10 pt-5">
-
-                                    <div class="min-w-0">
-
-                                        <span class="mb-1 block text-[9px] font-bold uppercase tracking-[0.2em] text-[#F5F3ED]/40">
-
-                                            Precio
-
-                                        </span>
-
-                                        <strong class="block break-words text-xl font-bold tracking-tight text-[#F5F3ED] transition-colors group-hover:text-[#D8C17F]">
-
-                                            ${{ number_format($producto->precio, 0, ',', '.') }}
-
-                                        </strong>
+                                        <svg
+                                            class="relative h-10 w-10 text-[#D8C17F]/70 transition duration-500 group-hover:scale-110 group-hover:text-[#D8C17F]"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            stroke-width="1.2"
+                                            aria-hidden="true"
+                                        >
+                                            <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="m21 15-5-5L5 21"></path>
+                                        </svg>
 
                                     </div>
 
-                                    <span class="flex shrink-0 items-center gap-2 pb-1 text-[9px] font-bold uppercase tracking-[0.12em] text-[#F5F3ED]/45 transition group-hover:translate-x-1 group-hover:text-[#F5F3ED]">
+                                @endif
 
-                                        Ver proyecto
+                                {{-- OSCURECIMIENTO DE LA IMAGEN --}}
 
-                                        <span class="text-[#A99045]">→</span>
+                                <div class="absolute inset-0 bg-gradient-to-t from-[#151515]/80 via-transparent to-[#151515]/15"></div>
+
+                                {{-- ETIQUETA DE CATEGORÍA --}}
+
+                                <div class="absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-4">
+
+                                    <span class="max-w-[75%] truncate rounded-md border border-[#F5F3ED]/10 bg-[#151515]/75 px-3 py-2 text-[9px] font-black uppercase tracking-[0.12em] text-[#F5F3ED]/65 backdrop-blur-md transition group-hover:border-[#A99045]/40 group-hover:text-[#D8C17F]">
+                                        {{ $nombreCategoria }}
+                                    </span>
+
+                                    <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[#F5F3ED]/10 bg-[#151515]/60 text-[#F5F3ED]/65 backdrop-blur-md transition group-hover:border-[#A99045]/50 group-hover:bg-[#A99045] group-hover:text-[#151515]">
+
+                                        <svg
+                                            class="h-4 w-4 transition-transform duration-500 group-hover:rotate-45"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            stroke-width="1.8"
+                                            aria-hidden="true"
+                                        >
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M7 17 17 7M8 7h9v9"></path>
+                                        </svg>
 
                                     </span>
 
                                 </div>
 
+                                {{-- TIPO DE ARCHIVO --}}
+
+                                @if ($urlMultimedia)
+                                    <span class="absolute bottom-3 left-4 rounded-md border border-[#F5F3ED]/10 bg-[#151515]/75 px-2.5 py-1.5 text-[8px] font-bold uppercase tracking-[0.15em] text-[#F5F3ED]/60 backdrop-blur-md">
+                                        {{ $esVideoProyecto ? 'Audiovisual' : 'Proyecto destacado' }}
+                                    </span>
+                                @endif
+
                             </div>
 
-                            {{-- CONTORNO --}}
+                            {{-- INFORMACIÓN DEL PROYECTO --}}
 
-                            <div class="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-inset ring-[#F5F3ED]/0 transition duration-500 group-hover:ring-[#A99045]/10"></div>
+                            <div class="flex flex-1 flex-col p-5 sm:p-6">
+
+                                {{-- LÍNEA DECORATIVA --}}
+
+                                <div class="mb-4 h-px w-8 bg-gradient-to-r from-[#A99045] to-[#D8C17F] transition-all duration-500 group-hover:w-16"></div>
+
+                                {{-- NOMBRE --}}
+
+                                <h3 class="break-words text-2xl font-bold uppercase leading-tight tracking-[-0.045em] text-[#F5F3ED] transition-colors duration-300 group-hover:text-[#D8C17F]">
+                                    {{ $producto->nombre }}
+                                </h3>
+
+                                {{-- DESCRIPCIÓN --}}
+
+                                <div class="mt-3 min-h-[3.5rem]">
+
+                                    @if ($producto->descripcion)
+
+                                        <p class="line-clamp-3 break-words text-[11px] leading-5 text-[#F5F3ED]/50 transition-colors group-hover:text-[#F5F3ED]/70">
+                                            {{ $producto->descripcion }}
+                                        </p>
+
+                                    @else
+
+                                        <p class="text-[11px] leading-5 text-[#F5F3ED]/35">
+                                            Conoce los detalles de este proyecto.
+                                        </p>
+
+                                    @endif
+
+                                </div>
+
+                                {{-- PRECIO Y ACCESO AL PROYECTO --}}
+
+                                <div class="mt-auto flex items-end justify-between gap-3 border-t border-[#F5F3ED]/10 pt-4">
+
+                                    <div class="min-w-0">
+
+                                        <span class="mb-1.5 block text-[8px] font-black uppercase tracking-[0.2em] text-[#F5F3ED]/35">
+                                            Precio
+                                        </span>
+
+                                        <strong class="block break-words text-lg font-bold tracking-tight text-[#F5F3ED] transition-colors group-hover:text-[#D8C17F]">
+                                            ${{ $precioProyecto }}
+                                        </strong>
+
+                                    </div>
+
+                                    {{-- ENLACE AL DETALLE --}}
+
+                                    <a
+                                        href="{{ route('servicios.detalle', $producto->id) }}"
+                                        class="inline-flex shrink-0 items-center gap-2 pb-1 text-[8px] font-black uppercase tracking-[0.12em] text-[#F5F3ED]/45 transition hover:text-[#D8C17F] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#A99045]"
+                                        aria-label="Ver proyecto {{ $producto->nombre }}"
+                                    >
+                                        Ver proyecto
+                                        <span class="text-[#A99045] transition-transform group-hover:translate-x-1" aria-hidden="true">→</span>
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                            {{-- CONTORNO DE LA TARJETA --}}
+
+                            <div class="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-inset ring-[#A99045]/0 transition duration-500 group-hover:ring-[#A99045]/10"></div>
 
                         </article>
 
                     @empty
 
-                        <div class="col-span-full flex min-h-[320px] items-center justify-center rounded-xl border border-[#F5F3ED]/10 bg-[#1D1D1D] p-8">
+                        {{-- ESTADO VACÍO --}}
+
+                        <div class="col-span-full flex min-h-[300px] items-center justify-center rounded-2xl border border-[#F5F3ED]/10 bg-[#1D1D1D] p-8">
 
                             <div class="text-center">
 
-                                <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-xl border border-[#A99045]/25 bg-[#A99045]/[0.06]">
+                                <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-xl border border-[#A99045]/25 bg-[#A99045]/[0.06]">
 
                                     <svg
-
                                         class="h-7 w-7 text-[#D8C17F]"
-
                                         viewBox="0 0 24 24"
-
                                         fill="none"
-
                                         stroke="currentColor"
-
                                         stroke-width="1.5"
-
                                         aria-hidden="true"
-
                                     >
-
-                                        <rect x="4" y="5" width="16" height="14" rx="2"/>
-
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 17 5-5 3 3 2-2 5 4"/>
-
+                                        <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m21 15-5-5L5 21"></path>
                                     </svg>
 
                                 </div>
 
-                                <h3 class="mt-6 text-2xl font-bold uppercase tracking-tight text-[#F5F3ED]">
-
+                                <h3 class="mt-6 text-xl font-bold uppercase tracking-tight text-[#F5F3ED]">
                                     Próximamente
-
                                 </h3>
 
-                                <p class="mt-3 text-sm text-[#F5F3ED]/45">
-
-                                    Estamos preparando nuestros trabajos.
-
+                                <p class="mt-3 text-sm leading-6 text-[#F5F3ED]/45">
+                                    Estamos preparando nuestros próximos proyectos.
                                 </p>
 
                                 <div class="mx-auto mt-6 h-px w-12 bg-gradient-to-r from-[#A99045] to-[#D8C17F]"></div>
@@ -1477,6 +1580,31 @@
                         </div>
 
                     @endforelse
+
+                </div>
+
+                {{-- ENLACE A TODOS LOS SERVICIOS --}}
+
+                <div class="mt-12 flex justify-center">
+
+                    <a
+                        href="{{ url('servicios') }}"
+                        class="inline-flex items-center gap-3 rounded-lg border border-[#A99045]/35 bg-[#A99045]/[0.04] px-6 py-4 text-[9px] font-black uppercase tracking-[0.18em] text-[#D8C17F] transition duration-300 hover:-translate-y-0.5 hover:border-[#A99045] hover:bg-[#A99045]/[0.10]"
+                    >
+                        Explorar todos los servicios
+
+                        <svg
+                            class="h-4 w-4"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                            aria-hidden="true"
+                        >
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"></path>
+                        </svg>
+
+                    </a>
 
                 </div>
 

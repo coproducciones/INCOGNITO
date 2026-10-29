@@ -128,6 +128,21 @@ class Usuario extends Authenticatable
 
     /*
      * =========================================================
+     * PROVEEDOR
+     * =========================================================
+     * Una cuenta puede tener una ficha de proveedor.
+     */
+    public function proveedor(): HasOne
+    {
+        return $this->hasOne(
+            Proveedor::class,
+            'id_usuario',
+            'id'
+        );
+    }
+
+    /*
+     * =========================================================
      * PEDIDOS
      * =========================================================
      */

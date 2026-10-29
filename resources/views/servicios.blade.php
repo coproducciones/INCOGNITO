@@ -282,7 +282,31 @@
 
                         <article class="service-card flex h-full flex-col p-6">
 
-                            {{-- Cabecera visual sin depender de imágenes --}}
+                            @php
+                                $portada = $producto->media->first();
+                                $urlPortada = $portada?->url_publica;
+                                $tipoPortada = strtolower((string) ($portada?->tipo ?? ''));
+                            @endphp
+
+                            {{-- Imagen o video cargado desde el panel de multimedia --}}
+                            <div class="mb-5 overflow-hidden rounded-xl border border-white/10 bg-[#151515]">
+                                @if ($portada && in_array($tipoPortada, ['imagen', 'image', 'img']))
+                                    <img src="{{ $urlPortada }}"
+                                         alt="{{ $producto->nombre }}"
+                                         loading="lazy"
+                                         class="h-52 w-full object-cover"
+                                         onerror="this.style.display='none';">
+                                @elseif ($portada && in_array($tipoPortada, ['video', 'mp4', 'webm', 'mov', 'video/mp4']))
+                                    <video class="h-52 w-full object-cover" controls preload="metadata">
+                                        <source src="{{ $urlPortada }}">
+                                    </video>
+                                @else
+                                    <div class="flex h-52 items-center justify-center bg-gradient-to-br from-[#A99045]/20 via-[#20201E] to-[#151515] text-4xl text-[#D8C17F]">
+                                        ✦
+                                    </div>
+                                @endif
+                            </div>
+
                             <div class="mb-5 flex items-start justify-between gap-3">
 
                                 <span class="rounded-full border border-[#A99045]/30 bg-[#A99045]/10 px-3 py-1.5 text-xs font-semibold text-[#D8C17F]">

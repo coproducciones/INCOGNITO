@@ -1,440 +1,303 @@
+
 @extends('layouts.app')
 
-@section('title', 'Productos')
+@section('title', 'Productos | Incógnito Group Design')
 
 @section('content')
+@php
+    $cantidadProductos = $productos->count();
 
-<div class="space-y-6">
+    $esAdministrador = auth()->check()
+        && auth()->user()->tienePermiso('productos.crear');
 
-    {{-- ========================================================= --}}
-    {{-- ENCABEZADO --}}
-    {{-- ========================================================= --}}
+    $puedeEditar = auth()->check()
+        && auth()->user()->tienePermiso('productos.editar');
 
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5 mb-8">
+    $puedeEliminar = auth()->check()
+        && auth()->user()->tienePermiso('productos.eliminar');
 
+    $tienePaginacion = method_exists($productos, 'links');
+@endphp
+
+<div class="productos-page min-h-screen px-4 py-8 sm:px-6 lg:px-8">
+
+    {{-- Encabezado --}}
+    <div class="mb-8 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
         <div>
-
-            <h1
-                class="font-black uppercase tracking-widest text-white"
-                style="font-size:22px; letter-spacing:0.15em;"
-            >
-                PRODUCTOS
-            </h1>
-
-            <p
-                class="font-bold uppercase tracking-widest mt-2"
-                style="font-size:10px; color:rgba(255,255,255,0.4);"
-            >
-                GESTIÓN DE PRODUCTOS
+            <p class="mb-2 text-xs font-semibold uppercase tracking-[0.3em] text-amber-400">
+                Incógnito | Grupo de Diseño
             </p>
 
-            <div
-                class="mt-4"
-                style="
-                    width:60px;
-                    height:3px;
-                    background:#A99045;
-                    border-radius:2px;
-                "
-            ></div>
+            <h1 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                Gestión de productos
+            </h1>
 
+            <p class="mt-2 text-sm text-gray-400">
+                Administra y consulta el catálogo de productos.
+            </p>
         </div>
 
-
-        {{-- =========================================================
-             CREAR PRODUCTO
-             Solo usuarios con permiso
-             ========================================================= --}}
-
-        @if(auth()->check() && auth()->user()->tienePermiso('productos.crear'))
-
-            <a
-                href="{{ route('productos.create') }}"
-                class="inline-flex items-center justify-center font-black uppercase tracking-widest px-5 py-3 transition-all hover:opacity-80"
-                style="
-                    font-size:10px;
-                    color:#111111;
-                    background:#A99045;
-                    border:1px solid #A99045;
-                    border-radius:4px;
-                    letter-spacing:0.1em;
-                "
-            >
-                + NUEVO PRODUCTO
+        @if($esAdministrador)
+            <a href="{{ route('productos.create') }}"
+               class="inline-flex items-center justify-center rounded-lg bg-amber-400 px-5 py-3 text-sm font-bold text-black transition hover:bg-amber-300">
+                <span class="mr-2 text-lg">+</span>
+                Nuevo producto
             </a>
-
         @endif
-
     </div>
 
-
-    {{-- =============================================================
-         MENSAJE DE ÉXITO
-         ============================================================= --}}
-
+    {{-- Mensaje de éxito --}}
     @if(session('success'))
-
-        <div
-            class="mb-6 px-4 py-3 font-bold"
-            style="
-                font-size:11px;
-                background:rgba(169,144,69,0.10);
-                border:1px solid rgba(169,144,69,0.30);
-                border-left:3px solid #A99045;
-                border-radius:4px;
-                color:#D8C17F;
-            "
-        >
+        <div class="mb-6 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300">
             {{ session('success') }}
         </div>
-
     @endif
 
-
-    {{-- =============================================================
-         TABLA DE PRODUCTOS
-
-         IMPORTANTE:
-         Esta tabla es pública.
-         No se envuelve en ningún @if de permisos.
-         ============================================================= --}}
-
-    <div
-        class="overflow-x-auto"
-        style="
-            background:#111111;
-            border:1px solid rgba(169,144,69,0.25);
-            border-radius:6px;
-            box-shadow:0 10px 30px rgba(0,0,0,0.20);
-        "
-    >
-
-        <table class="w-full">
-
-            <thead>
-
-                <tr
-                    style="
-                        background:#1D1D1D;
-                        border-bottom:1px solid rgba(169,144,69,0.30);
-                    "
-                >
-
-                    <th
-                        class="px-6 py-4 text-left font-black uppercase tracking-widest whitespace-nowrap"
-                        style="font-size:10px; color:#D8C17F;"
-                    >
-                        ID
-                    </th>
-
-                    <th
-                        class="px-6 py-4 text-left font-black uppercase tracking-widest whitespace-nowrap"
-                        style="font-size:10px; color:#D8C17F;"
-                    >
-                        NOMBRE
-                    </th>
-
-                    <th
-                        class="px-6 py-4 text-left font-black uppercase tracking-widest whitespace-nowrap"
-                        style="font-size:10px; color:#D8C17F;"
-                    >
-                        CATEGORÍA
-                    </th>
-
-                    <th
-                        class="px-6 py-4 text-left font-black uppercase tracking-widest whitespace-nowrap"
-                        style="font-size:10px; color:#D8C17F;"
-                    >
-                        PRECIO
-                    </th>
-
-                    <th
-                        class="px-6 py-4 text-left font-black uppercase tracking-widest whitespace-nowrap"
-                        style="font-size:10px; color:#D8C17F;"
-                    >
-                        STOCK
-                    </th>
-
-                    <th
-                        class="px-6 py-4 text-left font-black uppercase tracking-widest whitespace-nowrap"
-                        style="font-size:10px; color:#D8C17F;"
-                    >
-                        ESTADO
-                    </th>
-
-                    <th
-                        class="px-6 py-4 text-left font-black uppercase tracking-widest whitespace-nowrap"
-                        style="font-size:10px; color:#D8C17F;"
-                    >
-                        ACCIONES
-                    </th>
-
-                </tr>
-
-            </thead>
-
-
-            <tbody>
-
-                @forelse($productos as $producto)
-
-                    <tr
-                        style="
-                            border-bottom:1px solid rgba(255,255,255,0.06);
-                            transition:background 0.2s ease;
-                        "
-                        onmouseover="this.style.background='#1D1D1D'"
-                        onmouseout="this.style.background='transparent'"
-                    >
-
-                        {{-- ID --}}
-
-                        <td
-                            class="px-6 py-4 font-bold whitespace-nowrap"
-                            style="font-size:12px; color:rgba(255,255,255,0.75);"
-                        >
-                            {{ $producto->id }}
-                        </td>
-
-
-                        {{-- NOMBRE --}}
-
-                        <td
-                            class="px-6 py-4 font-bold whitespace-nowrap"
-                            style="font-size:12px; color:#FFFFFF;"
-                        >
-                            {{ $producto->nombre }}
-                        </td>
-
-
-                        {{-- CATEGORÍA --}}
-
-                        <td
-                            class="px-6 py-4 font-bold whitespace-nowrap"
-                            style="font-size:12px; color:#D8C17F;"
-                        >
-                            {{ $producto->categoria?->nombre ?? 'SIN CATEGORÍA' }}
-                        </td>
-
-
-                        {{-- PRECIO --}}
-
-                        <td
-                            class="px-6 py-4 font-bold whitespace-nowrap"
-                            style="font-size:12px; color:#FFFFFF;"
-                        >
-                            ${{ number_format((float) $producto->precio, 2) }}
-                        </td>
-
-
-                        {{-- STOCK --}}
-
-                        <td
-                            class="px-6 py-4 font-bold whitespace-nowrap"
-                            style="font-size:12px; color:rgba(255,255,255,0.75);"
-                        >
-                            {{ $producto->stock }}
-                        </td>
-
-
-                        {{-- ESTADO --}}
-
-                        <td class="px-6 py-4">
-
-                            @if($producto->activo)
-
-                                <span
-                                    class="inline-flex font-black uppercase tracking-widest px-3 py-1 whitespace-nowrap"
-                                    style="
-                                        font-size:9px;
-                                        background:rgba(169,144,69,0.15);
-                                        color:#D8C17F;
-                                        border:1px solid rgba(169,144,69,0.30);
-                                        border-radius:3px;
-                                    "
-                                >
-                                    ACTIVO
-                                </span>
-
-                            @else
-
-                                <span
-                                    class="inline-flex font-black uppercase tracking-widest px-3 py-1 whitespace-nowrap"
-                                    style="
-                                        font-size:9px;
-                                        background:rgba(248,113,113,0.10);
-                                        color:#f87171;
-                                        border:1px solid rgba(248,113,113,0.20);
-                                        border-radius:3px;
-                                    "
-                                >
-                                    INACTIVO
-                                </span>
-
-                            @endif
-
-                        </td>
-
-
-                        {{-- =================================================
-                             ACCIONES
-                             ================================================= --}}
-
-                        <td class="px-8 py-4">
-
-                            <div class="flex items-center gap-2 whitespace-nowrap">
-
-                                {{-- AGREGAR AL CARRITO --}}
-
-                                @if(auth()->check() && $producto->activo)
-
-                                    <form
-                                        method="POST"
-                                        action="{{ route('carrito.add', $producto->id) }}"
-                                    >
-
-                                        @csrf
-
-                                        <input
-                                            type="hidden"
-                                            name="cantidad"
-                                            value="1"
-                                        >
-
-                                        <button
-                                            type="submit"
-                                            class="inline-flex items-center justify-center px-3 py-2 font-black uppercase tracking-widest transition-all hover:opacity-80"
-                                            style="
-                                                font-size:9px;
-                                                color:#111111;
-                                                background:#A99045;
-                                                border:1px solid #A99045;
-                                                border-radius:4px;
-                                                cursor:pointer;
-                                            "
-                                        >
-                                            AGREGAR AL CARRITO
-                                        </button>
-
-                                    </form>
-
-                                @endif
-
-
-                                {{-- =================================================
-                                     VER
-
-                                     Público.
-                                     NO necesita productos.ver.
-                                     ================================================= --}}
-
-                                <a
-                                    href="{{ route('productos.show', $producto) }}"
-                                    class="inline-flex items-center justify-center px-3 py-2 font-black uppercase tracking-widest transition-all hover:bg-white/10"
-                                    style="
-                                        min-width:60px;
-                                        font-size:9px;
-                                        color:rgba(255,255,255,0.70);
-                                        background:#1D1D1D;
-                                        border:1px solid rgba(255,255,255,0.12);
-                                        border-radius:4px;
-                                    "
-                                >
-                                    VER
-                                </a>
-
-
-                                {{-- =================================================
-                                     EDITAR
-                                     ================================================= --}}
-
-                                @if(auth()->check() && auth()->user()->tienePermiso('productos.editar'))
-
-                                    <a
-                                        href="{{ route('productos.edit', $producto) }}"
-                                        class="inline-flex items-center justify-center px-3 py-2 font-black uppercase tracking-widest transition-all hover:opacity-80"
-                                        style="
-                                            min-width:60px;
-                                            font-size:9px;
-                                            color:#D8C17F;
-                                            background:rgba(169,144,69,0.06);
-                                            border:1px solid rgba(169,144,69,0.30);
-                                            border-radius:4px;
-                                        "
-                                    >
-                                        EDITAR
-                                    </a>
-
-                                @endif
-
-
-                                {{-- =================================================
-                                     ELIMINAR
-                                     ================================================= --}}
-
-                                @if(auth()->check() && auth()->user()->tienePermiso('productos.eliminar'))
-
-                                    <form
-                                        action="{{ route('productos.destroy', $producto) }}"
-                                        method="POST"
-                                        onsubmit="return confirm('¿Eliminar este producto?')"
-                                    >
-
-                                        @csrf
-
-                                        @method('DELETE')
-
-                                        <button
-                                            type="submit"
-                                            class="inline-flex items-center justify-center px-3 py-2 font-black uppercase tracking-widest transition-all hover:bg-red-500/10"
-                                            style="
-                                                min-width:75px;
-                                                font-size:9px;
-                                                color:#f87171;
-                                                border:1px solid rgba(248,113,113,0.25);
-                                                border-radius:4px;
-                                                background:transparent;
-                                                cursor:pointer;
-                                            "
-                                        >
-                                            ELIMINAR
-                                        </button>
-
-                                    </form>
-
-                                @endif
-
-                            </div>
-
-                        </td>
-
-                    </tr>
-
-                @empty
-
-                    <tr>
-
-                        <td
-                            colspan="7"
-                            class="px-6 py-10 text-center font-black uppercase tracking-widest"
-                            style="
-                                font-size:10px;
-                                color:rgba(255,255,255,0.35);
-                            "
-                        >
-                            NO HAY PRODUCTOS REGISTRADOS.
-                        </td>
-
-                    </tr>
-
-                @endforelse
-
-            </tbody>
-
-        </table>
-
+    {{-- Errores --}}
+    @if($errors->any())
+        <div class="mb-6 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+            <p class="mb-2 font-semibold">No se pudo completar la operación:</p>
+
+            <ul class="list-inside list-disc">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    {{-- Resumen --}}
+    <div class="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div class="rounded-xl border border-white/10 bg-[#171717] p-5">
+            <p class="text-sm text-gray-400">Productos en esta página</p>
+
+            <p class="mt-2 text-3xl font-bold text-white">
+                {{ $cantidadProductos }}
+            </p>
+        </div>
+
+        <div class="rounded-xl border border-white/10 bg-[#171717] p-5">
+            <p class="text-sm text-gray-400">Estado del catálogo</p>
+
+            <p class="mt-2 text-lg font-semibold text-amber-400">
+                {{ $cantidadProductos > 0 ? 'Catálogo disponible' : 'Sin productos' }}
+            </p>
+        </div>
     </div>
 
-</div>
+    {{-- Catálogo --}}
+    <div class="overflow-hidden rounded-xl border border-white/10 bg-[#171717]">
 
+        <div class="flex flex-col gap-2 border-b border-white/10 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+            <h2 class="text-lg font-semibold text-white">
+                Catálogo de productos
+            </h2>
+
+            <span class="text-sm text-gray-400">
+                {{ $cantidadProductos }} producto(s) en esta página
+            </span>
+        </div>
+
+        @if($productos->isEmpty())
+            <div class="px-5 py-16 text-center">
+                <div class="mb-4 text-4xl">📦</div>
+
+                <h3 class="text-lg font-semibold text-white">
+                    No hay productos registrados
+                </h3>
+
+                <p class="mt-2 text-sm text-gray-400">
+                    Cuando se registren productos, aparecerán en esta sección.
+                </p>
+
+                @if($esAdministrador)
+                    <a href="{{ route('productos.create') }}"
+                       class="mt-5 inline-flex rounded-lg bg-amber-400 px-5 py-3 text-sm font-bold text-black transition hover:bg-amber-300">
+                        Registrar primer producto
+                    </a>
+                @endif
+            </div>
+        @else
+
+            {{-- Vista de tarjetas para móviles --}}
+            <div class="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 lg:hidden">
+                @foreach($productos as $producto)
+                    <article class="rounded-lg border border-white/10 bg-[#202020] p-4">
+
+                        <div class="mb-3 flex items-start justify-between gap-3">
+                            <div>
+                                <p class="text-xs text-gray-500">
+                                    Producto #{{ $producto->id }}
+                                </p>
+
+                                <h3 class="mt-1 text-base font-semibold text-white">
+                                    {{ $producto->nombre }}
+                                </h3>
+                            </div>
+
+                            @if($producto->activo)
+                                <span class="rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-300">
+                                    Activo
+                                </span>
+                            @else
+                                <span class="rounded-full bg-red-500/10 px-3 py-1 text-xs font-medium text-red-300">
+                                    Inactivo
+                                </span>
+                            @endif
+                        </div>
+
+                        <div class="space-y-2 text-sm">
+                            <p class="text-gray-400">
+                                Categoría:
+                                <span class="text-gray-200">
+                                    {{ $producto->categoria?->nombre ?? 'Sin categoría' }}
+                                </span>
+                            </p>
+
+                            <p class="text-gray-400">
+                                Precio:
+                                <span class="font-semibold text-amber-400">
+                                    ${{ number_format((float) $producto->precio, 2, ',', '.') }}
+                                </span>
+                            </p>
+
+                            <p class="text-gray-400">
+                                Stock:
+                                <span class="text-gray-200">{{ $producto->stock }}</span>
+                            </p>
+                        </div>
+
+                        <div class="mt-4 flex flex-wrap gap-2 border-t border-white/10 pt-4">
+                            <a href="{{ route('productos.show', $producto) }}"
+                               class="rounded-md border border-white/20 px-3 py-2 text-xs font-medium text-white transition hover:bg-white/10">
+                                Ver detalles
+                            </a>
+
+                            @if($puedeEditar)
+                                <a href="{{ route('productos.edit', $producto) }}"
+                                   class="rounded-md bg-amber-400 px-3 py-2 text-xs font-bold text-black transition hover:bg-amber-300">
+                                    Editar
+                                </a>
+                            @endif
+
+                            @if($puedeEliminar)
+                                <form action="{{ route('productos.destroy', $producto) }}"
+                                      method="POST"
+                                      onsubmit="return confirm('¿Seguro que deseas eliminar este producto?');">
+                                    @csrf
+                                    @method('DELETE')
+
+                                    <button type="submit"
+                                            class="rounded-md border border-red-500/40 px-3 py-2 text-xs font-medium text-red-300 transition hover:bg-red-500/10">
+                                        Eliminar
+                                    </button>
+                                </form>
+                            @endif
+                        </div>
+                    </article>
+                @endforeach
+            </div>
+
+            {{-- Tabla para pantallas grandes --}}
+            <div class="hidden overflow-x-auto lg:block">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-[#202020] text-xs uppercase tracking-wider text-gray-400">
+                        <tr>
+                            <th class="px-5 py-4">ID</th>
+                            <th class="px-5 py-4">Producto</th>
+                            <th class="px-5 py-4">Categoría</th>
+                            <th class="px-5 py-4">Precio</th>
+                            <th class="px-5 py-4">Stock</th>
+                            <th class="px-5 py-4">Estado</th>
+                            <th class="px-5 py-4">Acciones</th>
+                        </tr>
+                    </thead>
+
+                    <tbody class="divide-y divide-white/10">
+                        @foreach($productos as $producto)
+                            <tr class="transition hover:bg-white/[0.03]">
+                                <td class="px-5 py-4 text-gray-400">
+                                    {{ $producto->id }}
+                                </td>
+
+                                <td class="px-5 py-4">
+                                    <p class="font-semibold text-white">
+                                        {{ $producto->nombre }}
+                                    </p>
+
+                                    <p class="mt-1 max-w-xs truncate text-xs text-gray-500">
+                                        {{ $producto->descripcion ?? 'Sin descripción' }}
+                                    </p>
+                                </td>
+
+                                <td class="px-5 py-4 text-gray-300">
+                                    {{ $producto->categoria?->nombre ?? 'Sin categoría' }}
+                                </td>
+
+                                <td class="px-5 py-4 font-semibold text-amber-400">
+                                    ${{ number_format((float) $producto->precio, 2, ',', '.') }}
+                                </td>
+
+                                <td class="px-5 py-4 text-gray-300">
+                                    {{ $producto->stock }}
+                                </td>
+
+                                <td class="px-5 py-4">
+                                    @if($producto->activo)
+                                        <span class="rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-300">
+                                            Activo
+                                        </span>
+                                    @else
+                                        <span class="rounded-full bg-red-500/10 px-3 py-1 text-xs font-medium text-red-300">
+                                            Inactivo
+                                        </span>
+                                    @endif
+                                </td>
+
+                                <td class="px-5 py-4">
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <a href="{{ route('productos.show', $producto) }}"
+                                           class="text-xs font-medium text-gray-300 transition hover:text-white">
+                                            Ver
+                                        </a>
+
+                                        @if($puedeEditar)
+                                            <a href="{{ route('productos.edit', $producto) }}"
+                                               class="text-xs font-semibold text-amber-400 transition hover:text-amber-300">
+                                                Editar
+                                            </a>
+                                        @endif
+
+                                        @if($puedeEliminar)
+                                            <form action="{{ route('productos.destroy', $producto) }}"
+                                                  method="POST"
+                                                  onsubmit="return confirm('¿Seguro que deseas eliminar este producto?');">
+                                                @csrf
+                                                @method('DELETE')
+
+                                                <button type="submit"
+                                                        class="text-xs font-medium text-red-300 transition hover:text-red-200">
+                                                    Eliminar
+                                                </button>
+                                            </form>
+                                        @endif
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+
+        @endif
+    </div>
+
+    {{-- Paginación --}}
+    @if($tienePaginacion)
+        <div class="mt-6">
+            {{ $productos->links() }}
+        </div>
+    @endif
+
+</div>
 @endsection

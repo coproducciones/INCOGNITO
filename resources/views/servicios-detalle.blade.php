@@ -1,4 +1,3 @@
-
 @extends('layouts.app')
 
 @section('title', $producto->nombre . ' - Servicios')
@@ -12,14 +11,32 @@
     $whatsapp = 'https://wa.me/573114531914?text='
         . urlencode($whatsappMensaje);
 
-    $categoriaNombre = $producto->categoria->nombre ?? 'Categoría general';
+    $categoriaNombre = $producto->categoria?->nombre ?? 'Categoría general';
 
     $precio = number_format((float) $producto->precio, 0, ',', '.');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Obtener la imagen o el video del producto
+    |--------------------------------------------------------------------------
+    */
+
+    $portada = $producto->media
+        ->sortByDesc('destacado')
+        ->sortByDesc('id')
+        ->first();
+
+    $urlPortada = $portada?->url_publica;
+
+    $tipoPortada = strtolower((string) ($portada?->tipo ?? ''));
 @endphp
 
 <div class="min-h-screen bg-[#111111] text-[#F5F3ED]">
 
-    {{-- ENCABEZADO --}}
+    {{-- =========================================================
+         ENCABEZADO
+         ========================================================= --}}
+
     <section class="relative overflow-hidden border-b border-white/10 bg-[#151515]">
 
         <div class="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full bg-[#A99045]/10 blur-3xl"></div>
@@ -60,59 +77,127 @@
             </p>
 
         </div>
+
     </section>
 
 
-    {{-- DETALLE DEL PRODUCTO --}}
+    {{-- =========================================================
+         DETALLE DEL PRODUCTO
+         ========================================================= --}}
+
     <section class="mx-auto max-w-7xl px-5 py-12 sm:px-8 lg:py-16">
 
         <div class="grid gap-10 lg:grid-cols-2 lg:gap-16">
 
-            {{-- IMAGEN Y PRESENTACIÓN --}}
-            <div class="relative flex min-h-[320px] items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-[#1D1D1D] p-8 sm:min-h-[460px]">
+            {{-- =================================================
+                 IMAGEN O VIDEO DEL PRODUCTO
+                 ================================================= --}}
 
-                <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(169,144,69,0.12),transparent_65%)]"></div>
+            <div class="relative flex min-h-[320px] items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-[#1D1D1D] sm:min-h-[460px]">
 
-                <div class="relative text-center">
+                {{-- Fondo decorativo --}}
+                <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(169,144,69,0.12),transparent_65%)]"></div>
 
-                    <div class="mx-auto flex h-28 w-28 items-center justify-center rounded-full border border-[#A99045]/40 bg-[#A99045]/10">
+                {{-- Mostrar imagen --}}
+                @if (
+                    $portada &&
+                    $urlPortada &&
+                    in_array($tipoPortada, ['imagen', 'image', 'img'])
+                )
 
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            class="h-14 w-14 text-[#D8C17F]"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="1.1"
-                        >
-                            <path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z"/>
-                            <path d="m3 7.5 9 4.5 9-4.5M12 12v9M7.5 5.25l9 4.5"/>
-                        </svg>
+                    <img
+                        src="{{ $urlPortada }}"
+                        alt="{{ $producto->nombre }}"
+                        class="relative z-10 max-h-[600px] min-h-[320px] w-full object-contain sm:min-h-[460px]"
+                        loading="eager"
+                        onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');"
+                    >
+
+                    {{-- Alternativa si la imagen no carga --}}
+                    <div class="relative z-10 hidden flex-col items-center justify-center p-8 text-center">
+
+                        <span class="text-5xl text-[#D8C17F]">
+                            ✦
+                        </span>
+
+                        <p class="mt-4 text-sm text-gray-400">
+                            No se pudo cargar la imagen del producto.
+                        </p>
 
                     </div>
 
-                    <p class="mt-6 text-xs font-bold uppercase tracking-[0.3em] text-[#A99045]">
-                        Nuestro catálogo
-                    </p>
+                {{-- Mostrar video --}}
+                @elseif (
+                    $portada &&
+                    $urlPortada &&
+                    in_array($tipoPortada, ['video', 'mp4', 'webm', 'mov', 'video/mp4'])
+                )
 
-                    <p class="mt-2 text-sm text-gray-400">
-                        {{ $categoriaNombre }}
-                    </p>
+                    <video
+                        class="relative z-10 max-h-[600px] w-full object-contain"
+                        controls
+                        preload="metadata"
+                    >
+                        <source src="{{ $urlPortada }}">
 
-                </div>
+                        Tu navegador no puede reproducir este video.
+                    </video>
 
-                <span class="absolute left-5 top-5 rounded-full border border-white/10 bg-black/30 px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-[#D8C17F]">
+                {{-- Mostrar icono si no existe multimedia --}}
+                @else
+
+                    <div class="relative z-10 flex flex-col items-center justify-center p-8 text-center">
+
+                        <div class="mx-auto flex h-28 w-28 items-center justify-center rounded-full border border-[#A99045]/40 bg-[#A99045]/10">
+
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                class="h-14 w-14 text-[#D8C17F]"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.1"
+                            >
+                                <path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z"/>
+                                <path d="m3 7.5 9 4.5 9-4.5M12 12v9M7.5 5.25l9 4.5"/>
+                            </svg>
+
+                        </div>
+
+                        <p class="mt-6 text-xs font-bold uppercase tracking-[0.3em] text-[#A99045]">
+                            Nuestro catálogo
+                        </p>
+
+                        <p class="mt-2 text-sm text-gray-400">
+                            {{ $categoriaNombre }}
+                        </p>
+
+                        <p class="mt-3 text-xs text-gray-500">
+                            Este producto todavía no tiene una imagen asociada.
+                        </p>
+
+                    </div>
+
+                @endif
+
+
+                {{-- Número de referencia --}}
+                <span class="absolute left-4 top-4 z-20 rounded-full border border-white/10 bg-black/70 px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-[#D8C17F] sm:left-5 sm:top-5 sm:px-4">
                     Referencia #{{ $producto->id }}
                 </span>
 
-                <span class="absolute right-5 top-5 rounded-full border border-white/10 bg-black/30 px-4 py-2 text-[10px] font-bold uppercase tracking-widest {{ $producto->stock > 0 ? 'text-emerald-400' : 'text-red-400' }}">
+                {{-- Disponibilidad --}}
+                <span class="absolute right-4 top-4 z-20 rounded-full border border-white/10 bg-black/70 px-3 py-2 text-[10px] font-bold uppercase tracking-widest sm:right-5 sm:top-5 sm:px-4 {{ $producto->stock > 0 ? 'text-emerald-400' : 'text-red-400' }}">
                     {{ $producto->stock > 0 ? 'Disponible' : 'Agotado' }}
                 </span>
 
             </div>
 
 
-            {{-- INFORMACIÓN DEL PRODUCTO --}}
+            {{-- =================================================
+                 INFORMACIÓN DEL PRODUCTO
+                 ================================================= --}}
+
             <div class="flex flex-col justify-center">
 
                 <p class="text-xs font-bold uppercase tracking-[0.3em] text-[#A99045]">
@@ -192,6 +277,7 @@
 
                         <p class="mt-2 text-sm font-bold text-white">
                             {{ $producto->stock }}
+
                             {{ $producto->stock == 1 ? 'unidad' : 'unidades' }}
                         </p>
 
@@ -200,7 +286,10 @@
                 </div>
 
 
-                {{-- BOTONES DE ACCIÓN --}}
+                {{-- =================================================
+                     BOTONES DE ACCIÓN
+                     ================================================= --}}
+
                 <div class="mt-8 flex flex-col gap-3 sm:flex-row">
 
                     {{-- WHATSAPP --}}

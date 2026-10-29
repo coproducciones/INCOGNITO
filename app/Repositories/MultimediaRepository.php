@@ -20,7 +20,7 @@ class MultimediaRepository
             'contenido',
         ])
             ->orderByDesc('destacado')
-            ->orderBy('id_multimedia')
+            ->orderBy('id')
             ->get();
     }
 

@@ -8,14 +8,15 @@ class ClienteRepository
 {
     public function all()
     {
-        return Cliente::withCount('reseñas')
+        // El nombre debe coincidir exactamente con el método del modelo: resenas().
+        return Cliente::withCount('resenas')
             ->orderBy('nombre')
             ->get();
     }
 
     public function findOrFail(int $id): Cliente
     {
-        return Cliente::withCount('reseñas')
+        return Cliente::withCount('resenas')
             ->findOrFail($id);
     }
 

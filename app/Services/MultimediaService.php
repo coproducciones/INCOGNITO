@@ -3,67 +3,109 @@
 namespace App\Services;
 
 use App\Models\Multimedia;
-use App\Repositories\MultimediaRepository;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Throwable;
 
 class MultimediaService
 {
-    public function __construct(
-        protected MultimediaRepository $multimediaRepository
-    ) {
-    }
-
     public function getAll(): Collection
     {
-        return $this->multimediaRepository->getAll();
+        return Multimedia::query()
+            ->with(['producto', 'contenido'])
+            ->latest('id')
+            ->get();
     }
 
     public function create(array $data): Multimedia
     {
-        $data = $this->normalizeTarget($data);
+        /** @var UploadedFile $archivo */
+        $archivo = $data['archivo'];
 
-        $data['destacado'] = (bool) ($data['destacado'] ?? false);
+        $ruta = $archivo->store('multimedia', 'public');
 
-        return $this->multimediaRepository->create($data);
+        try {
+            return DB::transaction(function () use ($data, $ruta) {
+                return Multimedia::create([
+                    'url' => $ruta,
+                    'tipo' => $data['tipo'],
+                    'destacado' => (bool) ($data['destacado'] ?? false),
+                    'id_producto' => $data['id_producto'] ?? null,
+                    'id_contenido' => $data['id_contenido'] ?? null,
+                ]);
+            });
+        } catch (Throwable $exception) {
+            Storage::disk('public')->delete($ruta);
+
+            throw $exception;
+        }
     }
 
-    public function update(
-        Multimedia $multimedia,
-        array $data
-    ): Multimedia {
-        $data = $this->normalizeTarget($data);
-
-        $data['destacado'] = (bool) ($data['destacado'] ?? false);
-
-        return $this->multimediaRepository->update(
-            $multimedia,
-            $data
-        );
-    }
-
-    public function delete(Multimedia $multimedia): bool
+    public function update(Multimedia $media, array $data): Multimedia
     {
-        return $this->multimediaRepository->delete($multimedia);
-    }
+        $rutaAnterior = $media->url;
+        $rutaNueva = null;
 
-    private function normalizeTarget(array $data): array
-    {
-        $producto = $data['id_producto'] ?? null;
-        $contenido = $data['id_contenido'] ?? null;
-
-        $tieneProducto = $producto !== null && $producto !== '';
-        $tieneContenido = $contenido !== null && $contenido !== '';
-
-        if ($tieneProducto === $tieneContenido) {
-            throw ValidationException::withMessages([
-                'destino' => 'Debes seleccionar exactamente un producto o un contenido, no ambos.',
-            ]);
+        if (
+            isset($data['archivo'])
+            && $data['archivo'] instanceof UploadedFile
+        ) {
+            $rutaNueva = $data['archivo']->store('multimedia', 'public');
         }
 
-        $data['id_producto'] = $tieneProducto ? $producto : null;
-        $data['id_contenido'] = $tieneContenido ? $contenido : null;
+        try {
+            DB::transaction(function () use ($media, $data, $rutaNueva): void {
+                $media->update([
+                    'url' => $rutaNueva ?? $media->url,
+                    'tipo' => $data['tipo'],
+                    'destacado' => (bool) ($data['destacado'] ?? false),
+                    'id_producto' => $data['id_producto'] ?? null,
+                    'id_contenido' => $data['id_contenido'] ?? null,
+                ]);
+            });
+        } catch (Throwable $exception) {
+            if ($rutaNueva !== null) {
+                Storage::disk('public')->delete($rutaNueva);
+            }
 
-        return $data;
+            throw $exception;
+        }
+
+        if (
+            $rutaNueva !== null
+            && $rutaAnterior !== $rutaNueva
+            && $this->esRutaLocal($rutaAnterior)
+        ) {
+            Storage::disk('public')->delete($rutaAnterior);
+        }
+
+        return $media->refresh();
+    }
+
+    public function delete(Multimedia $media): bool
+    {
+        $ruta = $media->url;
+
+        DB::transaction(function () use ($media): void {
+            $media->delete();
+        });
+
+        if ($this->esRutaLocal($ruta)) {
+            Storage::disk('public')->delete($ruta);
+        }
+
+        return true;
+    }
+
+    private function esRutaLocal(?string $ruta): bool
+    {
+        if (!$ruta || Str::startsWith($ruta, ['http://', 'https://', '//'])) {
+            return false;
+        }
+
+        return Str::startsWith($ruta, 'multimedia/');
     }
 }
