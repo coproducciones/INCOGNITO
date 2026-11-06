@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Pedidos\StorePedidoEventoRequest;
+use App\Http\Requests\PedidoEventoStoreRequest;
 use App\Models\Pedido;
 use App\Services\PedidoService;
 use Illuminate\Http\RedirectResponse;
@@ -14,7 +14,7 @@ class PedidoEventoController extends Controller
     ) {}
 
     public function store(
-        StorePedidoEventoRequest $request,
+        PedidoEventoStoreRequest $request,
         Pedido $pedido
     ): RedirectResponse {
 

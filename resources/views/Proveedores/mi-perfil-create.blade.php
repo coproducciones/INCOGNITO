@@ -38,11 +38,48 @@
     >
         @csrf
 
+        {{-- Categorías del proveedor --}}
+        <div>
+            <span class="mb-2 block text-xs font-bold uppercase tracking-widest text-white/80">
+                Categorías de servicio
+            </span>
+            <p class="mb-3 text-xs text-white/50">Selecciona una o varias categorías que describan los servicios que ofreces.</p>
+
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                @forelse ($categorias as $categoria)
+                    <label class="flex cursor-pointer items-center gap-3 rounded-lg border border-white/10 bg-[#1D1D1D] px-4 py-3 text-sm text-white transition hover:border-[#A99045]/60">
+                        <input
+                            type="checkbox"
+                            name="categorias[]"
+                            value="{{ $categoria->id }}"
+                            @checked(in_array($categoria->id, old('categorias', [])))
+                            class="rounded border-white/30 bg-[#111111] text-[#A99045] focus:ring-[#A99045]"
+                        >
+                        <span>
+                            <span class="block font-semibold">{{ $categoria->nombre }}</span>
+                            @if ($categoria->descripcion)
+                                <span class="mt-1 block text-xs text-white/45">{{ $categoria->descripcion }}</span>
+                            @endif
+                        </span>
+                    </label>
+                @empty
+                    <p class="text-sm text-red-300">No hay categorías registradas. Contacta al administrador.</p>
+                @endforelse
+            </div>
+
+            @error('categorias')
+                <p class="mt-2 text-sm text-red-400">{{ $message }}</p>
+            @enderror
+            @error('categorias.*')
+                <p class="mt-2 text-sm text-red-400">{{ $message }}</p>
+            @enderror
+        </div>
+
         {{-- Especialidad --}}
         <div>
             <label for="especialidad"
                    class="mb-2 block text-xs font-bold uppercase tracking-widest text-white/80">
-                Especialidad
+                Especialidad específica
             </label>
 
             <input
@@ -52,7 +89,7 @@
                 maxlength="150"
                 required
                 value="{{ old('especialidad') }}"
-                placeholder="Ej. Diseño gráfico, fotografía o producción"
+                placeholder="Ej. Fotografía de eventos, edición de video o producción musical"
                 class="w-full rounded-lg border border-white/10 bg-[#1D1D1D] px-4 py-3 text-sm text-white placeholder:text-white/30 outline-none transition focus:border-[#A99045] focus:ring-1 focus:ring-[#A99045]/40"
             >
 

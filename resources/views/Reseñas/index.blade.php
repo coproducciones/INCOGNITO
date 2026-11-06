@@ -129,6 +129,12 @@
             </div>
         @endforelse
     </div>
+
+    @if(method_exists($resenas, 'links'))
+        <div class="mt-6">
+            {{ $resenas->links() }}
+        </div>
+    @endif
 </div>
 
 @else

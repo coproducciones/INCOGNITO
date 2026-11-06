@@ -206,6 +206,8 @@
 
         </div>
 
+        @include('Pedidos.partials.estados-proveedores')
+
 {{-- Notificación a proveedores por WhatsApp: vista del cliente --}}
 
 @if(auth()->check())

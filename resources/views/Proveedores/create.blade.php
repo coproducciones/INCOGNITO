@@ -97,6 +97,48 @@
             </div>
 
 
+            {{-- CATEGORÍAS DEL PROVEEDOR --}}
+            @php
+                $categoriasSeleccionadas = old('categorias', isset($proveedor)
+                    ? $proveedor->categorias->pluck('id')->all()
+                    : []);
+            @endphp
+            <div>
+                <span class="mb-2 block text-xs font-bold uppercase tracking-wider text-[#D8C17F]">
+                    Categorías de servicio
+                </span>
+                <p class="mb-3 text-xs text-white/50">Selecciona una o varias categorías. Se utiliza el mismo catálogo de categorías de productos y contenidos.</p>
+
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    @forelse ($categorias as $categoria)
+                        <label class="flex cursor-pointer items-center gap-3 rounded-lg border border-white/10 bg-[#1D1D1D] px-4 py-3 text-sm text-white transition hover:border-[#A99045]/60">
+                            <input
+                                type="checkbox"
+                                name="categorias[]"
+                                value="{{ $categoria->id }}"
+                                @checked(in_array($categoria->id, $categoriasSeleccionadas))
+                                class="rounded border-white/30 bg-[#111111] text-[#A99045] focus:ring-[#A99045]"
+                            >
+                            <span>
+                                <span class="block font-semibold">{{ $categoria->nombre }}</span>
+                                @if ($categoria->descripcion)
+                                    <span class="mt-1 block text-xs text-white/45">{{ $categoria->descripcion }}</span>
+                                @endif
+                            </span>
+                        </label>
+                    @empty
+                        <p class="text-sm text-red-300">No hay categorías registradas. Contacta al administrador.</p>
+                    @endforelse
+                </div>
+
+                @error('categorias')
+                    <p class="mt-2 text-xs text-red-400">{{ $message }}</p>
+                @enderror
+                @error('categorias.*')
+                    <p class="mt-2 text-xs text-red-400">{{ $message }}</p>
+                @enderror
+            </div>
+
             {{-- ESPECIALIDAD --}}
             <div>
                 <label

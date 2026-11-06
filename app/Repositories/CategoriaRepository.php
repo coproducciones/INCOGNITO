@@ -2,28 +2,28 @@
 
 namespace App\Repositories;
 
-use App\Models\categoria;
+use App\Models\Categoria;
 
 class CategoriaRepository
 {
     public function getAll()
     {
-        return categoria::all();
+        return ategoria::all();
     }
 
     public function findById($id)
     {
-        return categoria::findOrFail($id);
+        return Categoria::findOrFail($id);
     }
 
     public function create(array $data)
     {
-        return categoria::create($data);
+        return Categoria::create($data);
     }
 
     public function update($id, array $data)
     {
-        $categoria = categoria::findOrFail($id);
+        $categoria = Categoria::findOrFail($id);
 
         $categoria->update($data);
 
@@ -32,7 +32,7 @@ class CategoriaRepository
 
     public function delete($id)
     {
-        $categoria = categoria::findOrFail($id);
+        $categoria = Categoria::findOrFail($id);
 
         return $categoria->delete();
     }

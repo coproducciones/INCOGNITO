@@ -7,7 +7,11 @@
 @php
     $cantidadProductos = $productos->count();
 
+    // Esta vista es solo para el administrador global (lo exige la ruta).
     $esAdministrador = auth()->check()
+        && auth()->user()->esAdministradorGlobal();
+
+    $puedeCrear = auth()->check()
         && auth()->user()->tienePermiso('productos.crear');
 
     $puedeEditar = auth()->check()
@@ -37,7 +41,7 @@
             </p>
         </div>
 
-        @if($esAdministrador)
+        @if($puedeCrear)
             <a href="{{ route('productos.create') }}"
                class="inline-flex items-center justify-center rounded-lg bg-amber-400 px-5 py-3 text-sm font-bold text-black transition hover:bg-amber-300">
                 <span class="mr-2 text-lg">+</span>
@@ -110,7 +114,7 @@
                     Cuando se registren productos, aparecerán en esta sección.
                 </p>
 
-                @if($esAdministrador)
+                @if($puedeCrear)
                     <a href="{{ route('productos.create') }}"
                        class="mt-5 inline-flex rounded-lg bg-amber-400 px-5 py-3 text-sm font-bold text-black transition hover:bg-amber-300">
                         Registrar primer producto

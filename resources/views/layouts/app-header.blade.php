@@ -1,15 +1,14 @@
+
 @php
     use Illuminate\Support\Facades\Route;
 
     /*
     |--------------------------------------------------------------------------
-    | Configuración de enlaces del encabezado
+    | CONFIGURACIÓN DE ENLACES DEL ENCABEZADO
     |--------------------------------------------------------------------------
-    | Se comprueba la existencia de las rutas opcionales antes de generar
-    | sus URL para evitar errores cuando una ruta no esté registrada.
     */
 
-    $whatsapp = 'https://wa.me/573114531914?text=' . urlencode(
+    $whatsapp = 'https://wa.me/' . config('services.whatsapp.empresa_numero') . '?text=' . urlencode(
         'Hola, Incógnito Group Design. Me gustaría recibir información sobre sus servicios.'
     );
 
@@ -49,9 +48,120 @@
         ? route('mi-cuenta.resenas')
         : null;
 
-    $rutaPanel = Route::has('dashboard.gestion')
-        ? route('dashboard.gestion')
+    /*
+    |--------------------------------------------------------------------------
+    | RUTA DEL PANEL
+    |--------------------------------------------------------------------------
+    |
+    | Se conserva la validación del permiso dashboard.ver.
+    |
+    */
+
+    $rutaPanel = auth()->check()
+        && auth()->user()->tienePermiso('dashboard.ver')
+        && Route::has('dashboard.gestion')
+            ? route('dashboard.gestion')
+            : null;
+
+    /*
+    |--------------------------------------------------------------------------
+    | RUTA DE PEDIDOS RECIBIDOS POR EL PROVEEDOR
+    |--------------------------------------------------------------------------
+    |
+    | No se comprueba aquí el permiso proveedor.pedidos.ver.
+    | El acceso se valida en las rutas y en el controlador.
+    |
+    */
+
+    $rutaPedidosProveedor = Route::has('proveedor.pedidos.index')
+        ? route('proveedor.pedidos.index')
         : null;
+
+    /*
+    |--------------------------------------------------------------------------
+    | INFORMACIÓN DEL USUARIO AUTENTICADO
+    |--------------------------------------------------------------------------
+    */
+
+    $usuario = auth()->user();
+
+    $nombreUsuario = $usuario
+        ? ($usuario->name ?? $usuario->nombre ?? 'Mi cuenta')
+        : 'Iniciar sesión';
+
+    /*
+    |--------------------------------------------------------------------------
+    | IDENTIFICAR EL ROL DEL USUARIO
+    |--------------------------------------------------------------------------
+    |
+    | La relación rol devuelve un modelo. Por eso se consulta
+    | el campo nombre de esa relación.
+    |
+    */
+
+    $rolUsuario = strtolower(
+        trim((string) ($usuario?->rol?->nombre ?? ''))
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | IDENTIFICAR SI EL USUARIO ES PROVEEDOR
+    |--------------------------------------------------------------------------
+    |
+    | Se comprueba el rol y también la existencia de un perfil
+    | de proveedor asociado a la cuenta.
+    |
+    */
+
+    $esProveedor = false;
+
+    if ($usuario) {
+        $esProveedor = (
+            $rolUsuario === 'proveedor'
+            || $usuario->proveedor()->exists()
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | VISIBILIDAD DE LAS OPCIONES DEL MENÚ
+    |--------------------------------------------------------------------------
+    */
+
+    $puedeVerPanel = $rutaPanel !== null;
+
+    $puedeVerPedidosProveedor = (
+        $esProveedor
+        && $rutaPedidosProveedor !== null
+    );
+
+    /*
+    | Gestión de productos: el administrador entra al listado administrativo
+    | y el proveedor a su propio listado de productos.
+    */
+
+    $rutaProductosGestion = null;
+    $textoProductosGestion = null;
+
+    if ($usuario) {
+        if ($usuario->esAdministradorGlobal() && Route::has('productos.index')) {
+            $rutaProductosGestion = route('productos.index');
+            $textoProductosGestion = 'Gestión de productos';
+        } elseif (
+            $esProveedor
+            && $usuario->tienePermiso('productos.ver')
+            && Route::has('mis-productos.index')
+        ) {
+            $rutaProductosGestion = route('mis-productos.index');
+            $textoProductosGestion = 'Mis productos';
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | AUTENTICACIÓN Y CIERRE DE SESIÓN
+    |--------------------------------------------------------------------------
+    */
 
     $rutaLogin = Route::has('login')
         ? route('login')
@@ -60,21 +170,6 @@
     $rutaLogout = Route::has('logout')
         ? route('logout')
         : null;
-
-    $usuario = auth()->user();
-
-    $nombreUsuario = $usuario
-        ? ($usuario->name ?? $usuario->nombre ?? 'Mi cuenta')
-        : 'Iniciar sesión';
-
-    $rolUsuario = $usuario && isset($usuario->rol)
-        ? strtolower((string) $usuario->rol)
-        : '';
-
-    $esProveedor = $usuario && (
-        str_contains(strtolower($nombreUsuario), 'proveedor')
-        || $rolUsuario === 'proveedor'
-    );
 @endphp
 
 <header
@@ -85,6 +180,7 @@
         class="mx-auto flex min-h-[76px] max-w-[1600px] items-center justify-between gap-5 px-4 sm:px-6 lg:px-8"
         aria-label="Navegación principal"
     >
+
         {{-- LOGO --}}
         <a
             href="{{ $rutaInicio }}"
@@ -117,6 +213,7 @@
 
         {{-- MENÚ PRINCIPAL PARA ESCRITORIO --}}
         <div class="hidden items-center gap-7 lg:flex xl:gap-9">
+
             <a
                 href="{{ $rutaInicio }}"
                 @class([
@@ -165,11 +262,13 @@
             >
                 CONTACTO
             </a>
+
         </div>
 
         {{-- ACCIONES PARA ESCRITORIO --}}
         <div class="hidden shrink-0 items-center gap-3 lg:flex">
-            {{-- Carrito --}}
+
+            {{-- CARRITO --}}
             <a
                 href="{{ $rutaCarrito }}"
                 class="flex items-center gap-2 rounded-md border border-white/15 px-3 py-2 text-[11px] font-bold tracking-wider text-white transition hover:border-[#A99045] hover:text-[#D8C17F]"
@@ -187,10 +286,11 @@
                     <circle cx="10" cy="20" r="1" />
                     <circle cx="18" cy="20" r="1" />
                 </svg>
+
                 CARRITO
             </a>
 
-            {{-- Notificaciones: solo se muestra si existe la ruta --}}
+            {{-- NOTIFICACIONES --}}
             @auth
                 @if (Route::has('notificaciones.index'))
                     <a
@@ -210,14 +310,18 @@
                             <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
                             <path d="M10 21h4" />
                         </svg>
+
                         <span class="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-[#A99045]"></span>
                     </a>
                 @endif
             @endauth
 
-            {{-- Menú desplegable de la cuenta --}}
+            {{-- MENÚ DESPLEGABLE DE LA CUENTA --}}
             @auth
-                <div class="relative" @click.outside="usuarioAbierto = false">
+                <div
+                    class="relative"
+                    @click.outside="usuarioAbierto = false"
+                >
                     <button
                         type="button"
                         @click="usuarioAbierto = !usuarioAbierto"
@@ -233,6 +337,7 @@
                             <span class="block truncate text-[11px] font-extrabold tracking-wider text-white">
                                 {{ $nombreUsuario }}
                             </span>
+
                             <span class="mt-0.5 block text-[10px] uppercase tracking-widest text-[#D8C17F]">
                                 {{ $esProveedor ? 'Proveedor' : 'Mi cuenta' }}
                             </span>
@@ -258,53 +363,97 @@
                         x-transition
                         class="absolute right-0 top-full mt-3 w-60 overflow-hidden rounded-lg border border-white/10 bg-[#111111] p-2 shadow-2xl"
                     >
-                        {{-- Información del usuario --}}
+                        {{-- INFORMACIÓN DEL USUARIO --}}
                         <div class="border-b border-white/10 px-3 py-3">
                             <p class="truncate text-sm font-semibold text-white">
                                 {{ $nombreUsuario }}
                             </p>
+
                             <p class="mt-1 truncate text-xs text-gray-400">
                                 {{ $usuario->email ?? '' }}
                             </p>
                         </div>
 
-                        {{-- Enlaces de la cuenta --}}
-                        <a href="{{ $rutaPerfil }}" class="dropdown-link">
+                        {{-- ENLACES DE LA CUENTA --}}
+                        <a
+                            href="{{ $rutaPerfil }}"
+                            class="dropdown-link"
+                        >
                             Mi perfil
                         </a>
 
                         @if ($rutaEditarPerfil)
-                            <a href="{{ $rutaEditarPerfil }}" class="dropdown-link">
+                            <a
+                                href="{{ $rutaEditarPerfil }}"
+                                class="dropdown-link"
+                            >
                                 Editar perfil
                             </a>
                         @endif
 
                         @if ($rutaPedidos)
-                            <a href="{{ $rutaPedidos }}" class="dropdown-link">
+                            <a
+                                href="{{ $rutaPedidos }}"
+                                class="dropdown-link"
+                            >
                                 Mis pedidos
                             </a>
                         @endif
 
                         @if ($rutaResenas)
-                            <a href="{{ $rutaResenas }}" class="dropdown-link">
+                            <a
+                                href="{{ $rutaResenas }}"
+                                class="dropdown-link"
+                            >
                                 Mis reseñas
                             </a>
                         @endif
 
-                        <a href="{{ $rutaServicios }}" class="dropdown-link">
+                        {{-- PRODUCTOS: ADMINISTRADOR O PROVEEDOR --}}
+                        @if ($rutaProductosGestion)
+                            <a
+                                href="{{ $rutaProductosGestion }}"
+                                class="dropdown-link"
+                            >
+                                {{ $textoProductosGestion }}
+                            </a>
+                        @endif
+
+                        {{-- PEDIDOS RECIBIDOS: SOLO PROVEEDORES --}}
+                        @if ($puedeVerPedidosProveedor)
+                            <a
+                                href="{{ $rutaPedidosProveedor }}"
+                                class="dropdown-link"
+                            >
+                                Pedidos recibidos
+                            </a>
+                        @endif
+
+                        <a
+                            href="{{ $rutaServicios }}"
+                            class="dropdown-link"
+                        >
                             Explorar servicios
                         </a>
 
-                        @if ($rutaPanel)
-                            <a href="{{ $rutaPanel }}" class="dropdown-link">
+                        {{-- PANEL: SE CONSERVA --}}
+                        @if ($puedeVerPanel)
+                            <a
+                                href="{{ $rutaPanel }}"
+                                class="dropdown-link"
+                            >
                                 Panel
                             </a>
                         @endif
 
-                        {{-- Cierre de sesión seguro mediante POST y CSRF --}}
+                        {{-- CIERRE DE SESIÓN --}}
                         @if ($rutaLogout)
-                            <form method="POST" action="{{ $rutaLogout }}">
+                            <form
+                                method="POST"
+                                action="{{ $rutaLogout }}"
+                            >
                                 @csrf
+
                                 <button
                                     type="submit"
                                     class="dropdown-link w-full text-left text-red-400 hover:text-red-300"
@@ -315,6 +464,7 @@
                         @endif
                     </div>
                 </div>
+
             @else
                 <a
                     href="{{ $rutaLogin }}"
@@ -323,6 +473,7 @@
                     INICIAR SESIÓN
                 </a>
             @endauth
+
         </div>
 
         {{-- BOTÓN PARA ABRIR/CERRAR EL MENÚ MÓVIL --}}
@@ -360,9 +511,10 @@
                 <path d="m6 6 12 12M18 6 6 18" />
             </svg>
         </button>
+
     </nav>
 
-    {{-- MENÚ MÓVIL: incluye navegación y enlaces de la cuenta --}}
+    {{-- MENÚ MÓVIL --}}
     <div
         x-cloak
         x-show="menuAbierto"
@@ -370,19 +522,36 @@
         class="border-t border-white/10 bg-[#090909] px-4 pb-5 pt-3 lg:hidden sm:px-6"
     >
         <div class="mx-auto flex max-w-7xl flex-col gap-1">
-            <a href="{{ $rutaInicio }}" class="mobile-link" @click="menuAbierto = false">
+
+            <a
+                href="{{ $rutaInicio }}"
+                class="mobile-link"
+                @click="menuAbierto = false"
+            >
                 INICIO
             </a>
 
-            <a href="{{ $rutaTrabajo }}" class="mobile-link" @click="menuAbierto = false">
+            <a
+                href="{{ $rutaTrabajo }}"
+                class="mobile-link"
+                @click="menuAbierto = false"
+            >
                 NUESTRO TRABAJO
             </a>
 
-            <a href="{{ $rutaHistoria }}" class="mobile-link" @click="menuAbierto = false">
+            <a
+                href="{{ $rutaHistoria }}"
+                class="mobile-link"
+                @click="menuAbierto = false"
+            >
                 NUESTRA HISTORIA
             </a>
 
-            <a href="{{ $rutaServicios }}" class="mobile-link" @click="menuAbierto = false">
+            <a
+                href="{{ $rutaServicios }}"
+                class="mobile-link"
+                @click="menuAbierto = false"
+            >
                 SERVICIOS
             </a>
 
@@ -397,43 +566,95 @@
 
             <div class="my-2 border-t border-white/10"></div>
 
-            <a href="{{ $rutaCarrito }}" class="mobile-link" @click="menuAbierto = false">
+            <a
+                href="{{ $rutaCarrito }}"
+                class="mobile-link"
+                @click="menuAbierto = false"
+            >
                 CARRITO
             </a>
 
             @auth
-                <a href="{{ $rutaPerfil }}" class="mobile-link" @click="menuAbierto = false">
+
+                <a
+                    href="{{ $rutaPerfil }}"
+                    class="mobile-link"
+                    @click="menuAbierto = false"
+                >
                     MI PERFIL
                 </a>
 
                 @if ($rutaEditarPerfil)
-                    <a href="{{ $rutaEditarPerfil }}" class="mobile-link" @click="menuAbierto = false">
+                    <a
+                        href="{{ $rutaEditarPerfil }}"
+                        class="mobile-link"
+                        @click="menuAbierto = false"
+                    >
                         EDITAR PERFIL
                     </a>
                 @endif
 
                 @if ($rutaPedidos)
-                    <a href="{{ $rutaPedidos }}" class="mobile-link" @click="menuAbierto = false">
+                    <a
+                        href="{{ $rutaPedidos }}"
+                        class="mobile-link"
+                        @click="menuAbierto = false"
+                    >
                         MIS PEDIDOS
                     </a>
                 @endif
 
                 @if ($rutaResenas)
-                    <a href="{{ $rutaResenas }}" class="mobile-link" @click="menuAbierto = false">
+                    <a
+                        href="{{ $rutaResenas }}"
+                        class="mobile-link"
+                        @click="menuAbierto = false"
+                    >
                         MIS RESEÑAS
                     </a>
                 @endif
 
-                @if ($rutaPanel)
-                    <a href="{{ $rutaPanel }}" class="mobile-link" @click="menuAbierto = false">
+                {{-- PRODUCTOS: ADMINISTRADOR O PROVEEDOR --}}
+                @if ($rutaProductosGestion)
+                    <a
+                        href="{{ $rutaProductosGestion }}"
+                        class="mobile-link"
+                        @click="menuAbierto = false"
+                    >
+                        {{ mb_strtoupper($textoProductosGestion) }}
+                    </a>
+                @endif
+
+                {{-- PEDIDOS RECIBIDOS: SOLO PROVEEDORES --}}
+                @if ($puedeVerPedidosProveedor)
+                    <a
+                        href="{{ $rutaPedidosProveedor }}"
+                        class="mobile-link"
+                        @click="menuAbierto = false"
+                    >
+                        PEDIDOS RECIBIDOS
+                    </a>
+                @endif
+
+                {{-- PANEL: SE CONSERVA --}}
+                @if ($puedeVerPanel)
+                    <a
+                        href="{{ $rutaPanel }}"
+                        class="mobile-link"
+                        @click="menuAbierto = false"
+                    >
                         PANEL
                     </a>
                 @endif
 
-                {{-- Cerrar sesión también está disponible en móvil --}}
+                {{-- CERRAR SESIÓN --}}
                 @if ($rutaLogout)
-                    <form method="POST" action="{{ $rutaLogout }}">
+                    <form
+                        method="POST"
+                        action="{{ $rutaLogout }}"
+                    >
                         @csrf
+
                         <button
                             type="submit"
                             class="mobile-link w-full text-left text-red-400"
@@ -442,13 +663,22 @@
                         </button>
                     </form>
                 @endif
+
             @else
-                <a href="{{ $rutaLogin }}" class="mobile-link" @click="menuAbierto = false">
+
+                <a
+                    href="{{ $rutaLogin }}"
+                    class="mobile-link"
+                    @click="menuAbierto = false"
+                >
                     INICIAR SESIÓN
                 </a>
+
             @endauth
+
         </div>
     </div>
+
 </header>
 
 {{-- ESTILOS DEL ENCABEZADO --}}

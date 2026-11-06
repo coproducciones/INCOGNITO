@@ -24,6 +24,8 @@ class ProveedorUpdateRequest extends FormRequest
                 'exists:usuarios,id',
                 Rule::unique('proveedor', 'id_usuario')->ignore($id, 'id_proveedor'),
             ],
+            'categorias' => ['required', 'array', 'min:1'],
+            'categorias.*' => ['required', 'integer', 'distinct', 'exists:categorias,id'],
             'especialidad' => ['required', 'string', 'max:150'],
             'telefono' => ['required', 'string', 'max:20'],
             'whatsapp' => ['nullable', 'string', 'max:20'],

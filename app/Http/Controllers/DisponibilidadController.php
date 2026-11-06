@@ -26,6 +26,8 @@ class DisponibilidadController extends Controller
 
     public function index(Proveedor $proveedor): View
     {
+        $this->autorizarProveedorAdministrado($proveedor);
+
         $disponibilidades = $this->service->listarPorProveedor(
             $proveedor->id_proveedor
         );
@@ -40,6 +42,8 @@ class DisponibilidadController extends Controller
 
     public function create(Proveedor $proveedor): View
     {
+        $this->autorizarProveedorAdministrado($proveedor);
+
         $esMiDisponibilidad = false;
 
         return view(
@@ -52,6 +56,8 @@ class DisponibilidadController extends Controller
         DisponibilidadStoreRequest $request,
         Proveedor $proveedor
     ): RedirectResponse {
+        $this->autorizarProveedorAdministrado($proveedor);
+
         $data = $request->validated();
 
         // El proveedor se determina desde la ruta administrativa.
@@ -68,6 +74,8 @@ class DisponibilidadController extends Controller
         Proveedor $proveedor,
         Disponibilidad $disponibilidad
     ): View {
+        $this->autorizarProveedorAdministrado($proveedor);
+
         abort_unless(
             (int) $disponibilidad->id_proveedor ===
             (int) $proveedor->id_proveedor,
@@ -87,6 +95,8 @@ class DisponibilidadController extends Controller
         Proveedor $proveedor,
         Disponibilidad $disponibilidad
     ): RedirectResponse {
+        $this->autorizarProveedorAdministrado($proveedor);
+
         abort_unless(
             (int) $disponibilidad->id_proveedor ===
             (int) $proveedor->id_proveedor,
@@ -107,6 +117,8 @@ class DisponibilidadController extends Controller
         Proveedor $proveedor,
         Disponibilidad $disponibilidad
     ): RedirectResponse {
+        $this->autorizarProveedorAdministrado($proveedor);
+
         abort_unless(
             (int) $disponibilidad->id_proveedor ===
             (int) $proveedor->id_proveedor,
@@ -125,6 +137,28 @@ class DisponibilidadController extends Controller
     | DISPONIBILIDAD PERSONAL DEL PROVEEDOR
     |--------------------------------------------------------------------------
     */
+
+    /**
+     * En las rutas administrativas anidadas, solo el permiso global
+     * proveedores.ver permite administrar la ficha de terceros.
+     */
+    private function autorizarProveedorAdministrado(Proveedor $proveedor): void
+    {
+        $usuario = Auth::user();
+        abort_unless($usuario !== null, 403);
+
+        if ($usuario->tienePermiso('proveedores.ver')) {
+            return;
+        }
+
+        $miProveedor = $usuario->proveedor()->first();
+
+        abort_unless(
+            $miProveedor !== null
+                && (int) $miProveedor->id_proveedor === (int) $proveedor->id_proveedor,
+            404
+        );
+    }
 
     private function obtenerMiProveedor(): Proveedor
     {

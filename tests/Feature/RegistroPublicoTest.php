@@ -33,24 +33,26 @@ class RegistroPublicoTest extends TestCase
         ], $sobrescribir);
     }
 
-    public function test_visitante_se_registra_sin_ficha_de_cliente_ni_proveedor(): void
-    {
-        $this->crearRol('Visitante');
+    public function test_visitante_no_puede_registrarse_como_cuenta(): void
+{
+    $response = $this->post(
+        route('registro.store'),
+        $this->datosBase([
+            'tipo_cuenta' => 'visitante',
+        ])
+    );
 
-        $response = $this->post(route('registro.store'), $this->datosBase());
+    // Visitante no es un tipo de cuenta registrable.
+    $response->assertSessionHasErrors('tipo_cuenta');
 
-        $response->assertRedirect(route('mi-cuenta'));
-        $this->assertDatabaseHas('usuarios', [
-            'email' => 'persona.prueba@example.test',
-            'id_rol' => Rol::where('nombre', 'Visitante')->value('id_rol'),
-        ]);
-        $usuario = Usuario::where('email', 'persona.prueba@example.test')->firstOrFail();
-        $this->assertAuthenticatedAs($usuario);
-        $this->assertDatabaseMissing('clientes', ['id_usuario' => $usuario->id]);
-        $this->assertDatabaseMissing('proveedor', ['id_usuario' => $usuario->id]);
-        $this->assertTrue(Hash::check('ClaveSegura123', $usuario->password));
-    }
+    // No debe crearse ningún usuario.
+    $this->assertDatabaseMissing('usuarios', [
+        'email' => 'persona.prueba@example.test',
+    ]);
 
+    // No debe existir una sesión autenticada.
+    $this->assertGuest();
+}
     public function test_cliente_crea_usuario_y_ficha_de_cliente(): void
     {
         $this->crearRol('Cliente');
@@ -71,28 +73,55 @@ class RegistroPublicoTest extends TestCase
         $this->assertDatabaseMissing('proveedor', ['id_usuario' => $usuario->id]);
     }
 
-    public function test_proveedor_crea_usuario_y_ficha_de_proveedor(): void
-    {
-        $this->crearRol('Proveedor');
+ public function test_proveedor_crea_usuario_y_ficha_de_proveedor(): void
+{
+    $this->crearRol('Proveedor');
 
-        $response = $this->post(route('registro.store'), $this->datosBase([
-            'email' => 'proveedor@example.test',
-            'tipo_cuenta' => 'proveedor',
-            'especialidad' => 'Diseño gráfico',
-            'whatsapp' => '573001234567',
+    // Crear una categoría real para la prueba.
+    $categoriaId = \Illuminate\Support\Facades\DB::table('categorias')
+        ->insertGetId([
+            'nombre' => 'Diseño gráfico',
             'descripcion' => 'Servicios de diseño',
-        ]));
-
-        $response->assertRedirect(route('mi-cuenta'));
-        $usuario = Usuario::where('email', 'proveedor@example.test')->firstOrFail();
-        $this->assertDatabaseHas('proveedor', [
-            'id_usuario' => $usuario->id,
-            'especialidad' => 'Diseño gráfico',
-            'telefono' => '3001234567',
-            'whatsapp' => '573001234567',
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
-        $this->assertDatabaseMissing('clientes', ['id_usuario' => $usuario->id]);
-    }
+
+    $response = $this->post(route('registro.store'), $this->datosBase([
+        'email' => 'proveedor@example.test',
+        'tipo_cuenta' => 'proveedor',
+        'especialidad' => 'Diseño gráfico',
+        'whatsapp' => '573001234567',
+        'descripcion' => 'Servicios de diseño',
+        'categorias' => [$categoriaId],
+    ]));
+
+    $response->assertRedirect(route('mi-cuenta'));
+
+    $usuario = Usuario::where(
+        'email',
+        'proveedor@example.test'
+    )->firstOrFail();
+
+    $this->assertDatabaseHas('proveedor', [
+        'id_usuario' => $usuario->id,
+        'especialidad' => 'Diseño gráfico',
+        'telefono' => '3001234567',
+        'whatsapp' => '573001234567',
+    ]);
+
+    // Comprobar que se guardó la relación con la categoría.
+    $this->assertDatabaseHas('proveedor_categorias', [
+        'id_proveedor' => Proveedor::where(
+            'id_usuario',
+            $usuario->id
+        )->value('id_proveedor'),
+        'id_categoria' => $categoriaId,
+    ]);
+
+    $this->assertDatabaseMissing('clientes', [
+        'id_usuario' => $usuario->id,
+    ]);
+}
 
     public function test_no_permite_registrar_cuenta_administradora(): void
     {

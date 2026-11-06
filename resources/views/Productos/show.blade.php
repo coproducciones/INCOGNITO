@@ -38,7 +38,7 @@
             @endif
 
             {{-- VOLVER AL CATÁLOGO --}}
-            <a href="{{ route('productos.index') }}"
+            <a href="{{ route(auth()->user()?->esAdministradorGlobal() ? 'productos.index' : 'mis-productos.index') }}"
                class="inline-flex items-center justify-center rounded-lg border border-white/10 bg-[#202020] px-5 py-3 text-xs font-bold uppercase tracking-widest text-gray-200 transition hover:border-amber-400/40 hover:bg-white/10">
                 <span class="mr-2">←</span>
                 Volver
@@ -223,7 +223,7 @@
                 Información del catálogo de Incógnito Group Design.
             </p>
 
-            <a href="{{ route('productos.index') }}"
+            <a href="{{ route(auth()->user()?->esAdministradorGlobal() ? 'productos.index' : 'mis-productos.index') }}"
                class="text-xs font-bold uppercase tracking-widest text-amber-400 transition hover:text-amber-300">
                 Volver al catálogo →
             </a>

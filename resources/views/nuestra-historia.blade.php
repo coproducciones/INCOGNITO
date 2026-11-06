@@ -253,7 +253,7 @@
                     <span class="h-1.5 w-1.5 rounded-full bg-[#A99045]"></span>
 
                     <span class="text-[9px] font-bold uppercase tracking-[0.25em] text-[#D8C17F] sm:text-[10px]">
-                        Incognito Group Design and Much
+                        Incognito Company
                     </span>
 
                 </div>
@@ -271,7 +271,7 @@
 
 
                 <p class="mx-auto mt-8 max-w-2xl text-md leading-7 text-[#F5F3ED]/55 sm:text-base">
-                    Conoce cómo nació Incognito Group Design and Much, quiénes somos y hacia dónde vamos.
+                    Conoce cómo nació Incognito Company, quiénes somos y hacia dónde vamos.
                 </p>
 
 
@@ -324,9 +324,9 @@
 
 
                     <p class="mb-5 text-sm leading-7 text-[#F5F3ED]/65 sm:text-base sm:leading-8">
-                        Incognito Group nació en Málaga, Santander, como una idea entre personas apasionadas
-                        por el arte, la comunicación y la tecnología. Lo que comenzó como proyectos pequeños
-                        para amigos y conocidos, fue creciendo hasta convertirse en una agencia creativa
+                        Incognito  nació en Málaga, Santander, como una idea entre personas emprendedoras apasionadas
+                        por el arte, la comunicación y la moda. Lo que comenzó como proyectos pequeños
+                        para amigos y conocidos, esta creciendo hasta convertirse en una agencia creativa
                         con presencia regional.
                     </p>
 
@@ -379,7 +379,7 @@
                 <div class="relative z-10">
 
                     <div class="mx-auto flex h-24 w-24 items-center justify-center rounded-xl border border-[#A99045]/30 bg-[#A99045]/[0.07] text-5xl shadow-[0_0_45px_rgba(169,144,69,.08)] transition duration-500 group-hover:scale-105 group-hover:border-[#A99045]/50 group-hover:shadow-[0_0_65px_rgba(169,144,69,.15)] sm:h-28 sm:w-28 sm:text-6xl">
-                        🎯
+                        💡🎯
                     </div>
 
 
@@ -607,12 +607,12 @@
 
 
                             <h3 class="mb-4 text-xl font-black uppercase tracking-tight text-[#F5F3ED] transition-colors group-hover:text-[#D8C17F] sm:text-2xl">
-                                Los primeros proyectos
+                                Nuestro fundador
                             </h3>
 
 
                             <p class="text-sm leading-7 text-[#F5F3ED]/55 sm:text-base">
-                                Fundados Por Cesar Ortiz Design
+                                Fundada Por Cesar Ortiz donde con un grupo de amigos decidieron ofertas sus servicios de manera colaborativa
                             </p>
 
 

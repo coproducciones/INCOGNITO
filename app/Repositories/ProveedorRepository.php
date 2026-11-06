@@ -9,14 +9,14 @@ class ProveedorRepository
 {
     public function all(): Collection
     {
-        return Proveedor::with('usuario')
+        return Proveedor::with(['usuario', 'categorias'])
             ->orderBy('especialidad')
             ->get();
     }
 
     public function find(int $id): Proveedor
     {
-        return Proveedor::with(['usuario', 'disponibilidades'])
+        return Proveedor::with(['usuario', 'disponibilidades', 'categorias'])
             ->findOrFail($id);
     }
 

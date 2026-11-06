@@ -6,7 +6,9 @@ use App\Http\Requests\ResenaStoreRequest;
 use App\Http\Requests\ResenaUpdateRequest;
 use App\Http\Requests\MiResenaStoreRequest;
 use App\Http\Requests\MiResenaUpdateRequest;
+use App\Http\Requests\RespuestaResenaRequest;
 use App\Models\Producto;
+use App\Models\Proveedor;
 use App\Models\Reseña;
 use App\Models\Usuario;
 use App\Services\ReseñaService;
@@ -157,6 +159,58 @@ class ReseñaController extends Controller
                 'success',
                 'Tu reseña fue eliminada correctamente.'
             );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | RESEÑAS DEL PROVEEDOR
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Muestra reseñas de los productos que pertenecen al proveedor autenticado.
+     */
+    public function resenasProveedor(): View
+    {
+        $proveedor = $this->proveedorAutenticado();
+
+        return view('Reseñas.proveedor', [
+            'resenas' => $this->service->resenasDelProveedor(
+                (int) $proveedor->id_proveedor
+            ),
+        ]);
+    }
+
+    /**
+     * El proveedor solo puede guardar el campo respuesta.
+     * El servicio vuelve a comprobar la propiedad del producto.
+     */
+    public function responderComoProveedor(
+        RespuestaResenaRequest $request,
+        Reseña $resena
+    ): RedirectResponse {
+        $proveedor = $this->proveedorAutenticado();
+
+        $this->service->responderComoProveedor(
+            $resena,
+            (int) $proveedor->id_proveedor,
+            $request->validated()['respuesta']
+        );
+
+        return redirect()
+            ->route('proveedor.resenas.index')
+            ->with('success', 'Tu respuesta se guardó correctamente.');
+    }
+
+    private function proveedorAutenticado(): Proveedor
+    {
+        $usuario = Auth::user();
+        abort_unless($usuario !== null, 403);
+
+        $proveedor = $usuario->proveedor()->first();
+        abort_unless($proveedor !== null, 403);
+
+        return $proveedor;
     }
 
     /*

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Categoria;
 use App\Models\Cliente;
 use App\Models\Proveedor;
 use App\Models\Usuario;
@@ -18,7 +19,10 @@ class RegistroController extends Controller
 {
     public function create(): View
     {
-        return view('auth.register');
+        // Comparte el catálogo existente con productos y contenidos.
+        $categorias = Categoria::query()->orderBy('nombre')->get(['id', 'nombre', 'descripcion']);
+
+        return view('auth.register', compact('categorias'));
     }
 
     /**
@@ -41,10 +45,12 @@ class RegistroController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:usuarios,email'],
             'telefono' => ['nullable', 'string', 'max:20', 'required_if:tipo_cuenta,proveedor'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'tipo_cuenta' => ['required', 'string', 'in:visitante,cliente,proveedor'],
+            'tipo_cuenta' => ['required', 'string', 'in:cliente,proveedor'],
             'acepta_terminos' => ['accepted'],
             'empresa' => ['nullable', 'string', 'max:150'],
             'especialidad' => ['required_if:tipo_cuenta,proveedor', 'nullable', 'string', 'max:150'],
+            'categorias' => ['required_if:tipo_cuenta,proveedor', 'array', 'min:1'],
+            'categorias.*' => ['required', 'integer', 'distinct', 'exists:categorias,id'],
             'whatsapp' => ['nullable', 'string', 'max:20'],
             'descripcion' => ['nullable', 'string', 'max:5000'],
         ], [
@@ -58,14 +64,15 @@ class RegistroController extends Controller
             'tipo_cuenta.required' => 'Selecciona el tipo de cuenta.',
             'tipo_cuenta.in' => 'El tipo de cuenta seleccionado no es válido.',
             'especialidad.required_if' => 'Indica la especialidad de tu negocio o servicio.',
+            'categorias.required_if' => 'Selecciona al menos una categoría para tu perfil de proveedor.',
+            'categorias.min' => 'Selecciona al menos una categoría para tu perfil de proveedor.',
+            'categorias.*.exists' => 'Una de las categorías seleccionadas no es válida.',
             'acepta_terminos.accepted' => 'Debes aceptar los términos para crear una cuenta.',
         ]);
 
-        $nombreRol = match ($data['tipo_cuenta']) {
-            'visitante' => 'visitante',
-            'cliente' => 'cliente',
-            'proveedor' => 'proveedor',
-        };
+        // Toda persona que se registra para explorar o comprar utiliza Cliente.
+        // Visitante queda reservado para navegación anónima sin registro.
+        $nombreRol = $data['tipo_cuenta'];
 
         $rol = DB::table('roles')
             ->whereRaw('LOWER(TRIM(nombre)) = ?', [$nombreRol])
@@ -102,7 +109,7 @@ class RegistroController extends Controller
             }
 
             if ($data['tipo_cuenta'] === 'proveedor') {
-                Proveedor::create([
+                $proveedor = Proveedor::create([
                     'id_usuario' => $usuario->id,
                     'especialidad' => $data['especialidad'],
                     'telefono' => $data['telefono'],
@@ -110,6 +117,9 @@ class RegistroController extends Controller
                     'descripcion' => $data['descripcion'] ?? null,
                     'foto_url' => null,
                 ]);
+
+                // Las categorías se guardan en la tabla pivote existente.
+                $proveedor->categorias()->sync($data['categorias']);
             }
 
             return $usuario;
@@ -125,7 +135,6 @@ class RegistroController extends Controller
     private function etiquetaRol(string $rol): string
     {
         return match ($rol) {
-            'visitante' => 'Visitante',
             'cliente' => 'Cliente',
             'proveedor' => 'Proveedor',
             default => ucfirst($rol),

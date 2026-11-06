@@ -55,6 +55,12 @@ class ProductoService
         return DB::transaction(fn () => $this->repository->delete($producto));
     }
 
+    /** Devuelve exclusivamente los productos de un proveedor. */
+    public function getByProveedor(int $idProveedor): Collection
+    {
+        return $this->repository->getByProveedor($idProveedor);
+    }
+
     public function getByCategoria(int $categoriaId): Collection
     {
         return $this->repository->getByCategoria($categoriaId);

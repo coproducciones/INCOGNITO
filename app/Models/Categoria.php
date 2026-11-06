@@ -26,6 +26,23 @@ class Categoria extends Model
     ];
 
     /**
+     * Proveedores que ofrecen servicios en esta categoría.
+     *
+     * @return BelongsToMany
+     */
+    public function proveedores(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Proveedor::class,
+            'proveedor_categorias',
+            'id_categoria',
+            'id_proveedor',
+            'id',
+            'id_proveedor'
+        );
+    }
+
+    /**
      * Obtiene los productos pertenecientes a esta categoría.
      *
      * Relación: una categoría tiene muchos productos.

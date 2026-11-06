@@ -72,7 +72,7 @@ class UsuarioController extends Controller
             $usuario = Auth::user();
 
             return redirect()
-                ->intended(route('dashboard'))
+                ->intended(route('dashboard.index'))
                 ->with(
                     'success',
                     'Bienvenido, ' . $usuario->nombre . '.'

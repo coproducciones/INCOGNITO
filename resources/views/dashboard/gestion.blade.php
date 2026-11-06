@@ -10,7 +10,9 @@
             'nombre' => 'Productos',
             'descripcion' => 'Administra productos, precios, existencias y estado.',
             'icono' => '▦',
-            'rutas' => ['productos.index'],
+            'rutas' => (auth()->user()?->esAdministradorGlobal() ?? false)
+                ? ['productos.index']
+                : ['mis-productos.index'],
             'color' => '#A99045',
         ],
         [

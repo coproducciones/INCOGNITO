@@ -248,7 +248,9 @@ class WhatsAppCloudService
             . number_format((float) $pedido->total, 0, ',', '.');
 
         $lineas[] = 'Por favor, confirma la disponibilidad y los siguientes pasos.';
-
+        $lineas[] = 'Gestiona tus productos de este pedido desde el sistema:';
+        $lineas[] = route('proveedor.pedidos.show', ['pedido' => $pedido->id_pedido]);
+        
         return implode("\n", $lineas);
     }
 }

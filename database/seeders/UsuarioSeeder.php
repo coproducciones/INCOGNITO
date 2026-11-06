@@ -9,24 +9,37 @@ use Illuminate\Support\Facades\Hash;
 
 class UsuarioSeeder extends Seeder
 {
+    /**
+     * Crea el administrador inicial únicamente cuando se proporcionan
+     * credenciales explícitas en el entorno.
+     *
+     * No modifica cuentas existentes ni restablece contraseñas al
+     * volver a ejecutar los seeders.
+     */
     public function run(): void
     {
-        $administrador = Rol::where(
-            'nombre',
-            'Administrador'
-        )->first();
+        $email = config('admin.email');
+        $password = config('admin.password');
+        $nombre = config('admin.name', 'Administrador');
+
+        // No crear cuentas administrativas con credenciales predecibles.
+        if (empty($email) || empty($password)) {
+            return;
+        }
+
+        $administrador = Rol::query()
+            ->where('nombre', 'Administrador')
+            ->first();
 
         if (!$administrador) {
             return;
         }
 
-        Usuario::updateOrCreate(
+        Usuario::query()->firstOrCreate(
+            ['email' => $email],
             [
-                'email' => 'coproducciones3311@gmail.com',
-            ],
-            [
-                'nombre' => 'Cesar Ortiz',
-                'password' => Hash::make('password'),
+                'nombre' => $nombre,
+                'password' => Hash::make($password),
                 'id_rol' => $administrador->id_rol,
             ]
         );

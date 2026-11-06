@@ -113,7 +113,7 @@
                 </p>
 
                 <a
-                    href="{{ route('productos.index') }}"
+                    href="{{ route('servicios') }}"
                     class="orders-primary mt-5 inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-[10px] font-black uppercase tracking-[0.15em]"
                 >
                     <span aria-hidden="true">+</span>
@@ -237,6 +237,12 @@
                 </div>
 
             </div>
+
+            @if(method_exists($pedidos, 'links'))
+                <div class="mt-6">
+                    {{ $pedidos->links() }}
+                </div>
+            @endif
 
         </div>
 

@@ -24,6 +24,9 @@ class Usuario extends Authenticatable
 
     protected $primaryKey = 'id';
 
+    /** Resultados de tienePermiso() ya calculados en esta petición. */
+    protected array $cachePermisos = [];
+
     /*
      * =========================================================
      * CAMPOS ASIGNABLES
@@ -177,8 +180,30 @@ class Usuario extends Authenticatable
      * =========================================================
      */
 
+    /**
+     * Comprueba un permiso. El resultado se guarda en memoria durante la
+     * petición para no repetir las mismas consultas en cada llamada.
+     * La regla no cambia: primero el permiso individual, luego el del rol.
+     */
+    public function tienePermiso(string $nombrePermiso): bool
+    {
+        if (!array_key_exists($nombrePermiso, $this->cachePermisos)) {
+            $this->cachePermisos[$nombrePermiso] = $this->resolverPermiso($nombrePermiso);
+        }
 
-public function tienePermiso(string $nombrePermiso): bool
+        return $this->cachePermisos[$nombrePermiso];
+    }
+
+    /**
+     * Administrador global del catálogo. Es el único criterio para decidir
+     * si el usuario gestiona todos los productos o solo los de su ficha.
+     */
+    public function esAdministradorGlobal(): bool
+    {
+        return $this->tienePermiso('proveedores.ver');
+    }
+
+    private function resolverPermiso(string $nombrePermiso): bool
     {
         // El nombre debe identificar un único permiso en la base de datos.
         // Si hay duplicados entre módulos, denegamos por seguridad.

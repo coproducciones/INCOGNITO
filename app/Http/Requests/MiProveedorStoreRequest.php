@@ -14,6 +14,8 @@ class MiProveedorStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'categorias' => ['required', 'array', 'min:1'],
+            'categorias.*' => ['required', 'integer', 'distinct', 'exists:categorias,id'],
             'especialidad' => ['required', 'string', 'max:150'],
             'telefono' => ['required', 'string', 'max:20'],
             'whatsapp' => ['nullable', 'string', 'max:20'],
@@ -25,7 +27,10 @@ class MiProveedorStoreRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'especialidad.required' => 'Debes indicar tu especialidad.',
+            'categorias.required' => 'Selecciona al menos una categoría.',
+            'categorias.min' => 'Selecciona al menos una categoría.',
+            'categorias.*.exists' => 'Una de las categorías seleccionadas no es válida.',
+            'especialidad.required' => 'Debes indicar tu especialidad específica.',
             'especialidad.max' => 'La especialidad no puede superar los 150 caracteres.',
             'telefono.required' => 'Debes registrar un teléfono de contacto.',
             'telefono.max' => 'El teléfono no puede superar los 20 caracteres.',

@@ -120,7 +120,8 @@ class PedidoRepository
             ->withCount('detalles')
             ->where('id_usuario', $usuarioId)
             ->orderByDesc('fecha_pedido')
-            ->get();
+            ->paginate(10)
+            ->withQueryString();
     }
 
     /**

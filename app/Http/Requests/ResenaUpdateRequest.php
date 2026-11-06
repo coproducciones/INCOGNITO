@@ -26,12 +26,6 @@ class ResenaUpdateRequest extends FormRequest
                 'exists:productos,id',
             ],
 
-            'id_cliente' => [
-                'required',
-                'integer',
-                'exists:clientes,id_cliente',
-            ],
-
             'calificacion' => [
                 'required',
                 'integer',
@@ -41,11 +35,13 @@ class ResenaUpdateRequest extends FormRequest
             'comentario' => [
                 'nullable',
                 'string',
+                'max:2000',
             ],
 
             'respuesta' => [
                 'nullable',
                 'string',
+                'max:2000',
             ],
 
             'fecha' => [

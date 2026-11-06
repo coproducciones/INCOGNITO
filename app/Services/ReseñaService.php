@@ -10,6 +10,7 @@ use App\Models\Usuario;
 use App\Repositories\ReseñaRepository;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\DB;
 
 class ReseñaService
 {
@@ -44,9 +45,16 @@ class ReseñaService
      */
     public function create(array $data): Reseña
     {
-        $data['fecha'] = $data['fecha'] ?? now();
+        return DB::transaction(function () use ($data) {
+            // La ficha de cliente se resuelve en el servidor a partir
+            // del usuario elegido por el administrador.
+            $cliente = $this->clienteDeUsuario((int) $data['id_usuario']);
 
-        return $this->repository->create($data);
+            $data['id_cliente'] = $cliente->id_cliente;
+            $data['fecha'] = $data['fecha'] ?? now();
+
+            return $this->repository->create($data);
+        });
     }
 
     /**
@@ -56,10 +64,15 @@ class ReseñaService
         Reseña $reseña,
         array $data
     ): Reseña {
-        return $this->repository->update(
-            $reseña,
-            $data
-        );
+        return DB::transaction(function () use ($reseña, $data) {
+            // Si la administración cambia el usuario de la reseña,
+            // también se sincroniza la ficha de cliente relacionada.
+            $usuarioId = (int) ($data['id_usuario'] ?? $reseña->id_usuario);
+            $cliente = $this->clienteDeUsuario($usuarioId);
+            $data['id_cliente'] = $cliente->id_cliente;
+
+            return $this->repository->update($reseña, $data);
+        });
     }
 
     /**
@@ -125,48 +138,34 @@ class ReseñaService
      */
     public function productosParaResenar(int $usuarioId)
     {
-        $productos = Producto::query()
+        return Producto::query()
             ->whereHas(
-                'detallesPedido',
-                function (Builder $detalleQuery) use ($usuarioId) {
-                    $detalleQuery->whereHas(
-                        'pedido',
-                        function (Builder $pedidoQuery) use ($usuarioId) {
-                            $pedidoQuery
-                                ->where('id_usuario', $usuarioId)
-                                ->whereHas(
-                                    'estado',
-                                    function (Builder $estadoQuery) {
-                                        $estadoQuery
-                                            ->where('tipo', 'PEDIDO')
-                                            ->whereRaw(
-                                                'LOWER(TRIM(nombre)) = ?',
-                                                ['completado']
-                                            );
-                                    }
-                                );
-                        }
-                    );
-                }
-            )
-            ->orderBy('nombre')
-            ->get();
-
-        /*
-         * Se excluyen los productos que ya fueron reseñados.
-         * El repositorio centraliza la comprobación de duplicados.
-         */
-        return $productos
-            ->filter(
-                function (Producto $producto) use ($usuarioId) {
-                    return !$this->repository
-                        ->existsForUsuarioProducto(
-                            $usuarioId,
-                            (int) $producto->getKey()
+                'detallesPedido.pedido',
+                function (Builder $pedidoQuery) use ($usuarioId) {
+                    $pedidoQuery
+                        ->where('id_usuario', $usuarioId)
+                        ->whereHas(
+                            'estado',
+                            function (Builder $estadoQuery) {
+                                $estadoQuery
+                                    ->where('tipo', 'PEDIDO')
+                                    ->whereRaw(
+                                        'LOWER(TRIM(nombre)) = ?',
+                                        ['completado']
+                                    );
+                            }
                         );
                 }
             )
-            ->values();
+            // La exclusión se ejecuta en SQL, no con una consulta
+            // adicional por cada producto recuperado.
+            ->whereDoesntHave(
+                'resenas',
+                fn (Builder $resenaQuery) => $resenaQuery
+                    ->where('id_usuario', $usuarioId)
+            )
+            ->orderBy('nombre')
+            ->get();
     }
 
     /**
@@ -229,51 +228,29 @@ class ReseñaService
         int $usuarioId,
         array $data
     ): Reseña {
-        $productoId = (int) $data['id_producto'];
+        return DB::transaction(function () use ($usuarioId, $data) {
+            $productoId = (int) $data['id_producto'];
 
-        /*
-         * Validar nuevamente la compra y evitar reseñas duplicadas.
-         */
-        if (!$this->puedeResenarProducto(
-            $usuarioId,
-            $productoId
-        )) {
-            throw ValidationException::withMessages([
-                'id_producto' =>
-                    'No puedes reseñar este producto. Debes tener un pedido completado que lo incluya y no haberlo reseñado anteriormente.',
-            ]);
-        }
+            // Revalidar en el servidor la compra completada y el duplicado.
+            if (!$this->puedeResenarProducto($usuarioId, $productoId)) {
+                throw ValidationException::withMessages([
+                    'id_producto' =>
+                        'No puedes reseñar este producto. Debes tener un pedido completado que lo incluya y no haberlo reseñado anteriormente.',
+                ]);
+            }
 
-        /*
-         * Obtener el usuario autenticado y su ficha de cliente.
-         *
-         * Si no existe una ficha asociada, se crea una básica.
-         * Esto requiere que clientes.id_usuario exista y permita
-         * guardar el identificador del usuario.
-         */
-        $usuario = Usuario::findOrFail($usuarioId);
+            $cliente = $this->clienteDeUsuario($usuarioId);
 
-        $cliente = Cliente::firstOrCreate(
-            [
+            // Los identificadores de propietario se generan en servidor.
+            return $this->repository->create([
                 'id_usuario' => $usuarioId,
-            ],
-            [
-                'nombre' => $usuario->nombre,
-            ]
-        );
-
-        /*
-         * Los campos sensibles se construyen en el servidor.
-         * El usuario no puede elegir otro id_usuario o id_cliente.
-         */
-        return $this->repository->create([
-            'id_usuario' => $usuarioId,
-            'id_producto' => $productoId,
-            'id_cliente' => $cliente->id_cliente,
-            'calificacion' => (int) $data['calificacion'],
-            'comentario' => $data['comentario'] ?? null,
-            'fecha' => now(),
-        ]);
+                'id_producto' => $productoId,
+                'id_cliente' => $cliente->id_cliente,
+                'calificacion' => (int) $data['calificacion'],
+                'comentario' => $data['comentario'] ?? null,
+                'fecha' => now(),
+            ]);
+        });
     }
 
     /*
@@ -293,12 +270,15 @@ class ReseñaService
         int $usuarioId,
         array $data
     ): Reseña {
-        if ((int) $reseña->id_usuario !== $usuarioId) {
-            abort(403);
-        }
+        // La búsqueda ya está limitada por id_usuario: una URL manipulada
+        // no permite modificar reseñas de otra cuenta.
+        $reseñaPropia = $this->repository->findForUsuario(
+            (int) $reseña->getKey(),
+            $usuarioId
+        );
 
         return $this->repository->update(
-            $reseña,
+            $reseñaPropia,
             [
                 'calificacion' => (int) $data['calificacion'],
                 'comentario' => $data['comentario'] ?? null,
@@ -319,10 +299,63 @@ class ReseñaService
         Reseña $reseña,
         int $usuarioId
     ): bool {
-        if ((int) $reseña->id_usuario !== $usuarioId) {
-            abort(403);
-        }
+        // El registro se recupera exclusivamente dentro del conjunto propio.
+        $reseñaPropia = $this->repository->findForUsuario(
+            (int) $reseña->getKey(),
+            $usuarioId
+        );
 
-        return $this->repository->delete($reseña);
+        return $this->repository->delete($reseñaPropia);
+    }
+
+    /**
+     * Lista únicamente las reseñas de productos pertenecientes al proveedor.
+     */
+    public function resenasDelProveedor(int $proveedorId)
+    {
+        return Reseña::query()
+            ->with(['usuario', 'producto'])
+            ->whereHas('producto', function (Builder $query) use ($proveedorId): void {
+                $query->where('id_proveedor', $proveedorId);
+            })
+            ->orderByDesc('fecha')
+            ->paginate(15)
+            ->withQueryString();
+    }
+
+    /**
+     * Guarda exclusivamente la respuesta del proveedor.
+     * No modifica comentario, calificación, usuario ni producto.
+     */
+    public function responderComoProveedor(
+        Reseña $reseña,
+        int $proveedorId,
+        string $respuesta
+    ): Reseña {
+        $reseñaPropia = Reseña::query()
+            ->whereKey($reseña->getKey())
+            ->whereHas('producto', function (Builder $query) use ($proveedorId): void {
+                $query->where('id_proveedor', $proveedorId);
+            })
+            ->firstOrFail();
+
+        $reseñaPropia->respuesta = trim($respuesta);
+        $reseñaPropia->save();
+
+        return $reseñaPropia->refresh()->load(['usuario', 'producto']);
+    }
+
+    /**
+     * Obtiene o crea la ficha de cliente vinculada a una cuenta.
+     * Nunca acepta un id_cliente enviado por el navegador.
+     */
+    private function clienteDeUsuario(int $usuarioId): Cliente
+    {
+        $usuario = Usuario::query()->findOrFail($usuarioId);
+
+        return Cliente::query()->firstOrCreate(
+            ['id_usuario' => $usuarioId],
+            ['nombre' => $usuario->nombre]
+        );
     }
 }

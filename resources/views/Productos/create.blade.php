@@ -14,7 +14,7 @@
         <div class="mt-3 h-[3px] w-[60px] rounded-full bg-[#A99045]"></div>
     </div>
 
-    <a href="{{ route('productos.index') }}"
+    <a href="{{ route(auth()->user()?->esAdministradorGlobal() ? 'productos.index' : 'mis-productos.index') }}"
        class="inline-flex items-center justify-center rounded border border-[#A99045]/40 bg-[#1D1D1D] px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-[#D8C17F] transition hover:border-[#D8C17F] hover:bg-[#A99045]/10">
         ← Volver
     </a>
@@ -199,7 +199,7 @@
                 </button>
             @endif
 
-            <a href="{{ route('productos.index') }}"
+            <a href="{{ route(auth()->user()?->esAdministradorGlobal() ? 'productos.index' : 'mis-productos.index') }}"
                class="rounded-lg border border-white/15 bg-[#1D1D1D] px-6 py-3 text-xs font-bold uppercase tracking-widest text-white/70 transition hover:border-[#A99045]/50 hover:text-[#D8C17F]">
                 Cancelar
             </a>

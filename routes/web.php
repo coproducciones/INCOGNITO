@@ -2,6 +2,7 @@
 
 use App\Models\Producto;
 use App\Models\Categoria;
+use App\Models\Proveedor;
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CategoriaController;
@@ -22,6 +23,7 @@ use App\Http\Controllers\RolController;
 use App\Http\Controllers\SeguridadUsuarioController;
 use App\Http\Controllers\CarritoController;
 use App\Http\Controllers\RegistroController;
+use App\Http\Controllers\ProveedorPedidoController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -52,37 +54,79 @@ Route::get('/nuestra-historia', function () {
 
 Route::get('/servicios', function () {
     $categoriaId = request()->query('categoria');
+    $busqueda = trim((string) request()->query('q', ''));
 
-    $categorias = Categoria::withCount([
-        'productos' => function ($query) {
-            $query->where('activo', true);
-        },
-    ])
+    // Categorías con conteo de productos públicos y proveedores asociados.
+    $categorias = Categoria::query()
+        ->withCount([
+            'productos' => function ($query) {
+                $query->publicos();
+            },
+            'proveedores',
+        ])
         ->orderBy('nombre')
         ->get();
 
-    $productos = Producto::with(['categoria', 'media' => function ($query) {
-        $query->whereNotNull('url')
-            ->orderByDesc('destacado')
-            ->orderByDesc('id');
-    }])
-        ->where('activo', true)
-        ->when(
-            $categoriaId !== null && $categoriaId !== '',
-            function ($query) use ($categoriaId) {
-                $query->where('categoria_id', $categoriaId);
-            }
-        )
+    // Catálogo público de proveedores. La búsqueda y el filtro se aplican
+    // tanto al nombre/especialidad como a la categoría seleccionada.
+    $proveedores = Proveedor::query()
+        ->with(['usuario', 'categorias'])
+        ->whereHas('usuario')
+        ->when($categoriaId !== null && $categoriaId !== '', function ($query) use ($categoriaId) {
+            $query->whereHas('categorias', function ($categoriaQuery) use ($categoriaId) {
+                $categoriaQuery->where('categorias.id', $categoriaId);
+            });
+        })
+        ->when($busqueda !== '', function ($query) use ($busqueda) {
+            $query->where(function ($filtro) use ($busqueda) {
+                $filtro->where('especialidad', 'like', "%{$busqueda}%")
+                    ->orWhere('descripcion', 'like', "%{$busqueda}%")
+                    ->orWhereHas('usuario', function ($usuarioQuery) use ($busqueda) {
+                        $usuarioQuery->where('nombre', 'like', "%{$busqueda}%");
+                    })
+                    ->orWhereHas('categorias', function ($categoriaQuery) use ($busqueda) {
+                        $categoriaQuery->where('nombre', 'like', "%{$busqueda}%");
+                    });
+            });
+        })
+        ->orderBy('id_proveedor')
+        ->paginate(6, ['*'], 'proveedores_page')
+        ->withQueryString();
+
+    // Productos públicos (activos y de proveedores vigentes).
+    $productos = Producto::query()
+        ->with(['categoria', 'media', 'proveedor'])
+        ->publicos()
+        ->when($categoriaId !== null && $categoriaId !== '', function ($query) use ($categoriaId) {
+            $query->where('categoria_id', $categoriaId);
+        })
+        ->when($busqueda !== '', function ($query) use ($busqueda) {
+            $query->where(function ($filtro) use ($busqueda) {
+                $filtro->where('nombre', 'like', "%{$busqueda}%")
+                    ->orWhere('descripcion', 'like', "%{$busqueda}%");
+            });
+        })
         ->orderBy('nombre')
-        ->paginate(12)
+        ->paginate(12, ['*'], 'productos_page')
         ->withQueryString();
 
     return view('servicios', compact(
         'categorias',
         'productos',
-        'categoriaId'
+        'proveedores',
+        'categoriaId',
+        'busqueda'
     ));
 })->name('servicios');
+
+// Perfil público del proveedor, accesible sin iniciar sesión.
+Route::get('/servicios/proveedor/{proveedor}', function (Proveedor $proveedor) {
+    $proveedor->load(['usuario', 'categorias']);
+
+    abort_unless($proveedor->usuario, 404);
+
+    return view('Proveedores.public-show', compact('proveedor'));
+})->whereNumber('proveedor')->name('servicios.proveedor');
 
 
 /*
@@ -92,19 +136,16 @@ Route::get('/servicios', function () {
 */
 
 Route::get('/servicios/producto/{producto}', function (Producto $producto) {
-    abort_unless($producto->activo, 404);
+    abort_unless(
+        Producto::query()->publicos()->whereKey($producto->getKey())->exists(),
+        404
+    );
 
-    $producto->load([
-        'categoria',
-        'media' => function ($query) {
-            $query->whereNotNull('url')
-                ->orderByDesc('destacado')
-                ->orderByDesc('id');
-        },
-    ]);
+    $producto->load(['categoria', 'proveedor']);
 
     return view('servicios-detalle', compact('producto'));
 })->name('servicios.detalle');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -113,6 +154,8 @@ Route::get('/servicios/producto/{producto}', function (Producto $producto) {
 */
 
 Route::resource('categorias', CategoriaController::class)
+    ->middlewareFor('index', 'permiso:categorias.ver')
+    ->middlewareFor('show', 'permiso:categorias.ver')
     ->middlewareFor('create', 'permiso:categorias.crear')
     ->middlewareFor('store', 'permiso:categorias.crear')
     ->middlewareFor('edit', 'permiso:categorias.editar')
@@ -126,12 +169,27 @@ Route::resource('categorias', CategoriaController::class)
 |--------------------------------------------------------------------------
 */
 
+// El listado administrativo (index) es solo para el administrador global.
+// El proveedor gestiona sus productos desde /mis-productos.
 Route::resource('productos', ProductoController::class)
+    ->middlewareFor('index', 'permiso:proveedores.ver')
+    ->middlewareFor('show', 'permiso:productos.ver')
     ->middlewareFor('create', 'permiso:productos.crear')
     ->middlewareFor('store', 'permiso:productos.crear')
     ->middlewareFor('edit', 'permiso:productos.editar')
     ->middlewareFor('update', 'permiso:productos.editar')
     ->middlewareFor('destroy', 'permiso:productos.eliminar');
+
+Route::patch(
+    'productos/{producto}/estado',
+    [ProductoController::class, 'toggleEstado']
+)
+    ->middleware('permiso:productos.editar')
+    ->name('productos.estado');
+
+Route::get('/mis-productos', [ProductoController::class, 'misProductos'])
+    ->middleware('permiso:productos.ver')
+    ->name('mis-productos.index');
 
 
 /*
@@ -195,7 +253,7 @@ Route::resource('multimedias', MultimediaController::class)
 */
 
 Route::resource('clientes', ClienteController::class)
-    ->middlewareFor('index', 'permiso:usuarios.ver')
+    ->middlewareFor('index', 'permiso:clientes.ver')
     ->middlewareFor('create', 'permiso:clientes.crear')
     ->middlewareFor('store', 'permiso:clientes.crear')
     ->middlewareFor('show', 'permiso:clientes.ver')
@@ -227,7 +285,7 @@ Route::resource('reseñas', ReseñaController::class)
 */
 
 Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->middleware('auth')
+    ->middleware('permiso:dashboard.ver')
     ->name('dashboard');
 
 
@@ -247,47 +305,47 @@ Route::resource('pedidos', PedidoController::class)
         'update',
         'destroy',
     ])
-    ->middlewareFor('index', 'permiso:pedidos.ver')
-    ->middlewareFor('create', 'permiso:pedidos.crear')
-    ->middlewareFor('store', 'permiso:pedidos.crear')
-    ->middlewareFor('show', 'permiso:pedidos.ver')
-    ->middlewareFor('edit', 'permiso:pedidos.editar')
-    ->middlewareFor('update', 'permiso:pedidos.editar')
-    ->middlewareFor('destroy', 'permiso:pedidos.cancelar');
+    ->middlewareFor('index', 'permiso:pedidos.admin.ver')
+    ->middlewareFor('create', 'permiso:pedidos.admin.crear')
+    ->middlewareFor('store', 'permiso:pedidos.admin.crear')
+    ->middlewareFor('show', 'permiso:pedidos.admin.ver')
+    ->middlewareFor('edit', 'permiso:pedidos.admin.editar')
+    ->middlewareFor('update', 'permiso:pedidos.admin.editar')
+    ->middlewareFor('destroy', 'permiso:pedidos.admin.eliminar');
 
 Route::patch(
     'pedidos/{pedido}/estado',
     [PedidoController::class, 'updateEstado']
 )
-    ->middleware('permiso:pedidos.editar')
+    ->middleware('permiso:pedidos.admin.editar')
     ->name('pedidos.estado.update');
 
 Route::post(
     'pedidos/{pedido}/detalles',
     [DetallePedidoController::class, 'store']
 )
-    ->middleware('permiso:pedidos.editar')
+    ->middleware('permiso:pedidos.admin.editar')
     ->name('pedidos.detalles.store');
 
 Route::patch(
     'pedidos/{pedido}/detalles/{detalle}',
     [DetallePedidoController::class, 'update']
 )
-    ->middleware('permiso:pedidos.editar')
+    ->middleware('permiso:pedidos.admin.editar')
     ->name('pedidos.detalles.update');
 
 Route::delete(
     'pedidos/{pedido}/detalles/{detalle}',
     [DetallePedidoController::class, 'destroy']
 )
-    ->middleware('permiso:pedidos.editar')
+    ->middleware('permiso:pedidos.admin.editar')
     ->name('pedidos.detalles.destroy');
 
 Route::post(
     'pedidos/{pedido}/eventos',
     [PedidoEventoController::class, 'store']
 )
-    ->middleware('permiso:pedidos.editar')
+    ->middleware('permiso:pedidos.admin.editar')
     ->name('pedidos.eventos.store');
 
 
@@ -301,7 +359,7 @@ Route::get(
     'pedidos/{pedido}/whatsapp/{proveedor}',
     [PedidoController::class, 'whatsappProveedor']
 )
-    ->middleware('auth')
+    ->middleware(['auth', 'permiso:proveedores.contactar'])
     ->name('pedidos.whatsapp.proveedor');
 
 
@@ -330,15 +388,17 @@ Route::resource('proveedores', ProveedorController::class)
 |--------------------------------------------------------------------------
 */
 
-Route::get(
-    '/mi-perfil-proveedor/crear',
-    [ProveedorController::class, 'crearMiPerfil']
-)->name('proveedores.mi-perfil.create');
+Route::middleware('auth')->group(function () {
+    Route::get(
+        '/mi-perfil-proveedor/crear',
+        [ProveedorController::class, 'crearMiPerfil']
+    )->name('proveedores.mi-perfil.create');
 
-Route::post(
-    '/mi-perfil-proveedor',
-    [ProveedorController::class, 'guardarMiPerfil']
-)->name('proveedores.mi-perfil.store');
+    Route::post(
+        '/mi-perfil-proveedor',
+        [ProveedorController::class, 'guardarMiPerfil']
+    )->name('proveedores.mi-perfil.store');
+});
 
 
 /*
@@ -399,6 +459,7 @@ Route::middleware('auth')->group(function () {
 */
 
 Route::prefix('proveedores/{proveedor}')
+    ->middleware('auth')
     ->name('proveedores.')
     ->group(function () {
         Route::get(
@@ -537,7 +598,13 @@ Route::resource('permisos', PermisoController::class)
 */
 
 Route::resource('estados', EstadoGeneralController::class)
-    ->except('show');
+    ->except('show')
+    ->middlewareFor('index', 'permiso:estados.ver')
+    ->middlewareFor('create', 'permiso:estados.crear')
+    ->middlewareFor('store', 'permiso:estados.crear')
+    ->middlewareFor('edit', 'permiso:estados.editar')
+    ->middlewareFor('update', 'permiso:estados.editar')
+    ->middlewareFor('destroy', 'permiso:estados.eliminar');
 
 
 /*
@@ -595,72 +662,72 @@ Route::middleware('auth')
         Route::get(
             '/perfil',
             [UsuarioController::class, 'perfil']
-        )->name('mi-cuenta.perfil');
+        )->middleware('permiso:perfil.ver')->name('mi-cuenta.perfil');
 
         Route::get(
             '/perfil/editar',
             [UsuarioController::class, 'editProfile']
-        )->name('mi-cuenta.perfil.edit');
+        )->middleware('permiso:perfil.editar')->name('mi-cuenta.perfil.edit');
 
         Route::put(
             '/perfil',
             [UsuarioController::class, 'updateProfile']
-        )->name('mi-cuenta.perfil.update');
+        )->middleware('permiso:perfil.editar')->name('mi-cuenta.perfil.update');
 
         Route::get(
             '/pedidos',
             [PedidoController::class, 'misPedidos']
-        )->name('mi-cuenta.pedidos');
+        )->middleware('permiso:pedidos.ver')->name('mi-cuenta.pedidos');
 
         Route::get(
             '/pedidos/{pedido}',
             [PedidoController::class, 'miPedido']
-        )->name('mi-cuenta.pedidos.show');
+        )->middleware('permiso:pedidos.ver')->name('mi-cuenta.pedidos.show');
 
         Route::delete(
             '/pedidos/{pedido}/cancelar',
             [PedidoController::class, 'cancelarMiPedido']
-        )->name('mi-cuenta.pedidos.cancelar');
+        )->middleware('permiso:pedidos.cancelar')->name('mi-cuenta.pedidos.cancelar');
 
         Route::patch(
             '/pedidos/{pedido}/detalles/{detalle}',
             [PedidoController::class, 'actualizarDetalleMiPedido']
-        )->name('mi-cuenta.pedidos.detalles.update');
+        )->middleware('permiso:pedidos.editar')->name('mi-cuenta.pedidos.detalles.update');
 
         Route::delete(
             '/pedidos/{pedido}/detalles/{detalle}',
             [PedidoController::class, 'eliminarDetalleMiPedido']
-        )->name('mi-cuenta.pedidos.detalles.destroy');
+        )->middleware('permiso:pedidos.editar')->name('mi-cuenta.pedidos.detalles.destroy');
 
         Route::get(
             '/resenas',
             [ReseñaController::class, 'misResenas']
-        )->name('mi-cuenta.resenas');
+        )->middleware('permiso:resenas.ver')->name('mi-cuenta.resenas');
 
         Route::get(
             '/resenas/create',
             [ReseñaController::class, 'createMiResena']
-        )->name('mi-cuenta.resenas.create');
+        )->middleware('permiso:resenas.crear')->name('mi-cuenta.resenas.create');
 
         Route::post(
             '/resenas',
             [ReseñaController::class, 'storeMiResena']
-        )->name('mi-cuenta.resenas.store');
+        )->middleware('permiso:resenas.crear')->name('mi-cuenta.resenas.store');
 
         Route::get(
             '/resenas/{reseña}/edit',
             [ReseñaController::class, 'editMiResena']
-        )->name('mi-cuenta.resenas.edit');
+        )->middleware('permiso:resenas.editar')->name('mi-cuenta.resenas.edit');
 
         Route::put(
             '/resenas/{reseña}',
             [ReseñaController::class, 'updateMiResena']
-        )->name('mi-cuenta.resenas.update');
+        )->middleware('permiso:resenas.editar')->name('mi-cuenta.resenas.update');
 
         Route::delete(
             '/resenas/{reseña}',
             [ReseñaController::class, 'destroyMiResena']
-        )->name('mi-cuenta.resenas.destroy');
+        )->middleware('permiso:resenas.eliminar')->name('mi-cuenta.resenas.destroy');
     });
 
 
@@ -674,32 +741,32 @@ Route::middleware('auth')->group(function () {
     Route::get(
         '/carrito',
         [CarritoController::class, 'index']
-    )->name('carrito.index');
+    )->middleware('permiso:carrito.ver')->name('carrito.index');
 
     Route::post(
         '/carrito/confirmar',
         [CarritoController::class, 'confirmar']
-    )->name('carrito.confirmar');
+    )->middleware('permiso:pedidos.crear')->name('carrito.confirmar');
 
     Route::post(
         '/carrito/{producto}',
         [CarritoController::class, 'add']
-    )->name('carrito.add');
+    )->middleware('permiso:carrito.crear')->name('carrito.add');
 
     Route::patch(
         '/carrito/{producto}',
         [CarritoController::class, 'update']
-    )->name('carrito.update');
+    )->middleware('permiso:carrito.editar')->name('carrito.update');
 
     Route::delete(
         '/carrito/{producto}',
         [CarritoController::class, 'remove']
-    )->name('carrito.remove');
+    )->middleware('permiso:carrito.eliminar')->name('carrito.remove');
 
     Route::delete(
         '/carrito',
         [CarritoController::class, 'clear']
-    )->name('carrito.clear');
+    )->middleware('permiso:carrito.eliminar')->name('carrito.clear');
 });
 
 
@@ -710,5 +777,23 @@ Route::middleware('auth')->group(function () {
 */
 
 Route::view('/panel', 'dashboard.gestion')
-    ->middleware('auth')
+    ->middleware('permiso:dashboard.ver')
     ->name('dashboard.gestion');
+
+
+Route::middleware('auth')
+    ->prefix('proveedor/pedidos')
+    ->name('proveedor.pedidos.')
+    ->group(function () {
+        Route::get('/', [ProveedorPedidoController::class, 'index'])
+            ->middleware('permiso:proveedor.pedidos.ver')
+            ->name('index');
+        Route::get('/{pedido}', [ProveedorPedidoController::class, 'show'])
+            ->whereNumber('pedido')
+            ->middleware('permiso:proveedor.pedidos.ver')
+            ->name('show');
+        Route::patch('/{pedido}/estado', [ProveedorPedidoController::class, 'updateEstado'])
+            ->whereNumber('pedido')
+            ->middleware('permiso:proveedor.pedidos.estado.actualizar')
+            ->name('estado.update');
+    });

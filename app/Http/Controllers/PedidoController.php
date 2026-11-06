@@ -12,6 +12,8 @@ use App\Models\Pedido;
 use App\Models\Producto;
 use App\Models\Proveedor;
 use App\Models\Usuario;
+use App\Models\PedidoProveedorEstado;
+use App\Models\PedidoProveedorEvento;
 use App\Repositories\PedidoRepository;
 use App\Services\PedidoService;
 use Illuminate\Http\RedirectResponse;
@@ -63,11 +65,29 @@ class PedidoController extends Controller
             ->filter()
             ->unique('id_proveedor')
             ->values();
+            $proveedores->load('usuario');
 
+        $idsProveedores = $proveedores->pluck('id_proveedor');
+
+        $estadosProveedores = PedidoProveedorEstado::query()
+            ->with('estado')
+            ->where('id_pedido', $pedido->id_pedido)
+            ->whereIn('id_proveedor', $idsProveedores)
+            ->get()
+            ->keyBy('id_proveedor');
+
+        $historialEstadosProveedores = PedidoProveedorEvento::query()
+            ->with('estado')
+            ->where('id_pedido', $pedido->id_pedido)
+            ->whereIn('id_proveedor', $idsProveedores)
+            ->orderByDesc('fecha')
+            ->get();
         return view('Pedidos.show', [
             'pedido' => $pedido,
             'modoMiCuenta' => true,
             'proveedores' => $proveedores,
+            'estadosProveedores' => $estadosProveedores,
+            'historialEstadosProveedores' => $historialEstadosProveedores,
         ]);
     }
 
@@ -425,6 +445,11 @@ class PedidoController extends Controller
 
         $mensaje[] = '';
         $mensaje[] = 'Por favor, confirma la disponibilidad y los siguientes pasos.';
+        
+        $mensaje[] = '';
+        $mensaje[] = 'Gestiona tus productos de este pedido desde el sistema:';
+        $mensaje[] = route('proveedor.pedidos.show', ['pedido' => $pedido->id_pedido]);
+
 
         $texto = rawurlencode(implode("\n", $mensaje));
 

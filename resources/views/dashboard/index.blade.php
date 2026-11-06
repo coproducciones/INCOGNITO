@@ -6,14 +6,9 @@
 
 <div class="studio-shell relative isolate overflow-x-clip bg-[#151515] text-[#F5F3ED]">
 
-    {{-- =========================================================
-
-         ESTILOS GENERALES
-
-    ========================================================== --}}
+    {{-- ===== ESTILOS GENERALES ========== --}}
 
     <style>
-
         .studio-shell {
 
             --studio-bg: #151515;
@@ -414,527 +409,15 @@
 
     </style>
 
-    {{-- =========================================================
-
-         NAVBAR
-
-    ========================================================== --}}
-
-    <header class="fixed inset-x-0 top-0 z-50 border-b border-[#F5F3ED]/10 bg-[#151515]/90 shadow-[0_8px_40px_rgba(0,0,0,0.25)] backdrop-blur-2xl">
-
-        <nav
-
-            class="mx-auto flex h-20 max-w-7xl items-center justify-between gap-4 px-5 sm:px-6 lg:px-10"
-
-            aria-label="Navegación principal"
-
-        >
-
-            {{-- LOGO --}}
-
-            <a href="{{ url('/') }}" class="group flex shrink-0 items-center gap-3">
-
-                <div class="studio-logo-mark flex h-11 w-11 items-center justify-center rounded-lg text-xl font-black text-[#D8C17F] transition duration-300 group-hover:border-[#A99045]/70 sm:h-12 sm:w-12">
-
-                    O
-
-                </div>
-
-                <div class="hidden leading-none sm:block">
-
-                    <span class="block text-xs font-black uppercase tracking-[0.16em] text-[#F5F3ED]">
-
-                        Incógnito
-
-                    </span>
-
-                    <span class="mt-1.5 block text-[9px] uppercase tracking-[0.22em] text-[#F5F3ED]/45">
-
-                        Group Design
-
-                    </span>
-
-                </div>
-
-            </a>
-
-            {{-- MENÚ DE ESCRITORIO --}}
-
-            <div class="hidden items-center gap-6 md:flex lg:gap-8">
-
-                <a
-
-                    href="{{ url('/') }}"
-
-                    class="text-[10px] font-bold uppercase tracking-[0.16em] text-[#F5F3ED]/65 transition hover:text-[#D8C17F]"
-
-                >
-
-                    Home
-
-                </a>
-
-                <a
-
-                    href="{{ url('nuestro-trabajo') }}"
-
-                    class="text-[10px] font-bold uppercase tracking-[0.16em] text-[#F5F3ED]/65 transition hover:text-[#D8C17F]"
-
-                >
-
-                    Nuestro trabajo
-
-                </a>
-
-                <a
-
-                    href="{{ url('nuestra-historia') }}"
-
-                    class="text-[10px] font-bold uppercase tracking-[0.16em] text-[#F5F3ED]/65 transition hover:text-[#D8C17F]"
-
-                >
-
-                    Nuestra historia
-
-                </a>
-
-                <a
-
-                    href="{{ url('servicios') }}"
-
-                    class="text-[10px] font-bold uppercase tracking-[0.16em] text-[#F5F3ED]/65 transition hover:text-[#D8C17F]"
-
-                >
-
-                    Servicios
-
-                </a>
-
-            </div>
-
-            {{-- ACCIONES DEL USUARIO --}}
-
-            <div class="flex shrink-0 items-center gap-2 sm:gap-3">
-
-                @guest
-
-                    {{-- INICIAR SESIÓN --}}
-
-                    <a
-
-                        href="{{ route('login') }}"
-
-                        class="hidden rounded-lg border border-[#F5F3ED]/15 bg-[#F5F3ED]/[0.03] px-4 py-2.5 text-[9px] font-black uppercase tracking-wider text-[#F5F3ED] transition hover:border-[#A99045]/50 hover:bg-[#A99045]/[0.07] sm:inline-flex"
-
-                    >
-
-                        Iniciar sesión
-
-                    </a>
-
-                    {{-- REGISTRO --}}
-
-                    <a
-
-                        href="{{ route('usuarios.create') }}"
-
-                        class="studio-primary hidden rounded-lg px-5 py-2.5 text-[9px] font-black uppercase tracking-wider sm:inline-flex"
-
-                    >
-
-                        Registrarse
-
-                    </a>
-
-                @endguest
-
-                @auth
-
-                    {{-- MENÚ DE CUENTA --}}
-
-                    <div
-
-                        x-data="{ open: false }"
-
-                        class="relative"
-
-                    >
-
-                        <button
-
-                            type="button"
-
-                            @click="open = !open"
-
-                            @click.outside="open = false"
-
-                            @keydown.escape.window="open = false"
-
-                            class="flex max-w-[190px] items-center gap-2 rounded-lg border border-[#F5F3ED]/10 bg-[#F5F3ED]/[0.04] px-2.5 py-2 text-[#F5F3ED] transition hover:border-[#A99045]/40 hover:bg-[#F5F3ED]/[0.07] sm:gap-3 sm:px-3"
-
-                            aria-haspopup="true"
-
-                            :aria-expanded="open.toString()"
-
-                        >
-
-                            <img
-
-                                src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->nombre ?? (auth()->user()->name ?? 'Usuario')) }}&background=A99045&color=151515"
-
-                                alt="Avatar de {{ auth()->user()->nombre ?? (auth()->user()->name ?? 'Usuario') }}"
-
-                                class="h-7 w-7 shrink-0 rounded-lg ring-1 ring-[#A99045]/50"
-
-                            >
-
-                            <span class="hidden max-w-[110px] truncate text-[9px] font-black uppercase tracking-wider sm:block">
-
-                                {{ auth()->user()->nombre ?? (auth()->user()->name ?? 'Usuario') }}
-
-                            </span>
-
-                            <svg
-
-                                class="h-3 w-3 shrink-0 text-[#D8C17F] transition"
-
-                                :class="{ 'rotate-180': open }"
-
-                                viewBox="0 0 24 24"
-
-                                fill="none"
-
-                                stroke="currentColor"
-
-                                stroke-width="2"
-
-                                aria-hidden="true"
-
-                            >
-
-                                <path stroke-linecap="round" stroke-linejoin="round" d="m7 10 5 5 5-5"/>
-
-                            </svg>
-
-                        </button>
-
-                    {{-- DESPLEGABLE --}}
-    <div
-    x-show="open"
-    x-cloak
-    x-transition.opacity.duration.150ms
-    @click.outside="open = false"
-    class="absolute right-0 mt-3 w-64 overflow-hidden rounded-xl border border-[#F5F3ED]/10 bg-[#1D1D1D] shadow-[0_20px_80px_rgba(0,0,0,0.5)]"
->
-    {{-- INFORMACIÓN DEL USUARIO --}}
-    <div class="border-b border-[#F5F3ED]/[0.08] px-5 py-4">
-        <p class="truncate text-xs font-black uppercase tracking-wider text-[#F5F3ED]">
-            {{ auth()->user()->nombre ?? (auth()->user()->name ?? 'Usuario') }}
-        </p>
-
-        <p class="mt-1.5 truncate text-[10px] text-[#F5F3ED]/40">
-            {{ auth()->user()->email }}
-        </p>
-
-        @if (auth()->user()->rol)
-            <p class="mt-2 text-[9px] font-bold uppercase tracking-widest text-[#D8C17F]">
-                {{ auth()->user()->rol->nombre }}
-            </p>
-        @endif
-    </div>
-
-    {{-- MI CUENTA --}}
-    @if (Route::has('mi-cuenta'))
-        <a
-            href="{{ route('mi-cuenta') }}"
-            class="block px-5 py-3.5 text-[10px] font-bold uppercase tracking-wider text-[#F5F3ED]/65 transition hover:bg-[#A99045]/[0.08] hover:text-[#D8C17F]"
-        >
-            Mi cuenta
-        </a>
-    @endif
-
-    {{-- MI PERFIL --}}
-    @if (Route::has('mi-cuenta.perfil'))
-        <a
-            href="{{ route('mi-cuenta.perfil') }}"
-            class="block px-5 py-3.5 text-[10px] font-bold uppercase tracking-wider text-[#F5F3ED]/65 transition hover:bg-[#A99045]/[0.08] hover:text-[#D8C17F]"
-        >
-            Mi perfil
-        </a>
-    @endif
-
-    {{-- EDITAR PERFIL --}}
-    @if (Route::has('mi-cuenta.perfil'))
-        <a
-            href="{{ route('mi-cuenta.perfil') }}"
-            class="block px-5 py-3.5 text-[10px] font-bold uppercase tracking-wider text-[#F5F3ED]/65 transition hover:bg-[#A99045]/[0.08] hover:text-[#D8C17F]"
-        >
-            Editar perfil
-        </a>
-    @endif
-
-    {{-- MIS PEDIDOS --}}
-    @if (Route::has('mi-cuenta.pedidos'))
-        <a
-            href="{{ route('mi-cuenta.pedidos') }}"
-            class="block px-5 py-3.5 text-[10px] font-bold uppercase tracking-wider text-[#F5F3ED]/65 transition hover:bg-[#A99045]/[0.08] hover:text-[#D8C17F]"
-        >
-            Mis pedidos
-        </a>
-    @endif
-
-    {{-- MIS RESEÑAS --}}
-    @if (Route::has('mi-cuenta.resenas'))
-        <a
-            href="{{ route('mi-cuenta.resenas') }}"
-            class="block px-5 py-3.5 text-[10px] font-bold uppercase tracking-wider text-[#F5F3ED]/65 transition hover:bg-[#A99045]/[0.08] hover:text-[#D8C17F]"
-        >
-            Mis reseñas
-        </a>
-    @endif
-
-    {{-- PANEL --}}
-    @if (Route::has('dashboard.gestion'))
-        <div class="border-t border-[#F5F3ED]/10"></div>
-
-        <a
-            href="{{ route('dashboard.gestion') }}"
-            class="block px-5 py-3.5 text-[10px] font-black uppercase tracking-wider text-[#D8C17F] transition hover:bg-[#A99045]/[0.10]"
-        >
-            Panel
-        </a>
-    @endif
-
-    {{-- CERRAR SESIÓN --}}
-    <div class="border-t border-[#F5F3ED]/10"></div>
-
-    <form method="POST" action="{{ route('logout') }}">
-        @csrf
-
-        <button
-            type="submit"
-            class="w-full px-5 py-3.5 text-left text-[10px] font-bold uppercase tracking-wider text-[#E7A5A6] transition hover:bg-[#9E2428]/[0.10]"
-        >
-            Cerrar sesión
-        </button>
-    </form>
-</div>
-
-                    </div>
-
-                @endauth
-
-                {{-- BOTÓN DEL MENÚ MÓVIL --}}
-
-                <div
-
-                    x-data="{ open: false }"
-
-                    class="relative md:hidden"
-
-                >
-
-                    <button
-
-                        type="button"
-
-                        @click="open = !open"
-
-                        @click.outside="open = false"
-
-                        @keydown.escape.window="open = false"
-
-                        class="flex h-10 w-10 items-center justify-center rounded-lg border border-[#F5F3ED]/10 bg-[#F5F3ED]/[0.04] text-[#F5F3ED] transition hover:border-[#A99045]/40 hover:text-[#D8C17F]"
-
-                        aria-label="Abrir menú"
-
-                        :aria-expanded="open.toString()"
-
-                    >
-
-                        <svg
-
-                            x-show="!open"
-
-                            class="h-5 w-5"
-
-                            viewBox="0 0 24 24"
-
-                            fill="none"
-
-                            stroke="currentColor"
-
-                            stroke-width="1.7"
-
-                            aria-hidden="true"
-
-                        >
-
-                            <path stroke-linecap="round" d="M4 7h16M4 12h16M4 17h16"/>
-
-                        </svg>
-
-                        <svg
-
-                            x-show="open"
-
-                            x-cloak
-
-                            class="h-5 w-5"
-
-                            viewBox="0 0 24 24"
-
-                            fill="none"
-
-                            stroke="currentColor"
-
-                            stroke-width="1.7"
-
-                            aria-hidden="true"
-
-                        >
-
-                            <path stroke-linecap="round" d="m6 6 12 12M18 6 6 18"/>
-
-                        </svg>
-
-                    </button>
-
-                    {{-- MENÚ MÓVIL --}}
-
-                    <div
-
-                        x-show="open"
-
-                        x-cloak
-
-                        x-transition.opacity.duration.150ms
-
-                        class="absolute right-0 mt-3 w-[min(18rem,calc(100vw-2rem))] overflow-hidden rounded-xl border border-[#F5F3ED]/10 bg-[#1D1D1D] shadow-[0_20px_80px_rgba(0,0,0,0.55)]"
-
-                    >
-
-                        <div class="border-b border-[#F5F3ED]/[0.08] px-5 py-4">
-
-                            <p class="text-[9px] font-bold uppercase tracking-[0.25em] text-[#D8C17F]">
-
-                                Navegación
-
-                            </p>
-
-                        </div>
-
-                        <a
-
-                            href="{{ url('/') }}"
-
-                            @click="open = false"
-
-                            class="block border-b border-[#F5F3ED]/[0.05] px-5 py-4 text-[10px] font-bold uppercase tracking-wider text-[#F5F3ED]/75 transition hover:bg-[#A99045]/[0.08] hover:text-[#D8C17F]"
-
-                        >
-
-                            Home
-
-                        </a>
-
-                        <a
-
-                            href="{{ route('nuestro.trabajo') }}"
-
-                            @click="open = false"
-
-                            class="block border-b border-[#F5F3ED]/[0.05] px-5 py-4 text-[10px] font-bold uppercase tracking-wider text-[#F5F3ED]/75 transition hover:bg-[#A99045]/[0.08] hover:text-[#D8C17F]"
-
-                        >
-
-                            Nuestro trabajo
-
-                        </a>
-
-                        <a
-
-                            href="{{ route('nuestra.historia') }}"
-
-                            @click="open = false"
-
-                            class="block border-b border-[#F5F3ED]/[0.05] px-5 py-4 text-[10px] font-bold uppercase tracking-wider text-[#F5F3ED]/75 transition hover:bg-[#A99045]/[0.08] hover:text-[#D8C17F]"
-
-                        >
-
-                            Nuestra historia
-
-                        </a>
-
-                        <a
-
-                            href="{{ url('servicios') }}"
-
-                            @click="open = false"
-
-                            class="block px-5 py-4 text-[10px] font-bold uppercase tracking-wider text-[#F5F3ED]/75 transition hover:bg-[#A99045]/[0.08] hover:text-[#D8C17F]"
-
-                        >
-
-                            Servicios
-
-                        </a>
-
-                        @guest
-
-                            <div class="grid gap-2 border-t border-[#F5F3ED]/10 p-4">
-
-                                <a
-
-                                    href="{{ route('login') }}"
-
-                                    class="rounded-lg border border-[#F5F3ED]/15 px-5 py-3 text-center text-[10px] font-black uppercase tracking-wider text-[#F5F3ED] transition hover:border-[#A99045]/40 hover:bg-[#F5F3ED]/[0.05]"
-
-                                >
-
-                                    Iniciar sesión
-
-                                </a>
-
-                                <a
-
-                                    href="{{ route('usuarios.create') }}"
-
-                                    class="studio-primary rounded-lg px-5 py-3 text-center text-[10px] font-black uppercase tracking-wider"
-
-                                >
-
-                                    Registrarse
-
-                                </a>
-
-                            </div>
-
-                        @endguest
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </nav>
-
-    </header>
-
     <main>
 
-        {{-- =========================================================
-
-             HERO
-
-        ========================================================== --}}
+        {{-- ========= HERO ============= --}}
 
         <section
 
             id="inicio"
 
-            class="relative flex min-h-[720px] items-center justify-center overflow-hidden bg-[#151515] sm:min-h-screen"
+            class= relative flex min-h-[720px] items-center justify-center overflow-hidden bg-[#151515] sm:min-h-screen
 
         >
 
@@ -960,8 +443,6 @@
 
             <div class="absolute inset-0 bg-[#151515]/70"></div>
 
-            <div class="absolute inset-0 bg-gradient-to-b from-[#151515]/85 via-transparent to-[#151515]"></div>
-
             <div class="absolute inset-0 bg-gradient-to-r from-[#151515]/55 via-transparent to-[#151515]/45"></div>
 
             {{-- BRILLO DECORATIVO --}}
@@ -978,7 +459,7 @@
 
                     <span class="text-[9px] font-bold uppercase tracking-[0.28em] text-[#F5F3ED]/70 sm:text-[10px]">
 
-                        Grupo de diseño
+                        Empresa Malagueña
 
                     </span>
 
@@ -992,13 +473,7 @@
 
                 <h2 class="mt-8 text-lg font-bold uppercase tracking-[0.12em] text-[#F5F3ED] sm:mt-10 sm:text-3xl lg:text-4xl">
 
-                    GROUP DESIGN
-
-                    <span class="mt-2 block text-base font-light tracking-[0.2em] text-[#F5F3ED]/50 sm:mt-3 sm:inline sm:text-2xl">
-
-                        AND MUCH
-
-                    </span>
+                    COMPANY 
 
                 </h2>
 
@@ -1048,7 +523,7 @@
 
                 </div>
 
-                <div class="mx-auto mt-14 h-px w-20 bg-gradient-to-r from-transparent via-[#A99045] to-transparent sm:mt-20"></div>
+                <div class= mx-auto mt-14 h-px w-20 bg-gradient-to-r from-transparent via-[#A99045] to-transparent sm:mt-20></div>
 
             </div>
 
@@ -1090,9 +565,9 @@
 
                         <p class="text-sm leading-7 text-[#F5F3ED]/55 sm:text-base sm:leading-8">
 
-                            Potenciamos tu presencia digital con
+                            Le ofrecemos ha las empresas presencia digital con
 
-                            contenido de alta calidad, destacando
+                            un espacio de alta calidad, buscando destacar
 
                             en redes sociales y asegurando la
 
@@ -1666,7 +1141,7 @@
 
                     <p class="mt-8 max-w-xl text-sm leading-7 text-[#F5F3ED]/60 sm:mt-10 sm:text-base sm:leading-8">
 
-                        Generamos contenido viral,
+                        En Incognito Group Generamos contenido viral,
 
                         fusionando creatividad, tendencias
 
@@ -1736,7 +1211,7 @@
 
                         <p class="mt-7 text-base leading-8 text-[#151515]/55 sm:mt-8 sm:text-lg">
 
-                            Nuestro objetivo es convertir ideas
+                            Nuestro objetivo es convertir tus historias
 
                             en experiencias que conecten con
 
@@ -1804,11 +1279,10 @@
 
                     </p>
 
-                    <a
+            <a
+                     href="https://wa.me/573114531914?text={{ rawurlencode('Hola, Incognito Group Design. Quiero información sobre sus productos y servicios.') }}"
 
-                        href="#"
-
-                        class="studio-primary mt-9 inline-flex items-center gap-3 rounded-lg px-8 py-4 text-[10px] font-black uppercase tracking-[0.18em] hover:-translate-y-0.5"
+                    class="studio-primary mt-9 inline-flex items-center gap-3 rounded-lg px-8 py-4 text-[10px] font-black uppercase tracking-[0.18em] hover:-translate-y-0.5"
 
                     >
 

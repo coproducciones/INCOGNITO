@@ -427,7 +427,7 @@
 
 
 <a
-    href="https://wa.me/573114531914?text=Hola%2C%20Incognito%20Group%20Design.%20Estoy%20interesado%20en%20trabajar%20con%20ustedes%20y%20quiero%20consultar%20sobre%20sus%20servicios."
+    href="https://wa.me/{{ config('services.whatsapp.empresa_numero') }}?text=Hola%2C%20Incognito%20Group%20Design.%20Estoy%20interesado%20en%20trabajar%20con%20ustedes%20y%20quiero%20consultar%20sobre%20sus%20servicios."
     target="_blank"
     rel="noopener noreferrer"
     class="studio-primary mt-8 focus:outline-none focus:ring-2 focus:ring-[#D8C17F] focus:ring-offset-2 focus:ring-offset-[#151515]"

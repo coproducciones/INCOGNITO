@@ -50,6 +50,17 @@ class ProductoRepository
         return (bool) $producto->delete();
     }
 
+    /**
+     * Lista únicamente los productos pertenecientes a un proveedor.
+     */
+    public function getByProveedor(int $idProveedor): Collection
+    {
+        return $this->model->with(['categoria', 'proveedor.usuario'])
+            ->where('id_proveedor', $idProveedor)
+            ->orderBy('nombre')
+            ->get();
+    }
+
     public function getByCategoria(int $categoriaId): Collection
     {
         return $this->model->with(['categoria', 'proveedor.usuario'])

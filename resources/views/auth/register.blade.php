@@ -96,7 +96,7 @@
                         class="register-input w-full appearance-none rounded-xl border border-white/10 bg-[#111111] px-4 py-4 pr-12 text-sm text-[#F5F3ED] outline-none transition duration-300 focus:border-[#A99045] focus:ring-2 focus:ring-[#A99045]/20"
                     >
                         <option value="" disabled {{ old('tipo_cuenta') ? '' : 'selected' }}>Selecciona una opción</option>
-                        <option value="visitante" @selected(old('tipo_cuenta') === 'visitante')>Visitante — explorar y crear una cuenta básica</option>
+                        <option value="cliente" @selected(old('tipo_cuenta', 'cliente') === 'cliente')>Cliente — explorar el sitio y crear una cuenta básica</option>
                         <option value="proveedor" @selected(old('tipo_cuenta') === 'proveedor')>Proveedor — ofrecer productos o servicios</option>
                     </select>
 
@@ -239,7 +239,48 @@
                     </div>
                 </div>
 
-                {{-- Especialidad --}}
+                {{-- Categorías del proveedor --}}
+                <div>
+                    <div class="mb-3">
+                        <p class="text-sm font-medium text-white/80">
+                            Categorías de tus servicios <span class="text-rose-400">*</span>
+                        </p>
+                        <p class="mt-1 text-xs leading-5 text-white/45">
+                            Selecciona una o varias categorías del catálogo de Incognito.
+                        </p>
+                    </div>
+
+                    <div id="categorias-proveedor" class="grid gap-3 sm:grid-cols-2">
+                        @forelse ($categorias as $categoria)
+                            <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 bg-[#111111] p-4 transition hover:border-[#A99045]/60">
+                                <input
+                                    type="checkbox"
+                                    name="categorias[]"
+                                    value="{{ $categoria->id }}"
+                                    @checked(in_array((string) $categoria->id, array_map('strval', old('categorias', []))))
+                                    class="categoria-checkbox mt-1 h-4 w-4 rounded border-white/20 bg-[#111111] text-[#A99045] focus:ring-[#A99045]"
+                                >
+                                <span class="min-w-0">
+                                    <span class="block text-sm font-semibold text-[#F5F3ED]">{{ $categoria->nombre }}</span>
+                                    @if ($categoria->descripcion)
+                                        <span class="mt-1 block text-xs leading-5 text-white/45">{{ $categoria->descripcion }}</span>
+                                    @endif
+                                </span>
+                            </label>
+                        @empty
+                            <p class="text-sm text-rose-300">No hay categorías disponibles. Contacta al administrador.</p>
+                        @endforelse
+                    </div>
+
+                    @error('categorias')
+                        <p class="mt-2 text-sm text-rose-300">{{ $message }}</p>
+                    @enderror
+                    @error('categorias.*')
+                        <p class="mt-2 text-sm text-rose-300">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                {{-- Especialidad específica escrita por el proveedor --}}
                 <div>
                     <label for="especialidad" class="mb-2 block text-sm font-medium text-white/80">
                         Especialidad <span class="text-rose-400">*</span>
@@ -451,11 +492,13 @@
             const tipo = document.getElementById('tipo_cuenta');
             const proveedor = document.getElementById('proveedor-fields');
             const especialidad = document.getElementById('especialidad');
+            const categorias = document.getElementById('categorias-proveedor');
+            const categoriaChecks = categorias ? Array.from(categorias.querySelectorAll('.categoria-checkbox')) : [];
             const telefono = document.getElementById('telefono');
             const telefonoRequired = document.getElementById('telefono-required');
             const empresa = document.getElementById('empresa-wrap');
 
-            if (!tipo || !proveedor || !especialidad || !telefono || !telefonoRequired || !empresa) {
+            if (!tipo || !proveedor || !especialidad || !telefono || !telefonoRequired || !empresa || !categorias) {
                 return;
             }
 
@@ -464,6 +507,11 @@
 
                 proveedor.classList.toggle('hidden', !esProveedor);
                 especialidad.required = esProveedor;
+
+                categoriaChecks.forEach((checkbox, index) => {
+                    checkbox.disabled = !esProveedor;
+                    checkbox.required = esProveedor && index === 0;
+                });
 
                 telefono.required = esProveedor;
                 telefonoRequired.classList.toggle('hidden', !esProveedor);

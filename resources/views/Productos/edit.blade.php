@@ -41,7 +41,7 @@
         </div>
 
         <a
-            href="{{ route('productos.index') }}"
+            href="{{ route(auth()->user()?->esAdministradorGlobal() ? 'productos.index' : 'mis-productos.index') }}"
             class="inline-flex items-center justify-center px-5 py-3 font-black uppercase tracking-widest transition-all hover:bg-white/10"
             style="
                 font-size:10px;
@@ -470,7 +470,7 @@
                 @endif
 
                 <a
-                    href="{{ route('productos.index') }}"
+                    href="{{ route(auth()->user()?->esAdministradorGlobal() ? 'productos.index' : 'mis-productos.index') }}"
                     class="inline-flex items-center justify-center px-6 py-3 font-black uppercase tracking-widest transition-all hover:bg-white/10"
                     style="
                         font-size:10px;

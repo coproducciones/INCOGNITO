@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Categoria;
 use App\Models\Producto;
-use Illuminate\Support\Facades\Storage;
 
 class DashboardController extends Controller
 {
@@ -21,7 +20,11 @@ class DashboardController extends Controller
         // La tabla contenido compartida no tiene columnas publicado ni id_proveedor.
         // Cargamos los contenidos vinculados a cada categoría y sus archivos multimedia.
         $categorias = Categoria::query()
-            ->withCount('productos')
+            ->withCount([
+                'productos' => function ($query) {
+                    $query->where('activo', true);
+                },
+            ])
             ->with(['contenidos.media' => function ($query) {
                 $query->whereNotNull('id_contenido')
                     ->whereNotNull('url')

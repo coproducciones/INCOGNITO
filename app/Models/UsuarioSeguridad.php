@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * Modelo auxiliar para la gestión de seguridad sobre la tabla usuarios.
  * Mantiene como PK la columna estándar id del proyecto actual.
  */
-class usuarioseguridad extends Model
+class UsuarioSeguridad extends Model
 {
     protected $table = 'usuarios';
     protected $primaryKey = 'id';

@@ -5,11 +5,8 @@
 @section('content')
 
 @php
-    $whatsappMensaje = 'Hola, Incógnito Group Design. Estoy interesado en el producto: '
-        . $producto->nombre;
-
-    $whatsapp = 'https://wa.me/573114531914?text='
-        . urlencode($whatsappMensaje);
+    // WhatsApp del proveedor del producto; si no tiene, el de la empresa.
+    $whatsapp = $producto->whatsappConsultaUrl();
 
     $categoriaNombre = $producto->categoria?->nombre ?? 'Categoría general';
 

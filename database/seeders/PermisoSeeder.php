@@ -113,6 +113,43 @@ class PermisoSeeder extends Seeder
                 ['nombre' => 'multimedia.editar', 'modulo' => 'multimedia'],
                 ['nombre' => 'multimedia.eliminar', 'modulo' => 'multimedia'],
 
+                // Panel de gestión
+                ['nombre' => 'dashboard.ver', 'modulo' => 'dashboard'],
+
+                // Estados generales
+                ['nombre' => 'estados.ver', 'modulo' => 'estados'],
+                ['nombre' => 'estados.crear', 'modulo' => 'estados'],
+                ['nombre' => 'estados.editar', 'modulo' => 'estados'],
+                ['nombre' => 'estados.eliminar', 'modulo' => 'estados'],
+
+                // Pedidos administrativos (separados de los pedidos personales).
+                ['nombre' => 'pedidos.admin.ver', 'modulo' => 'pedidos'],
+                ['nombre' => 'pedidos.admin.crear', 'modulo' => 'pedidos'],
+                ['nombre' => 'pedidos.admin.editar', 'modulo' => 'pedidos'],
+                ['nombre' => 'pedidos.admin.eliminar', 'modulo' => 'pedidos'],
+
+                // Contacto con proveedores.
+                ['nombre' => 'proveedores.contactar', 'modulo' => 'proveedores'],
+
+                // Reseñas de productos del proveedor: consulta y respuesta,
+                // sin permisos para modificar o eliminar la opinión del cliente.
+                ['nombre' => 'proveedor.resenas.ver', 'modulo' => 'proveedor_resenas'],
+                ['nombre' => 'proveedor.resenas.responder', 'modulo' => 'proveedor_resenas'],
+
+                // Gestión de pedidos recibidos por el proveedor.
+                ['nombre' => 'proveedor.pedidos.ver', 'modulo' => 'proveedor_pedidos'],
+                ['nombre' => 'proveedor.pedidos.estado.actualizar', 'modulo' => 'proveedor_pedidos'],
+
+                // Carrito de compras.
+                ['nombre' => 'carrito.ver', 'modulo' => 'carrito'],
+                ['nombre' => 'carrito.crear', 'modulo' => 'carrito'],
+                ['nombre' => 'carrito.editar', 'modulo' => 'carrito'],
+                ['nombre' => 'carrito.eliminar', 'modulo' => 'carrito'],
+
+                // Perfil personal.
+                ['nombre' => 'perfil.ver', 'modulo' => 'perfil'],
+                ['nombre' => 'perfil.editar', 'modulo' => 'perfil'],
+
                 // Clientes
                 ['nombre' => 'clientes.ver', 'modulo' => 'clientes'],
                 ['nombre' => 'clientes.crear', 'modulo' => 'clientes'],

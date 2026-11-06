@@ -36,6 +36,8 @@ return [
     ],
 
 'whatsapp' => [
+    // Número público de la empresa (solo dígitos, con indicativo del país).
+    'empresa_numero' => env('WHATSAPP_EMPRESA_NUMERO', '573114531914'),
     'token' => env('WHATSAPP_ACCESS_TOKEN'),
     'phone_number_id' => env('WHATSAPP_PHONE_NUMBER_ID'),
     'order_template' => env(

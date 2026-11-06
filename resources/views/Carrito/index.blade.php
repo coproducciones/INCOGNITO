@@ -33,7 +33,7 @@
                 </div>
 
                 <a
-                    href="{{ route('productos.index') }}"
+                    href="{{ route('servicios') }}"
                     class="inline-flex items-center justify-center gap-2 rounded-lg border border-white/15 px-5 py-3 text-xs font-bold uppercase tracking-widest text-white transition hover:border-[#A99045] hover:text-[#D8C17F]"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg"
@@ -130,7 +130,7 @@
                     </p>
 
                     <a
-                        href="{{ route('productos.index') }}"
+                        href="{{ route('servicios') }}"
                         class="mt-7 inline-flex items-center justify-center gap-2 rounded-lg bg-[#A99045] px-6 py-4 text-xs font-extrabold uppercase tracking-widest text-black transition hover:bg-[#D8C17F]"
                     >
                         Ver productos

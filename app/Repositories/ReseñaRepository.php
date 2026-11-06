@@ -96,7 +96,8 @@ class ReseñaRepository
         ])
             ->where('id_usuario', $usuarioId)
             ->orderByDesc('fecha')
-            ->get();
+            ->paginate(12)
+            ->withQueryString();
     }
 
     /**

@@ -16,6 +16,8 @@ class ProveedorStoreRequest extends FormRequest
     {
         return [
             'id_usuario' => ['required', 'integer', 'exists:usuarios,id', Rule::unique('proveedor', 'id_usuario')],
+            'categorias' => ['required', 'array', 'min:1'],
+            'categorias.*' => ['required', 'integer', 'distinct', 'exists:categorias,id'],
             'especialidad' => ['required', 'string', 'max:150'],
             'telefono' => ['required', 'string', 'max:20'],
             'whatsapp' => ['nullable', 'string', 'max:20'],

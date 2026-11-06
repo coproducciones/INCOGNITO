@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\MiProveedorStoreRequest;
 use App\Http\Requests\ProveedorStoreRequest;
 use App\Http\Requests\ProveedorUpdateRequest;
+use App\Models\Categoria;
 use App\Models\Proveedor;
 use App\Models\Usuario;
 use App\Services\ProveedorService;
@@ -34,8 +35,9 @@ class ProveedorController extends Controller
     public function create(): View
     {
         $usuarios = Usuario::orderBy('nombre')->get();
+        $categorias = Categoria::orderBy('nombre')->get();
 
-        return view('Proveedores.create', compact('usuarios'));
+        return view('Proveedores.create', compact('usuarios', 'categorias'));
     }
 
     /**
@@ -68,10 +70,12 @@ class ProveedorController extends Controller
     public function edit(Proveedor $proveedor): View
     {
         $usuarios = Usuario::orderBy('nombre')->get();
+        $categorias = Categoria::orderBy('nombre')->get();
+        $proveedor->load('categorias');
 
         return view(
             'Proveedores.edit',
-            compact('proveedor', 'usuarios')
+            compact('proveedor', 'usuarios', 'categorias')
         );
     }
 
@@ -123,7 +127,9 @@ class ProveedorController extends Controller
                 );
         }
 
-        return view('Proveedores.mi-perfil-create');
+        $categorias = Categoria::orderBy('nombre')->get();
+
+        return view('Proveedores.mi-perfil-create', compact('categorias'));
     }
 
     /**

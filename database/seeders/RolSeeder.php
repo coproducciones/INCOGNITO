@@ -16,7 +16,6 @@ class RolSeeder extends Seeder
             'Administrador',
             'Cliente',
             'Proveedor',
-            'Visitante',
             'Usuario autorizado',
         ];
 
