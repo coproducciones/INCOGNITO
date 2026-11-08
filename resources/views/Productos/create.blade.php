@@ -11,7 +11,7 @@
         <p class="mt-1 text-xs font-bold uppercase tracking-widest text-white/40">
             Gestión de productos
         </p>
-        <div class="mt-3 h-[3px] w-[60px] rounded-full bg-[#A99045]"></div>
+        <div class= mt-3 h-[3px] w-[60px] rounded-full bg-[#A99045]></div>
     </div>
 
     <a href="{{ route(auth()->user()?->esAdministradorGlobal() ? 'productos.index' : 'mis-productos.index') }}"

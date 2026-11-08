@@ -797,3 +797,28 @@ Route::middleware('auth')
             ->middleware('permiso:proveedor.pedidos.estado.actualizar')
             ->name('estado.update');
     });
+
+
+/*
+|--------------------------------------------------------------------------
+| RESEÑAS DE LOS PRODUCTOS DEL PROVEEDOR
+|--------------------------------------------------------------------------
+|
+| El proveedor consulta las opiniones de sus productos y responde.
+| La propiedad del producto se vuelve a comprobar en ReseñaService.
+|
+*/
+
+Route::middleware('auth')
+    ->prefix('proveedor/resenas')
+    ->name('proveedor.resenas.')
+    ->group(function () {
+        Route::get('/', [ReseñaController::class, 'resenasProveedor'])
+            ->middleware('permiso:proveedor.resenas.responder')
+            ->name('index');
+
+        Route::patch('/{resena}/respuesta', [ReseñaController::class, 'responderComoProveedor'])
+            ->whereNumber('resena')
+            ->middleware('permiso:proveedor.resenas.responder')
+            ->name('responder');
+    });

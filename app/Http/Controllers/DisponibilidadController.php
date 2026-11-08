@@ -6,6 +6,7 @@ use App\Http\Requests\DisponibilidadStoreRequest;
 use App\Http\Requests\DisponibilidadUpdateRequest;
 use App\Models\Disponibilidad;
 use App\Models\Proveedor;
+use App\Models\Usuario;
 use App\Services\DisponibilidadService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -144,8 +145,9 @@ class DisponibilidadController extends Controller
      */
     private function autorizarProveedorAdministrado(Proveedor $proveedor): void
     {
+        /** @var \App\Models\Usuario|null $usuario */
         $usuario = Auth::user();
-        abort_unless($usuario !== null, 403);
+        abort_unless($usuario instanceof Usuario, 403);
 
         if ($usuario->tienePermiso('proveedores.ver')) {
             return;

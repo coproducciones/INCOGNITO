@@ -69,6 +69,7 @@ class UsuarioController extends Controller
         if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
 
+            /** @var \App\Models\Usuario|null $usuario */
             $usuario = Auth::user();
 
             return redirect()

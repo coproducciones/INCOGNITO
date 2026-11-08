@@ -8,7 +8,7 @@ class CategoriaRepository
 {
     public function getAll()
     {
-        return ategoria::all();
+        return Categoria::all();
     }
 
     public function findById($id)

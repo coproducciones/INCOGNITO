@@ -219,7 +219,7 @@
 
                     <tbody class="divide-y divide-white/10">
                         @foreach($productos as $producto)
-                            <tr class="transition hover:bg-white/[0.03]">
+                            <tr class= "transition hover:bg-white/[0.03]">
                                 <td class="px-5 py-4 text-gray-400">
                                     {{ $producto->id }}
                                 </td>

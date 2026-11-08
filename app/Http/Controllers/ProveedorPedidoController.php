@@ -190,6 +190,7 @@ class ProveedorPedidoController extends Controller
     private function proveedorAutenticado(): Proveedor
     {
         // Obtener el usuario autenticado.
+        /** @var \App\Models\Usuario|null $usuario */
         $usuario = Auth::user();
 
         // Obtener su perfil de proveedor.

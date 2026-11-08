@@ -15,6 +15,13 @@
         && ($esAdminGlobal
             || ($miProveedorId !== null
                 && (int) $miProveedorId === (int) $producto->id_proveedor));
+
+    $esPropietarioProducto = $miProveedorId !== null
+        && (int) $miProveedorId === (int) $producto->id_proveedor;
+
+    $puedeEliminarProducto = auth()->check()
+        && auth()->user()->tienePermiso('productos.eliminar')
+        && ($esAdminGlobal || $esPropietarioProducto);
 @endphp
 <article class="service-card flex h-full flex-col p-6">
 
@@ -119,19 +126,39 @@
         </div>
 
         {{-- Acciones solo para el proveedor dueño del producto (o el administrador) --}}
-        @if ($puedeEditarProducto)
+        @if ($puedeEditarProducto || ($modoProveedor && $puedeEliminarProducto))
             <div class="mt-4 flex flex-wrap gap-3 border-t border-white/10 pt-4">
 
-                <a href="{{ route('productos.edit', $producto) }}" class="outline-button">
-                    Editar
-                </a>
+                @if ($puedeEditarProducto)
+                    <a href="{{ route('productos.edit', $producto) }}" class="outline-button">
+                        Editar
+                    </a>
+                @endif
 
-                @if ($modoProveedor)
+                @if ($modoProveedor && $puedeEditarProducto)
                     <form method="POST" action="{{ route('productos.estado', $producto) }}">
                         @csrf
                         @method('PATCH')
                         <button type="submit" class="outline-button">
                             {{ $producto->activo ? 'Desactivar' : 'Activar' }}
+                        </button>
+                    </form>
+                @endif
+
+                @if ($modoProveedor && $puedeEliminarProducto)
+                    <form
+                        method="POST"
+                        action="{{ route('productos.destroy', $producto) }}"
+                        onsubmit="return confirm('¿Seguro que deseas eliminar este producto? Esta acción no se puede deshacer.');"
+                    >
+                        @csrf
+                        @method('DELETE')
+                        <button
+                            type="submit"
+                            class="outline-button"
+                            style="border-color: rgba(239, 68, 68, .45); color: #fca5a5;"
+                        >
+                            Eliminar
                         </button>
                     </form>
                 @endif

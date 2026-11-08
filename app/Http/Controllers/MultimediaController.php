@@ -116,6 +116,7 @@ class MultimediaController extends Controller
      */
     private function proveedorPersonal(): ?Proveedor
     {
+        /** @var \App\Models\Usuario|null $usuario */
         $usuario = Auth::user();
         abort_unless($usuario instanceof Usuario, 403);
 

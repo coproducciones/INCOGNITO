@@ -202,16 +202,17 @@ class ReseñaController extends Controller
             ->with('success', 'Tu respuesta se guardó correctamente.');
     }
 
-    private function proveedorAutenticado(): Proveedor
-    {
-        $usuario = Auth::user();
-        abort_unless($usuario !== null, 403);
+private function proveedorAutenticado(): Proveedor
+{
+    /** @var \App\Models\Usuario|null $usuario */
+    $usuario = Auth::user();
+    abort_unless($usuario instanceof Usuario, 403);
 
-        $proveedor = $usuario->proveedor()->first();
-        abort_unless($proveedor !== null, 403);
+    $proveedor = $usuario->proveedor()->first();
+    abort_unless($proveedor !== null, 403);
 
-        return $proveedor;
-    }
+    return $proveedor;
+}
 
     /*
     |--------------------------------------------------------------------------

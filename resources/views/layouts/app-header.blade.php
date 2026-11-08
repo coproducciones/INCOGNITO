@@ -1,4 +1,3 @@
-
 @php
     use Illuminate\Support\Facades\Route;
 
@@ -290,32 +289,6 @@
                 CARRITO
             </a>
 
-            {{-- NOTIFICACIONES --}}
-            @auth
-                @if (Route::has('notificaciones.index'))
-                    <a
-                        href="{{ route('notificaciones.index') }}"
-                        class="relative flex h-10 w-10 items-center justify-center rounded-md border border-white/15 text-gray-300 transition hover:border-[#A99045] hover:text-[#D8C17F]"
-                        aria-label="Notificaciones"
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="1.6"
-                            class="h-5 w-5"
-                            aria-hidden="true"
-                        >
-                            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
-                            <path d="M10 21h4" />
-                        </svg>
-
-                        <span class="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-[#A99045]"></span>
-                    </a>
-                @endif
-            @endauth
-
             {{-- MENÚ DESPLEGABLE DE LA CUENTA --}}
             @auth
                 <div
@@ -333,7 +306,7 @@
                             {{ strtoupper(substr($nombreUsuario, 0, 2)) }}
                         </span>
 
-                        <span class="max-w-[135px]">
+                        <span class= max-w-[135px]>
                             <span class="block truncate text-[11px] font-extrabold tracking-wider text-white">
                                 {{ $nombreUsuario }}
                             </span>

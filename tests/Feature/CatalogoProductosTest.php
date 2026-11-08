@@ -3,6 +3,9 @@
 namespace Tests\Feature;
 
 use App\Models\Categoria;
+use App\Models\Cliente;
+use App\Models\Permiso;
+use App\Models\Reseña;
 use App\Models\Producto;
 use App\Models\Proveedor;
 use App\Models\Rol;
@@ -11,6 +14,7 @@ use Database\Seeders\PermisoSeeder;
 use Database\Seeders\RolPermisoSeeder;
 use Database\Seeders\RolSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 /**
@@ -40,6 +44,14 @@ class CatalogoProductosTest extends TestCase
         parent::setUp();
 
         $this->seed([RolSeeder::class, PermisoSeeder::class, RolPermisoSeeder::class]);
+
+        // Regla del proyecto: el proveedor puede eliminar sus propios productos.
+        $eliminar = Permiso::firstOrCreate(
+            ['nombre' => 'productos.eliminar'],
+            ['modulo' => 'productos']
+        );
+        Rol::where('nombre', 'Proveedor')->first()
+            ->permisos()->syncWithoutDetaching([$eliminar->id_permiso]);
 
         $this->categoria = Categoria::create(['nombre' => 'Audiovisual', 'descripcion' => 'Foto y video']);
 
@@ -258,10 +270,61 @@ class CatalogoProductosTest extends TestCase
         $this->assertSame($this->fichaA->id_proveedor, (int) $this->pA1->fresh()->id_proveedor);
     }
 
-    public function test_proveedor_no_puede_eliminar_productos(): void
+    public function test_proveedor_elimina_su_propio_producto(): void
     {
-        $this->actingAs($this->provA)->delete(route('productos.destroy', $this->pA1))->assertForbidden();
+        $this->actingAs($this->provA)
+            ->delete(route('productos.destroy', $this->pA1))
+            ->assertRedirect(route('mis-productos.index'))
+            ->assertSessionHas('success');
+
+        $this->assertDatabaseMissing('productos', ['id' => $this->pA1->id]);
+        // Los productos de otros proveedores no se tocan.
+        $this->assertDatabaseHas('productos', ['id' => $this->pB1->id]);
+    }
+
+    public function test_proveedor_no_puede_eliminar_productos_ajenos(): void
+    {
+        $this->actingAs($this->provA)
+            ->delete(route('productos.destroy', $this->pB1))
+            ->assertNotFound();
+
+        $this->assertDatabaseHas('productos', ['id' => $this->pB1->id]);
+    }
+
+    public function test_eliminar_un_producto_con_resenas_muestra_error_y_no_lo_borra(): void
+    {
+        $datos = [
+            'id_usuario' => $this->cliente->id,
+            'id_producto' => $this->pA1->id,
+            'calificacion' => 5,
+            'comentario' => 'Muy bueno',
+            'fecha' => now(),
+        ];
+
+        if (Schema::hasColumn('reseña', 'id_cliente')) {
+            $datos['id_cliente'] = Cliente::firstOrCreate(
+                ['id_usuario' => $this->cliente->id],
+                ['nombre' => 'Cliente']
+            )->getKey();
+        }
+
+        Reseña::create($datos);
+
+        $this->actingAs($this->provA)
+            ->delete(route('productos.destroy', $this->pA1))
+            ->assertRedirect(route('mis-productos.index'))
+            ->assertSessionHasErrors('producto');
+
         $this->assertDatabaseHas('productos', ['id' => $this->pA1->id]);
+    }
+
+    public function test_mis_productos_muestra_eliminar_solo_en_productos_propios(): void
+    {
+        $r = $this->actingAs($this->provA)->get(route('mis-productos.index'));
+
+        $r->assertOk();
+        $r->assertSee(route('productos.destroy', $this->pA1), false);
+        $r->assertDontSee(route('productos.destroy', $this->pB1), false);
     }
 
     public function test_proveedor_sin_ficha_es_enviado_a_completar_su_perfil(): void

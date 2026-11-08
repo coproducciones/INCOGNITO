@@ -101,7 +101,20 @@ class ProductoController extends Controller
     public function destroy(Producto $producto): RedirectResponse
     {
         $this->autorizarProducto($producto);
-        $this->service->delete($producto);
+
+        try {
+            $this->service->delete($producto);
+        } catch (\Illuminate\Database\QueryException $e) {
+            // 23000: violación de integridad (el producto tiene pedidos o reseñas).
+            if ((string) $e->getCode() !== '23000') {
+                throw $e;
+            }
+
+            return redirect($this->urlListado())->withErrors([
+                'producto' => 'No se puede eliminar este producto porque tiene pedidos o reseñas asociados. '
+                    . 'Puedes desactivarlo para ocultarlo del catálogo.',
+            ]);
+        }
 
         return redirect($this->urlListado())
             ->with('success', 'Producto eliminado correctamente.');
@@ -113,6 +126,7 @@ class ProductoController extends Controller
      */
     public function misProductos(): View|RedirectResponse
     {
+        /** @var \App\Models\Usuario|null $usuario */
         $usuario = Auth::user();
         abort_unless($usuario instanceof Usuario, 403);
 
@@ -167,6 +181,7 @@ class ProductoController extends Controller
      */
     private function urlListado(): string
     {
+        /** @var \App\Models\Usuario|null $usuario */
         $usuario = Auth::user();
 
         return $usuario instanceof Usuario && $usuario->esAdministradorGlobal()
@@ -180,6 +195,7 @@ class ProductoController extends Controller
      */
     private function obtenerProveedorSiEsAccesoPersonal(): ?Proveedor
     {
+        /** @var \App\Models\Usuario|null $usuario */
         $usuario = Auth::user();
         abort_unless($usuario instanceof Usuario, 403);
 

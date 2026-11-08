@@ -5,7 +5,7 @@
 
 @section('content')
 
-@include('servicios._estilos')
+@include('Servicios._estilos')
 
 @php
     // Contexto del usuario para mostrar acciones de gestión en el catálogo.
@@ -345,7 +345,7 @@
 
                     @foreach ($productos as $producto)
 
-                    @include('servicios._producto-card', [
+                    @include('Servicios._producto-card', [
                         'producto' => $producto,
                         'esAdminGlobal' => $esAdminGlobal,
                         'miProveedorId' => $miProveedorId,

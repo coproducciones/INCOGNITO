@@ -1,286 +1,143 @@
 @extends('layouts.app')
 
-@section('title', 'Detalle de Reseña')
+@section('title', 'Detalle del proveedor')
 
 @section('content')
 
-<div class="w-full max-w-4xl">
+@php
+    $usuarioActual = auth()->user();
+    $nombreProveedor = $proveedor->usuario?->nombre ?? 'Proveedor #' . $proveedor->id_proveedor;
+    $disponibilidades = $proveedor->disponibilidades->sortBy('fecha')->take(10);
+    $totalProductos = $proveedor->productos()->count();
+@endphp
 
-    {{-- ========================================================= --}}
+<div class="mx-auto max-w-4xl px-4 py-6">
+
     {{-- ENCABEZADO --}}
-    {{-- ========================================================= --}}
+    <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+            <h1 class="text-xl font-black uppercase tracking-widest text-white">
+                {{ $nombreProveedor }}
+            </h1>
 
-    <div class="mb-8">
+            <p class="mt-1 text-xs font-bold uppercase tracking-widest text-white/40">
+                Detalle del proveedor
+            </p>
 
-        <a
-            href="{{ route('reseñas.index') }}"
-            class="font-bold uppercase tracking-widest transition-colors hover:text-white"
-            style="font-size:9px;color:rgba(255,255,255,.4);"
-        >
-            ← VOLVER A RESEÑAS
-        </a>
+            <div class="mt-3 h-[3px] w-[60px] rounded-full bg-[#A99045]"></div>
+        </div>
 
-        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-5 mt-5">
-
-            <div>
-
-                <h1
-                    class="font-black uppercase tracking-widest text-white"
-                    style="font-size:22px;letter-spacing:.15em;"
-                >
-                    RESEÑA #{{ $reseña->id_reseña }}
-                </h1>
-
-                <div class="mt-3 h-[3px] w-[60px]" style="background:#A99045;"></div>
-
-                <p
-                    class="mt-3 font-bold uppercase tracking-widest"
-                    style="font-size:10px;color:rgba(255,255,255,.4);"
-                >
-                    DETALLE DE LA RESEÑA
-                </p>
-
-            </div>
-
-            {{-- EDITAR --}}
-
+        <div class="flex flex-wrap gap-3">
             <a
-                href="{{ route('reseñas.edit', $reseña) }}"
-                class="inline-flex items-center justify-center font-black uppercase tracking-widest px-5 py-3 transition-all hover:opacity-90"
-                style="font-size:10px;background:#A99045;color:#111111;border:1px solid #D8C17F;border-radius:4px;"
+                href="{{ route('proveedores.index') }}"
+                class="inline-flex items-center justify-center rounded-lg border border-white/15 px-4 py-2.5 text-xs font-bold uppercase tracking-widest text-white transition hover:border-[#A99045] hover:text-[#D8C17F]"
             >
-                EDITAR
+                Volver
             </a>
 
+            @if ($usuarioActual && $usuarioActual->tienePermiso('proveedores.editar'))
+                <a
+                    href="{{ route('proveedores.edit', $proveedor) }}"
+                    class="inline-flex items-center justify-center rounded-lg bg-[#A99045] px-4 py-2.5 text-xs font-extrabold uppercase tracking-widest text-black transition hover:bg-[#D8C17F]"
+                >
+                    Editar
+                </a>
+            @endif
         </div>
-
     </div>
 
-    {{-- ========================================================= --}}
-    {{-- MENSAJE DE ÉXITO --}}
-    {{-- ========================================================= --}}
+    {{-- DATOS PRINCIPALES --}}
+    <div class="space-y-6 rounded-xl border border-[#A99045]/25 bg-[#111111] p-5 shadow-xl shadow-black/20 sm:p-8">
 
-    @if(session('success'))
+        <dl class="grid grid-cols-1 gap-6 sm:grid-cols-2">
 
-        <div
-            class="mb-6 px-4 py-3 font-bold uppercase tracking-widest"
-            style="font-size:10px;background:rgba(169,144,69,.10);border:1px solid rgba(169,144,69,.35);border-radius:4px;color:#D8C17F;"
-        >
-            {{ session('success') }}
-        </div>
-
-    @endif
-
-    {{-- ========================================================= --}}
-    {{-- INFORMACIÓN --}}
-    {{-- ========================================================= --}}
-
-    <div
-        class="overflow-hidden"
-        style="background:#1D1D1D;border:1px solid rgba(169,144,69,.25);border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,.15);"
-    >
-
-        {{-- USUARIO --}}
-
-        <div
-            class="px-6 py-5"
-            style="border-bottom:1px solid rgba(169,144,69,.15);"
-        >
-
-            <span
-                class="block font-black uppercase tracking-widest mb-2"
-                style="font-size:9px;color:rgba(255,255,255,.4);"
-            >
-                USUARIO
-            </span>
-
-            <p
-                class="font-bold text-white"
-                style="font-size:13px;"
-            >
-                {{ $reseña->usuario?->nombre ?? 'SIN USUARIO' }}
-            </p>
-
-        </div>
-
-        {{-- PRODUCTO --}}
-
-        <div
-            class="px-6 py-5"
-            style="border-bottom:1px solid rgba(169,144,69,.15);"
-        >
-
-            <span
-                class="block font-black uppercase tracking-widest mb-2"
-                style="font-size:9px;color:rgba(255,255,255,.4);"
-            >
-                PRODUCTO
-            </span>
-
-            <p
-                class="font-bold"
-                style="font-size:13px;color:#D8C17F;"
-            >
-                {{ $reseña->producto?->nombre ?? 'SIN PRODUCTO' }}
-            </p>
-
-        </div>
-
-        {{-- CLIENTE --}}
-
-        <div
-            class="px-6 py-5"
-            style="border-bottom:1px solid rgba(169,144,69,.15);"
-        >
-
-            <span
-                class="block font-black uppercase tracking-widest mb-2"
-                style="font-size:9px;color:rgba(255,255,255,.4);"
-            >
-                CLIENTE
-            </span>
-
-            <p
-                class="font-bold text-white"
-                style="font-size:13px;"
-            >
-                {{ $reseña->cliente?->nombre ?? 'SIN CLIENTE' }}
-            </p>
-
-        </div>
-
-        {{-- CALIFICACIÓN --}}
-
-        <div
-            class="px-6 py-5"
-            style="border-bottom:1px solid rgba(169,144,69,.15);"
-        >
-
-            <span
-                class="block font-black uppercase tracking-widest mb-2"
-                style="font-size:9px;color:rgba(255,255,255,.4);"
-            >
-                CALIFICACIÓN
-            </span>
-
-            <div class="flex items-center gap-3">
-
-                <span
-                    class="font-black"
-                    style="font-size:20px;color:#D8C17F;"
-                >
-                    {{ $reseña->calificacion }}/5
-                </span>
-
-                <span
-                    style="font-size:14px;color:#D8C17F;"
-                >
-                    @for($i = 1; $i <= 5; $i++)
-
-                        {{ $i <= $reseña->calificacion ? '★' : '☆' }}
-
-                    @endfor
-                </span>
-
+            <div>
+                <dt class="mb-1 text-xs font-bold uppercase tracking-wider text-[#D8C17F]">Usuario</dt>
+                <dd class="text-sm text-white">{{ $proveedor->usuario?->nombre ?? 'Sin usuario asociado' }}</dd>
+                @if ($proveedor->usuario?->email)
+                    <dd class="text-xs text-white/50">{{ $proveedor->usuario->email }}</dd>
+                @endif
             </div>
 
-        </div>
+            <div>
+                <dt class="mb-1 text-xs font-bold uppercase tracking-wider text-[#D8C17F]">Especialidad</dt>
+                <dd class="text-sm text-white">{{ $proveedor->especialidad }}</dd>
+            </div>
 
-        {{-- FECHA --}}
+            <div>
+                <dt class="mb-1 text-xs font-bold uppercase tracking-wider text-[#D8C17F]">Teléfono</dt>
+                <dd class="text-sm text-white">{{ $proveedor->telefono ?: 'No registrado' }}</dd>
+            </div>
 
-        <div
-            class="px-6 py-5"
-            style="border-bottom:1px solid rgba(169,144,69,.15);"
-        >
+            <div>
+                <dt class="mb-1 text-xs font-bold uppercase tracking-wider text-[#D8C17F]">WhatsApp</dt>
+                <dd class="text-sm text-white">
+                    @if ($proveedor->whatsapp_url)
+                        <a
+                            href="{{ $proveedor->whatsapp_url }}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="text-[#D8C17F] underline underline-offset-4 hover:text-white"
+                        >
+                            {{ $proveedor->whatsapp }}
+                        </a>
+                    @else
+                        No registrado
+                    @endif
+                </dd>
+            </div>
 
-            <span
-                class="block font-black uppercase tracking-widest mb-2"
-                style="font-size:9px;color:rgba(255,255,255,.4);"
-            >
-                FECHA
-            </span>
+            <div class="sm:col-span-2">
+                <dt class="mb-1 text-xs font-bold uppercase tracking-wider text-[#D8C17F]">Descripción</dt>
+                <dd class="text-sm leading-7 text-white/80">
+                    {{ $proveedor->descripcion ?: 'Sin descripción.' }}
+                </dd>
+            </div>
 
-            <p
-                class="font-bold text-white"
-                style="font-size:13px;"
-            >
-                {{ $reseña->fecha?->format('d/m/Y H:i') ?? 'SIN FECHA' }}
-            </p>
+            <div class="sm:col-span-2">
+                <dt class="mb-2 text-xs font-bold uppercase tracking-wider text-[#D8C17F]">Categorías</dt>
+                <dd class="flex flex-wrap gap-2">
+                    @forelse ($proveedor->categorias as $categoria)
+                        <span class="rounded-full border border-[#A99045]/30 bg-[#A99045]/10 px-3 py-1 text-xs font-semibold text-[#D8C17F]">
+                            {{ $categoria->nombre }}
+                        </span>
+                    @empty
+                        <span class="text-sm text-white/50">Sin categorías asignadas.</span>
+                    @endforelse
+                </dd>
+            </div>
 
-        </div>
+            <div>
+                <dt class="mb-1 text-xs font-bold uppercase tracking-wider text-[#D8C17F]">Productos</dt>
+                <dd class="text-sm text-white">{{ $totalProductos }}</dd>
+            </div>
 
-        {{-- COMENTARIO --}}
+        </dl>
+    </div>
 
-        <div
-            class="px-6 py-5"
-            style="border-bottom:1px solid rgba(169,144,69,.15);"
-        >
+    {{-- DISPONIBILIDAD --}}
+    <div class="mt-6 rounded-xl border border-[#A99045]/25 bg-[#111111] p-5 sm:p-8">
+        <h2 class="mb-4 text-xs font-bold uppercase tracking-widest text-[#D8C17F]">
+            Disponibilidad registrada
+        </h2>
 
-            <span
-                class="block font-black uppercase tracking-widest mb-3"
-                style="font-size:9px;color:rgba(255,255,255,.4);"
-            >
-                COMENTARIO
-            </span>
+        @if ($disponibilidades->isNotEmpty())
+            <ul class="divide-y divide-white/10">
+                @foreach ($disponibilidades as $disponibilidad)
+                    <li class="flex items-center justify-between py-3 text-sm">
+                        <span class="text-white">{{ $disponibilidad->fecha?->format('d/m/Y') }}</span>
 
-            @if($reseña->comentario)
-
-                <p
-                    class="leading-relaxed"
-                    style="font-size:13px;color:rgba(255,255,255,.8);"
-                >
-                    {{ $reseña->comentario }}
-                </p>
-
-            @else
-
-                <p
-                    style="font-size:12px;color:rgba(255,255,255,.3);"
-                >
-                    SIN COMENTARIO
-                </p>
-
-            @endif
-
-        </div>
-
-        {{-- RESPUESTA --}}
-
-        <div class="px-6 py-5">
-
-            <span
-                class="block font-black uppercase tracking-widest mb-3"
-                style="font-size:9px;color:#D8C17F;"
-            >
-                RESPUESTA
-            </span>
-
-            @if($reseña->respuesta)
-
-                <div
-                    class="p-4"
-                    style="background:rgba(169,144,69,.06);border-left:2px solid #A99045;border-radius:0 4px 4px 0;"
-                >
-                    <p
-                        class="leading-relaxed"
-                        style="font-size:13px;color:rgba(255,255,255,.8);"
-                    >
-                        {{ $reseña->respuesta }}
-                    </p>
-                </div>
-
-            @else
-
-                <p
-                    style="font-size:12px;color:rgba(255,255,255,.3);"
-                >
-                    SIN RESPUESTA
-                </p>
-
-            @endif
-
-        </div>
-
+                        @if ($disponibilidad->disponible)
+                            <span class="text-xs font-semibold text-green-300">Disponible</span>
+                        @else
+                            <span class="text-xs font-semibold text-amber-200">No disponible</span>
+                        @endif
+                    </li>
+                @endforeach
+            </ul>
+        @else
+            <p class="text-sm text-white/50">Este proveedor aún no registra disponibilidad.</p>
+        @endif
     </div>
 
 </div>

@@ -85,7 +85,7 @@ class RolPermisoSeeder extends Seeder
 
     private function ids($permisos, array $nombres): array
     {
-        return $permisos->only($nombres)->pluck('id_permiso')->all();
+        return $permisos->whereIn('nombre', $nombres)->pluck('id_permiso')->all();
     }
 
     private function sincronizar($roles, string $nombre, array $ids): void
