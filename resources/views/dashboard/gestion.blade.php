@@ -154,6 +154,53 @@
         'Mi espacio',
     ];
 
+    /*
+    | El panel solo muestra los módulos que el usuario puede abrir.
+    | Se revisan los permisos que exige cada ruta (middleware "permiso:...");
+    | así el panel nunca enlaza a una pantalla que respondería 403.
+    */
+    $usuarioPanel = auth()->user();
+
+    $rutaBloqueada = function (string $ruta) use ($usuarioPanel): bool {
+        $definicion = Route::getRoutes()->getByName($ruta);
+
+        if ($definicion === null) {
+            return false; // una ruta inexistente se sigue señalando más abajo
+        }
+
+        foreach ($definicion->gatherMiddleware() as $middleware) {
+            if (! is_string($middleware) || ! str_starts_with($middleware, 'permiso:')) {
+                continue;
+            }
+
+            foreach (explode(',', substr($middleware, 8)) as $permiso) {
+                if (! $usuarioPanel || ! $usuarioPanel->tienePermiso(trim($permiso))) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    };
+
+    $modulos = collect($modulos)
+        ->map(function ($modulo) use ($rutaBloqueada) {
+            $existentes = collect($modulo['rutas'])->filter(fn ($ruta) => Route::has($ruta));
+
+            // Se oculta solo si el módulo tiene rutas reales y todas están bloqueadas.
+            $modulo['oculto'] = $existentes->isNotEmpty() && $existentes->every($rutaBloqueada);
+
+            $modulo['rutas'] = collect($modulo['rutas'])
+                ->reject($rutaBloqueada)
+                ->values()
+                ->all();
+
+            return $modulo;
+        })
+        ->reject(fn ($modulo) => $modulo['oculto'])
+        ->values()
+        ->all();
+
     $modulosDisponibles = collect($modulos)->filter(
         fn ($modulo) => collect($modulo['rutas'])->contains(
             fn ($ruta) => Route::has($ruta)
